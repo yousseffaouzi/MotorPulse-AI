@@ -1,0 +1,32 @@
+{
+  "assets": [
+    {
+      "asset_id": "MTR-01",
+      "name": "Conveyor motor",
+      "scenario": "healthy",
+      "severity": 0
+    },
+    {
+      "asset_id": "MTR-02",
+      "name": "Pump motor",
+      "scenario": "imbalance",
+      "severity": 0.85,
+      "onset_tick": 3,
+      "duration_ticks": null,
+      "progression": "linear",
+      "start_severity": 0,
+      "ramp_ticks": 10
+    },
+    {
+      "asset_id": "MTR-03",
+      "name": "Fan motor",
+      "scenario": "bearing_wear",
+      "severity": 1,
+      "onset_tick": 5,
+      "duration_ticks": 24,
+      "progression": "exponential",
+      "start_severity": 0.05,
+      "ramp_ticks": 12
+    }
+  ]
+}

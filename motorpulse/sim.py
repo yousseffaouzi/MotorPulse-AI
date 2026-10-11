@@ -153,6 +153,11 @@ class MotorSimulator:
                 "configured_severity": float(config.severity),
                 "onset_tick": config.onset_tick,
                 "duration_ticks": config.duration_ticks,
+                "progression": config.progression,
+                "start_severity": float(config.start_severity),
+                "ramp_ticks": config.ramp_ticks,
+                "ramp_fraction": config.ramp_fraction(self.tick),
+                "fault_phase": config.phase(self.tick),
             })
             assets.append(row)
         return {

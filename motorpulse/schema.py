@@ -114,6 +114,26 @@ def validate_snapshot(snapshot: Mapping[str, Any]) -> None:
             d = event["duration_ticks"]
             _require(d is None or (type(d) is int and 1 <= d <= 100000),
                      f"{prefix}.duration_ticks invalid")
+        # MP-020 adds optional severity-ramp fields to the v1 event.
+        if "progression" in event:
+            from .scenarios import PROGRESSION_PROFILES
+            _require(isinstance(event["progression"], str) and
+                     event["progression"] in PROGRESSION_PROFILES,
+                     f"{prefix}.progression invalid")
+        if "start_severity" in event:
+            _numeric(event["start_severity"], f"{prefix}.start_severity", min_value=0)
+            _require(event["start_severity"] <= 1, f"{prefix}.start_severity must be <= 1")
+        if "ramp_ticks" in event:
+            rt = event["ramp_ticks"]
+            _require(rt is None or (type(rt) is int and 2 <= rt <= 100000),
+                     f"{prefix}.ramp_ticks invalid")
+        if "ramp_fraction" in event:
+            _numeric(event["ramp_fraction"], f"{prefix}.ramp_fraction", min_value=0)
+            _require(event["ramp_fraction"] <= 1, f"{prefix}.ramp_fraction must be <= 1")
+        if "fault_phase" in event:
+            _require(isinstance(event["fault_phase"], str) and
+                     event["fault_phase"] in ("healthy", "scheduled", "ramping", "steady", "ended"),
+                     f"{prefix}.fault_phase invalid")
         _numeric(event.get("temperature_c"), f"{prefix}.temperature_c")
         health = event.get("health")
         _require(isinstance(health, str) and health in HEALTH_STATES,

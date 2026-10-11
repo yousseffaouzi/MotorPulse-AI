@@ -180,6 +180,40 @@
           ],
           "minimum": 1,
           "maximum": 100000
+        },
+        "progression": {
+          "enum": [
+            "constant",
+            "linear",
+            "exponential"
+          ]
+        },
+        "start_severity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "ramp_ticks": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 2,
+          "maximum": 100000
+        },
+        "ramp_fraction": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "fault_phase": {
+          "enum": [
+            "healthy",
+            "scheduled",
+            "ramping",
+            "steady",
+            "ended"
+          ]
         }
       }
     }

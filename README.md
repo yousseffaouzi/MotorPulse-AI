@@ -68,7 +68,7 @@ The JSON snapshot now includes `schema_version`, stable per-simulation-event IDs
 
 ## MP-019 signal sampling
 
-Acceleration is generated at **1024 samples/second** over a **1-second window** (1024 samples; 1 Hz bin spacing). The shaft's 1× frequency is **RPM/60 Hz**, with a small 2× harmonic. The synthetic imbalance scenario increases 1× amplitude; bearing wear adds pulses at an **illustrative 4.8× ratio**, not a geometry-derived bearing defect frequency. The misalignment waveform is available as a test fixture, but is **not yet a selectable dashboard scenario** (MP-007). The timestamp is the virtual start of the acquisition window. Read [docs/SIGNALS.md](docs/SIGNALS.md) before interpreting these patterns.
+Acceleration is generated at **1024 samples/second** over a **1-second window** (1024 samples; 1 Hz bin spacing). The shaft's 1× frequency is **RPM/60 Hz**, with a small 2× harmonic. The synthetic imbalance scenario increases 1× amplitude; bearing wear adds pulses at an **illustrative 4.8× ratio**, not a geometry-derived bearing defect frequency. The misalignment scenario is also selectable in the dashboard. All fault amplitudes remain educational fixtures. The timestamp is the virtual start of the acquisition window. Read [docs/SIGNALS.md](docs/SIGNALS.md) before interpreting these patterns.
 
 ## Configurable fault scenarios (MP-007)
 
@@ -80,7 +80,17 @@ For scripts, read `GET /api/config` and replace all assets with `PUT /api/config
 curl -X PUT http://127.0.0.1:8765/api/config -H 'Content-Type: application/json' --data-binary @docs/examples/scenarios-v1.json
 ```
 
-See [docs/SCENARIOS.md](docs/SCENARIOS.md) for behavior, input constraints and limitations. A scenario runs at *constant* severity while active; automatic fault growth is planned in MP-020.
+See [docs/SCENARIOS.md](docs/SCENARIOS.md) for behavior, input constraints and limitations. By default a scenario holds constant severity while active, preserving older configurations. MP-020 adds optional linear or exponential severity ramps.
+
+## Progressive degradation simulation (MP-020)
+
+The dashboard now supports `constant`, `linear`, and `exponential` **synthetic** fault progression. For a ramp, set target `severity`, `start_severity`, and `ramp_ticks` (at least 2, including both endpoints). Onset and optional duration work as before. The motor cards show current severity, phase, and a **configured trajectory preview** (not historical sensor readings). Reset deterministically replays the same ramp.
+
+```bash
+curl -X PUT http://127.0.0.1:8765/api/config -H 'Content-Type: application/json' --data-binary @docs/examples/scenarios-progressive.json
+```
+
+See [docs/PROGRESSION.md](docs/PROGRESSION.md) for exact ramp equations, validation, and limitations. These curves are illustrative only; no field calibration or remaining-useful-life model is claimed.
 
 ## Developer CI
 

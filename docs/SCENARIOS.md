@@ -24,7 +24,7 @@ curl -X PUT http://127.0.0.1:8765/api/config -H 'Content-Type: application/json'
 
 Rules: 1–12 unique `asset_id` values (uppercase letters, digits, underscores and hyphens; initial letter required), display names 1–80 characters, one of five supported scenario names, finite severity from 0 to 1, onset tick from 1 to 100000, duration null (indefinite) or 1–100000 ticks. `healthy` requires severity 0. Unknown fields, invalid configurations and duplicate IDs return 400 **without altering the active simulation**. A valid update pauses and resets the virtual clock to tick 1 while preserving seed and clock settings.
 
-The *effective* fault applies from `onset_tick` (inclusive) through `onset_tick + duration_ticks` (exclusive); otherwise readings are healthy. The `scenario` and `severity` telemetry fields represent the **effective** state, while `configured_scenario`, `configured_severity`, `onset_tick`, and `duration_ticks` preserve the scheduled settings. `Reset` replays the same configuration, not the original defaults. Values stay constant during an active fault; gradual degradation remains MP-020.
+The *effective* fault applies from `onset_tick` (inclusive) through `onset_tick + duration_ticks` (exclusive); otherwise readings are healthy. The `scenario` and `severity` telemetry fields represent the **effective** state, while `configured_scenario`, `configured_severity`, `onset_tick`, and `duration_ticks` preserve the scheduled settings. `Reset` replays the same configuration, not the original defaults. Values stay constant during an active fault **by default**. As of MP-020, you can opt into deterministic linear or exponential ramps with additional `progression`, `start_severity` and `ramp_ticks` parameters; see [PROGRESSION.md](PROGRESSION.md).
 
 ## Simplified fault fixtures
 
@@ -38,4 +38,4 @@ The *effective* fault applies from `onset_tick` (inclusive) through `onset_tick 
 
 For all fault scenarios, sine amplitude changes linearly between the healthy and fault assumptions as severity varies from 0 to 1. Noise comes from the same reproducible generator and all frequencies remain tied to RPM. These values are not physically calibrated; bearing 4.8x is invented, not calculated from bearing geometry. See [SIGNALS.md](SIGNALS.md).
 
-**Limitations:** Multiple clients share one local in-memory configuration. Nothing persists across process restarts. Physical fault progression, run-specific identifiers, event history and security for network deployment are separate roadmap items.
+**Limitations:** Multiple clients share one local in-memory configuration. Nothing persists across process restarts. Physical fault *progression profiles* are now simulated, but validated damage physics, run-specific identifiers, event history and security for network deployment remain separate roadmap items.
