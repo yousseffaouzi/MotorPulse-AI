@@ -17,6 +17,9 @@ Requires Python 3.11+.
 ```bash
 python -m motorpulse
 # open http://127.0.0.1:8765
+
+# Optional reproducible configuration (virtual clock is separate from real speed):
+python -m motorpulse --seed 42 --start-time-utc 2026-01-01T00:00:00Z --step-seconds 2 --interval-seconds 0.5
 ```
 
 In another terminal, you can query a JSON snapshot:
@@ -49,14 +52,14 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `motorpulse/controller.py` — thread-safe, timed simulator worker.
 - `motorpulse/__main__.py` — localhost demo server.
-- `docs/SIMULATION_CONTROL.md` — simulation control API and lifecycle.
+- `docs/SIMULATION_CONTROL.md` — simulation controls and virtual clock configuration.
 - `web/index.html` — zero-build dashboard.
 - `docs/ARCHITECTURE.md` — design choices and future extensibility.
 - `TODO.md` — issue-ready tracker with explicit status.
 
 ## Telemetry contract (v1)
 
-The JSON snapshot now includes `schema_version`, stable per-simulation-event IDs, UTC measurement timestamps, explicit sensor units, sample rate and sample count. See [docs/TELEMETRY.md](docs/TELEMETRY.md), [the JSON Schema](docs/snapshot.schema.json), and [a validated example](docs/examples/snapshot-v1.json). Existing dashboard measurement fields remain compatible. The timestamps are still wall-clock readings, not replayable simulated time (tracked under MP-018).
+The JSON snapshot now includes `schema_version`, stable per-simulation-event IDs, UTC measurement timestamps, explicit sensor units, sample rate and sample count. See [docs/TELEMETRY.md](docs/TELEMETRY.md), [the JSON Schema](docs/snapshot.schema.json), and [a validated example](docs/examples/snapshot-v1.json). Existing dashboard measurement fields remain compatible. Since MP-018, timestamps come from a deterministic **UTC virtual clock**, not the host wall clock. Tick 1 occurs at the configured start time (default: `2026-01-01T00:00:00+00:00`), and each tick advances by `--step-seconds` (default: 1.5). Reset reproduces the same complete JSON snapshot sequence. `--interval-seconds` controls execution speed only. The telemetry schema version remains 1.0.0.
 
 ## Developer CI
 

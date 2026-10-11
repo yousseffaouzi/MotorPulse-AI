@@ -7,13 +7,13 @@ MotorPulse AI publishes an additive, **versioned snapshot JSON** contract. Curre
 `/api/snapshot` returns `schema_version`, `source`, `tick` (starts at 1), `recorded_at_utc` and an `assets` list. Each asset is a **feature-summary event**, not a raw signal packet:
 
 - Identity: `event_id` (currently `sim:<seed>:<asset_id>:<tick>`), `asset_id`, `name`, `source`, `scenario`.
-- Time: `timestamp_utc` is the UTC measurement/snapshot timestamp. In v1 it equals `recorded_at_utc` for all assets in the same tick; it is presently wall-clock based, **not reproducible simulation time** (tracked as MP-018).
+- Time: `timestamp_utc` is the UTC measurement/snapshot timestamp. In v1 it equals `recorded_at_utc` for all assets in the same tick. As of MP-018, these are deterministic **simulated UTC timestamps**: tick 1 is at `start_time_utc` and tick N at `start_time_utc + (N−1) × step_seconds`. They do not represent the real date/time of a HTTP request. See [SIMULATION_CONTROL.md](SIMULATION_CONTROL.md).
 - Sampling: `sample_rate_hz` (currently **1024 Hz**), `sample_count` (currently **128**) describe the uniform simulated acceleration samples used to calculate features. The implied window duration is 0.125 s. Raw samples are **not returned** by the current endpoint. A physically realistic signal generator is still planned (MP-019).
 - Units: `units.vibration_acceleration = "g"` (acceleration as multiples of standard gravity, **not** grams of mass); `units.temperature = "degC"`; `units.rotational_speed = "rpm"`.
 - Measurements: `rpm` (revolutions/minute), `temperature_c` (degrees Celsius), `rms_g` and `peak_to_peak_g` (acceleration g), `crest_factor` (unitless).
 - Rule output: `health` is `normal`, `warning` or `critical`; `reasons` lists the fired demo thresholds. **Not** a learned prediction or validated failure probability.
 
-Event IDs are deterministic for a seed + asset + tick for reproducible lab examples. They are unique **within a snapshot**, but a new run with the same seed may reuse an ID. Durable globally unique run IDs are deferred to simulation session design (MP-018/MP-012); do not treat this as globally unique for cross-run database ingestion.
+Event IDs are deterministic for a seed + asset + tick for reproducible lab examples. They are unique **within a snapshot**, but a new run with the same seed may reuse an ID. Durable globally unique run IDs are deferred to simulation session/storage design (MP-012); do not treat this as globally unique for cross-run database ingestion.
 
 **Compatibility:** existing measurement field names and UI consumption are preserved. Future backwards-compatible fields may be added. Breaking shapes or changes in units require a new major `schema_version`. API consumers should check the major version and tolerate additional fields.
 

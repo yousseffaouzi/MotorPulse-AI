@@ -32,10 +32,7 @@ class ControllerTests(unittest.TestCase):
             sim.control("reset")
             self.assertEqual(sim.status()["tick"], 1)
             self.assertEqual(sim.status()["state"], "paused")
-            # Wall-clock timestamps vary until MP-018; numeric telemetry is reproducible.
-            for original, reset in zip(initial["assets"], sim.snapshot()["assets"]):
-                self.assertEqual({k: v for k, v in original.items() if k != "timestamp_utc"},
-                                 {k: v for k, v in reset.items() if k != "timestamp_utc"})
+            self.assertEqual(initial, sim.snapshot())
 
     def test_background_advances_only_when_started(self):
         with SimulationController(autostart=False, interval_seconds=0.025) as sim:

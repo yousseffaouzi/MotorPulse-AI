@@ -4,15 +4,23 @@ This demo runs on **localhost only**, with no cloud, database, or third-party de
 
 ## Lifecycle and HTTP endpoints
 
-On startup, the seed is 42, tick 1 is generated, and the controller runs automatically at 1.5-second intervals.
+On startup, the seed is 42, tick 1 is generated at virtual `2026-01-01T00:00:00+00:00`, and the controller runs automatically at 1.5-second **wall-clock** intervals. The virtual clock advances independently of the real timer.
 
 - `GET /api/snapshot`: read the latest v1 telemetry; repeated GET requests never trigger a step.
-- `GET /api/status`: JSON containing `state` (`running` or `paused`), `tick`, `seed`, `interval_seconds`.
+- `GET /api/status`: JSON containing `state`, `tick`, `seed`, `interval_seconds` (wall scheduling), `step_seconds` (virtual advance), `start_time_utc`, and `simulated_at_utc`.
 - `POST /api/control`: JSON with exactly one `action`: `start`, `pause`, `step`, or `reset`.
 
-**Start** resumes automatic ticks; **Pause** freezes them. **Step** advances exactly one tick, only while paused (409 otherwise). **Reset** pauses and generates tick 1 again from the original seed. Measurements are numerically repeatable but wall-clock timestamps are not: MP-018 will supply a virtual clock.
+**Start** resumes automatic ticks; **Pause** freezes them. **Step** advances exactly one tick, only while paused (409 otherwise). **Reset** pauses and generates tick 1 again from the original seed. Both measurements and UTC timestamps are completely repeatable for the same seed, start time, step size, and tick sequence (MP-018). Tick 1 equals the chosen virtual start; subsequent ticks advance by the virtual step size. The worker's actual wall-clock delay does not alter those readings.
 
 Send `Content-Type: application/json`. Invalid JSON/actions return HTTP 400, an unsupported media type returns 415, and a step during running returns 409. Bodies are limited to 4096 bytes. The controller uses a condition lock for consistent concurrent access and clean thread shutdown.
+
+## Configurable virtual time
+
+```bash
+python -m motorpulse --seed 42 --start-time-utc 2026-01-01T00:00:00Z --step-seconds 2 --interval-seconds 0.5
+```
+
+`--start-time-utc` must be an explicit UTC ISO 8601 instant (Z or +00:00), `--step-seconds` must be positive with whole-microsecond precision, and `--interval-seconds` is the real time between automatic ticks. The example produces simulated timestamps 00:00:00, 00:00:02, 00:00:04, … while stepping every 0.5 real seconds. The fixed step can differ from the signal sampling window of 0.125 seconds; MP-019 will address physical sampling assumptions.
 
 ## Demo
 

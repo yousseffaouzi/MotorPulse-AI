@@ -27,11 +27,7 @@ class MotorPulseTest(unittest.TestCase):
     def test_reproducible_numeric_telemetry(self):
         a = MotorSimulator(seed=3).step()
         b = MotorSimulator(seed=3).step()
-        # Wall-clock timestamps are not deterministic until MP-018.
-        for first, second in zip(a["assets"], b["assets"]):
-            first = {k: v for k, v in first.items() if k != "timestamp_utc"}
-            second = {k: v for k, v in second.items() if k != "timestamp_utc"}
-            self.assertEqual(first, second)
+        self.assertEqual(a, b)
 
 
 if __name__ == "__main__":

@@ -2,9 +2,10 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from datetime import datetime
 from threading import Condition, Thread
 
-from .sim import MotorSimulator
+from .sim import DEFAULT_START_TIME_UTC, MotorSimulator
 
 
 class ControlConflict(Exception):
@@ -16,11 +17,13 @@ class SimulationController:
 
     Snapshot reads do not mutate state. An initial tick is generated at startup;
     reset returns to the same initial tick and leaves the controller paused.
-    This is wall-clock scheduling; a virtual simulation clock is MP-018.
+    Worker scheduling is wall-clock based, but telemetry time is fully virtual.
     """
 
     def __init__(self, *, seed: int = 42, interval_seconds: float = 1.5,
-                 autostart: bool = True) -> None:
+                 autostart: bool = True,
+                 start_time_utc: datetime = DEFAULT_START_TIME_UTC,
+                 step_seconds: float = 1.5) -> None:
         if type(seed) is not int:
             raise ValueError("seed must be an integer")
         if not 0 < interval_seconds <= 3600:
@@ -28,7 +31,10 @@ class SimulationController:
         self.seed = seed
         self.interval_seconds = interval_seconds
         self._condition = Condition()
-        self._sim = MotorSimulator(seed=seed)
+        self._sim = MotorSimulator(seed=seed, start_time_utc=start_time_utc,
+                                   step_seconds=step_seconds)
+        self.start_time_utc = self._sim.start_time_utc
+        self.step_seconds = self._sim.step_seconds
         self._snapshot = self._sim.step()
         self._running = bool(autostart)
         self._closed = False
@@ -59,6 +65,9 @@ class SimulationController:
                 "tick": self._sim.tick,
                 "seed": self.seed,
                 "interval_seconds": self.interval_seconds,
+                "step_seconds": self.step_seconds,
+                "start_time_utc": self.start_time_utc.isoformat(),
+                "simulated_at_utc": self._snapshot["recorded_at_utc"],
             }
 
     def control(self, action: str) -> dict:
@@ -77,7 +86,9 @@ class SimulationController:
                 self._snapshot = self._sim.step()
             elif action == "reset":
                 self._running = False
-                self._sim = MotorSimulator(seed=self.seed)
+                self._sim = MotorSimulator(seed=self.seed,
+                                           start_time_utc=self.start_time_utc,
+                                           step_seconds=self.step_seconds)
                 self._snapshot = self._sim.step()
             self._condition.notify_all()
             return {
@@ -85,6 +96,9 @@ class SimulationController:
                 "tick": self._sim.tick,
                 "seed": self.seed,
                 "interval_seconds": self.interval_seconds,
+                "step_seconds": self.step_seconds,
+                "start_time_utc": self.start_time_utc.isoformat(),
+                "simulated_at_utc": self._snapshot["recorded_at_utc"],
             }
 
     def close(self) -> None:

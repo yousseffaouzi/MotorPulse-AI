@@ -2,7 +2,7 @@
 
 ## Stage 0 (implemented)
 
-A deterministic synthetic plant produces 3 motor snapshots. A pure Python feature function extracts RMS, peak-to-peak and crest factor from a short acceleration waveform. The demo classifier uses explicit thresholds and explanatory reasons. A localhost-only HTTP server exposes JSON and static UI. MP-017 introduces a thread-safe simulator controller with an independent timed worker, cached read-only snapshots, and Start/Pause/Step/Reset actions. Dashboard polling no longer advances the simulator. No persisted telemetry, virtual clock, or trained model is implemented.
+A deterministic synthetic plant produces 3 motor snapshots. A pure Python feature function extracts RMS, peak-to-peak and crest factor from a short acceleration waveform. The demo classifier uses explicit thresholds and explanatory reasons. A localhost-only HTTP server exposes JSON and static UI. MP-017 introduces a thread-safe simulator controller with an independent timed worker, cached read-only snapshots, and Start/Pause/Step/Reset actions. Dashboard polling no longer advances the simulator. MP-018 now provides deterministic simulated UTC timestamps and replayable resets, independent of wall-clock scheduling. No persisted telemetry or trained model is implemented.
 
 ## Stage 1 (planned)
 
