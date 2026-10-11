@@ -9,7 +9,7 @@ MotorPulse AI publishes an additive, **versioned snapshot JSON** contract. Curre
 - Identity: `event_id` (currently `sim:<seed>:<asset_id>:<tick>`), `asset_id`, `name`, `source`, `scenario`.
 - Time: `timestamp_utc` is the UTC measurement/snapshot timestamp. In v1 it equals `recorded_at_utc` for all assets in the same tick. As of MP-018, these are deterministic **simulated UTC timestamps**: tick 1 is at `start_time_utc` and tick N at `start_time_utc + (N−1) × step_seconds`. They do not represent the real date/time of a HTTP request. See [SIMULATION_CONTROL.md](SIMULATION_CONTROL.md).
 - Sampling: `sample_rate_hz` (**1024 Hz**), `sample_count` (**1024**) describe the uniform simulated acceleration samples used to calculate features. The window is **1.0 s**, the Nyquist limit is **512 Hz**, and the nominal DFT bin spacing is **1 Hz**. Optional additive fields `window_duration_s` (**1.0**) and `shaft_frequency_hz` (unrounded RPM/60, rounded for display) describe the model. Raw samples are **not returned** by the current API. See [SIGNALS.md](SIGNALS.md).
-- Units: `units.vibration_acceleration = "g"` (acceleration as multiples of standard gravity, **not** grams of mass); `units.temperature = "degC"`; `units.rotational_speed = "rpm"`.
+- Units: consult [MODEL_ASSUMPTIONS.md](MODEL_ASSUMPTIONS.md) for the full sensor/feature unit table and their synthetic/non-calibrated meaning. `units.vibration_acceleration = "g"` (acceleration as multiples of standard gravity, **not** grams of mass); `units.temperature = "degC"`; `units.rotational_speed = "rpm"`.
 - Measurements: `rpm` (revolutions/minute), `temperature_c` (degrees Celsius), `rms_g` and `peak_to_peak_g` (acceleration g), `crest_factor` (unitless).
 - Spectral and rolling summaries (optional additive v1 fields since MP-023): `spectral_window`, `spectral_bin_hz`, `dominant_frequency_hz`, `shaft_1x_amplitude_g`, `shaft_2x_amplitude_g`, `band_80_400_rms_g`, `rolling_window_ticks`, `rolling_observations`, `rolling_rms_mean_g` and `rolling_temperature_mean_c`. See [SPECTRAL.md](SPECTRAL.md) for units and Hann FFT convention. These are not failure probabilities.
 - MP-025 sensor provenance (optional additive v1 fields): `sensor_quality` is `good`, `missing` or `outlier`; `sensor_quality_reasons` describes the event. Missing vibration data uses JSON `null` and `health="unavailable"`; simulated outliers use `health="suspect"`. `load_factor`, `sensor_drift_g`, `operating_config`, and `rolling_valid_observations` preserve operating/sensor provenance. See [OPERATIONS.md](OPERATIONS.md).
@@ -34,7 +34,7 @@ print('telemetry v1 example valid')
 PY
 ```
 
-The built-in validator checks v1 required fields, finite numeric readings, positive sample metadata, canonical units, UTC offsets and uniqueness within the snapshot. JSON Schema consumers can use the published definition for structural validation; cross-field identity/time constraints require additional application validation.
+The built-in validator checks v1 required fields, finite nonmissing numeric readings, positive sample metadata, canonical units, UTC offsets, sensor-quality consistency and uniqueness within a snapshot. JSON Schema consumers can use the published definition for structural validation; cross-field identity/time constraints require additional application validation.
 
 ## Limitations
 
