@@ -10,7 +10,15 @@ From the repository root, using Python 3.11 or later and **no third-party packag
 python -m unittest discover -s tests -v
 ```
 
-The suite contains **81 standard-library unittest test cases** (64 through MP-021, 4 packaging smoke tests introduced by MP-022, and 13 spectral/rolling checks introduced by MP-023). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
+The suite contains **90 standard-library unittest test cases** (64 through MP-021, 4 packaging smoke tests from MP-022, 13 spectral/rolling checks from MP-023, and 9 JSON/CLI startup tests from MP-024). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
+
+For focused local config / CLI startup tests:
+
+```bash
+python -m unittest discover -s tests -p 'test_config_file.py' -v
+```
+
+See [CONFIG_FILE.md](CONFIG_FILE.md) for accepted and rejected startup parameters.
 
 For focused spectral/rolling tests:
 

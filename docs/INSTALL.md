@@ -41,6 +41,8 @@ motorpulse-ai --help
 python -c "from importlib.resources import files; print(files('motorpulse').joinpath('web', 'index.html').is_file())"
 ```
 
+A motor scenario file can be supplied from any working directory: `motorpulse-ai --config /absolute/path/to/config.json --paused`. See [CONFIG_FILE.md](CONFIG_FILE.md) for file format and error conditions.
+
 Both command-line help commands should succeed; the final command should print `True`. Starting the server from outside the repo should serve the bundled dashboard at `/`, while `GET /api/health` returns simulation status.
 
 The `pip wheel` command may fetch the **build-time** backend if your environment does not have a suitable version. In restricted/offline environments with build tools preinstalled, use `python -m pip wheel --no-deps --no-build-isolation . --wheel-dir dist/` instead.

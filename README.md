@@ -7,7 +7,7 @@
 ## What you can run today
 - Reproducible simulated vibration, temperature and RPM signals for three motors.
 - RPM-linked synthetic vibration at 1× and 2× shaft speed, plus illustrative bearing impacts.
-- Five configurable synthetic scenarios: healthy, imbalance, bearing wear, misalignment, and overload; per-asset severity, onset, and optional duration.
+- Five configurable synthetic scenarios: healthy, imbalance, bearing wear, misalignment, and overload; per-asset severity, onset, optional duration, and local JSON startup files.
 - Feature extraction: vibration RMS, peak-to-peak amplitude, crest factor, Hann-windowed spectral features and 5-tick rolling summaries.
 - Transparent rule-based health classification with fault examples.
 - Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
@@ -37,6 +37,14 @@ python -m motorpulse --seed 42 --start-time-utc 2026-01-01T00:00:00Z --step-seco
 ```
 
 See [docs/INSTALL.md](docs/INSTALL.md) for wheel builds, offline options, cross-directory verification, and troubleshooting.
+
+To **launch with a saved motor configuration**, e.g. a reproducible progressive-fault demo:
+
+```bash
+python -m motorpulse --config docs/examples/scenarios-progressive.json --paused
+```
+
+You may also add `--seed 72 --start-time-utc 2026-05-20T12:00:00Z --step-seconds 2.5 --port 8766`. The `--paused` flag leaves the simulator at tick 1 for deterministic inspection. Paths are relative to the current directory. See [docs/CONFIG_FILE.md](docs/CONFIG_FILE.md) for strict validation and examples.
 
 In another terminal, you can query a JSON snapshot:
 
@@ -79,6 +87,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
+- `motorpulse/config_file.py` / `docs/CONFIG_FILE.md` — bounded UTF-8 JSON startup loading and CLI guidance.
 - `motorpulse/controller.py` — thread-safe, timed simulator worker.
 - `motorpulse/__main__.py` — localhost demo server.
 - `docs/SIMULATION_CONTROL.md` — simulation controls and virtual clock configuration.
@@ -125,6 +134,10 @@ MotorPulse AI is packaged as **motorpulse-ai 0.1.0.dev0** (development-only meta
 ## Spectral and rolling indicators (MP-023)
 
 Per motor, the dashboard now shows Hann-windowed **1×/2× shaft peak amplitudes (g peak)**, **80–400 Hz acceleration band RMS (g RMS)**, and a **five-simulation-tick average of vibration RMS**. The frequency bin spacing is 1 Hz at the default 1024 Hz / 1024 sample window. An efficient dependency-free radix-2 FFT keeps the zero-runtime-dependency promise. The simulation history is per motor and only advances when a new synthetic tick is produced, never from polling; reset replays the same values. These indicators are *not* validated diagnostic thresholds or trained predictions. Full definitions: [docs/SPECTRAL.md](docs/SPECTRAL.md).
+
+## Local scenario configuration (MP-024)
+
+The CLI accepts `--config <local-file.json>` with the same validated `assets` schema as the existing configuration API. It rejects duplicate JSON keys, oversized or malformed files, invalid fault settings, and non-finite numbers **before opening the server**. `--paused` and `--port` allow isolated local testing. Runtime dependencies remain zero, and all options bind only to `127.0.0.1`. Documentation: [docs/CONFIG_FILE.md](docs/CONFIG_FILE.md).
 
 ## Developer CI
 

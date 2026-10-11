@@ -6,7 +6,9 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from .config_file import load_config_file
 from .controller import ControlConflict, SimulationController
+from .scenarios import AssetScenario, DEFAULT_ASSETS
 from .sim import DEFAULT_START_TIME_UTC, parse_start_time_utc
 
 ROOT = Path(__file__).resolve().parent / "web"
@@ -108,11 +110,13 @@ class MotorPulseServer(ThreadingHTTPServer):
     def __init__(self, server_address: tuple[str, int], *, seed: int = 42,
                  interval_seconds: float = 1.5, autostart: bool = True,
                  start_time_utc: datetime = DEFAULT_START_TIME_UTC,
-                 step_seconds: float = 1.5):
+                 step_seconds: float = 1.5,
+                 assets: tuple[AssetScenario, ...] = DEFAULT_ASSETS):
         super().__init__(server_address, Handler)
         self.controller = SimulationController(
             seed=seed, interval_seconds=interval_seconds, autostart=autostart,
             start_time_utc=start_time_utc, step_seconds=step_seconds,
+            assets=assets,
         )
 
     def server_close(self) -> None:
@@ -129,16 +133,26 @@ def main() -> None:
                         help="virtual seconds advanced per tick (default: 1.5)")
     parser.add_argument("--interval-seconds", type=float, default=1.5,
                         help="wall-clock seconds between automatic ticks (default: 1.5)")
+    parser.add_argument("--config", type=Path, metavar="FILE.json",
+                        help="load a validated local motor/scenario JSON file before startup")
+    parser.add_argument("--paused", action="store_true",
+                        help="start paused at tick 1 for deterministic inspection")
+    parser.add_argument("--port", type=int, default=8765, metavar="PORT",
+                        help="localhost-only TCP port, 0 for a temporary port (default: 8765)")
     args = parser.parse_args()
     try:
-        httpd = MotorPulseServer(("127.0.0.1", 8765), seed=args.seed,
+        if not 0 <= args.port <= 65535:
+            raise ValueError("--port must be an integer between 0 and 65535")
+        assets = load_config_file(args.config) if args.config is not None else DEFAULT_ASSETS
+        httpd = MotorPulseServer(("127.0.0.1", args.port), seed=args.seed,
                                 start_time_utc=args.start_time_utc,
                                 step_seconds=args.step_seconds,
-                                interval_seconds=args.interval_seconds)
-    except ValueError as exc:
+                                interval_seconds=args.interval_seconds,
+                                autostart=not args.paused, assets=assets)
+    except (OSError, ValueError) as exc:
         parser.error(str(exc))
     with httpd:
-        print("MotorPulse AI (synthetic demo): http://127.0.0.1:8765")
+        print(f"MotorPulse AI (synthetic demo): http://127.0.0.1:{httpd.server_address[1]}", flush=True)
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

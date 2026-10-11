@@ -4,6 +4,8 @@ MotorPulse AI is a **local-only, synthetic** simulation. Fault labels, severity 
 
 ## Config format and controls
 
+To **load a configuration before server startup**, run `python -m motorpulse --config docs/examples/scenarios-progressive.json --paused`. See [CONFIG_FILE.md](CONFIG_FILE.md) for local file rules, size limits and CLI flags.
+
 Get the currently configured motors with `GET /api/config`. Replace the **entire** set with `PUT /api/config`, with `Content-Type: application/json` and the following body:
 
 ```json
