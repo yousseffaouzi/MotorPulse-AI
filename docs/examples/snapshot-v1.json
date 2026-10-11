@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "source": "synthetic",
+  "tick": 1,
+  "recorded_at_utc": "2026-10-11T12:00:00+00:00",
+  "assets": [
+    {
+      "event_id": "sim:42:MTR-01:1",
+      "asset_id": "MTR-01",
+      "name": "Conveyor motor",
+      "scenario": "healthy",
+      "source": "synthetic",
+      "timestamp_utc": "2026-10-11T12:00:00+00:00",
+      "sample_rate_hz": 1024,
+      "sample_count": 128,
+      "units": {
+        "vibration_acceleration": "g",
+        "temperature": "degC",
+        "rotational_speed": "rpm"
+      },
+      "rpm": 1480.0,
+      "temperature_c": 47.0,
+      "rms_g": 0.085,
+      "peak_to_peak_g": 0.25,
+      "crest_factor": 1.5,
+      "health": "normal",
+      "reasons": []
+    }
+  ]
+}

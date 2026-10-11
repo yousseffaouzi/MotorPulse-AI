@@ -47,6 +47,10 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `docs/ARCHITECTURE.md` — design choices and future extensibility.
 - `TODO.md` — issue-ready tracker with explicit status.
 
+## Telemetry contract (v1)
+
+The JSON snapshot now includes `schema_version`, stable per-simulation-event IDs, UTC measurement timestamps, explicit sensor units, sample rate and sample count. See [docs/TELEMETRY.md](docs/TELEMETRY.md), [the JSON Schema](docs/snapshot.schema.json), and [a validated example](docs/examples/snapshot-v1.json). Existing dashboard measurement fields remain compatible. The timestamps are still wall-clock readings, not replayable simulated time (tracked under MP-018).
+
 ## Planned engineering work
 1. Add configurable fault fixtures and labelled synthetic datasets.
 2. Import publicly available NASA IMS bearing data *after confirming its reuse terms*; do not commit third-party data dumps.

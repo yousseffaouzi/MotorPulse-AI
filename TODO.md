@@ -18,6 +18,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - `motorpulse/__main__.py`: localhost-only HTTP API, `/api/snapshot`, `/api/health`. Currently each GET snapshot advances the simulator.
 - `web/index.html`: polling dashboard with basic motor status cards; no history or scenario controls.
 - `tests/test_sim.py` and `.github/workflows/test.yml`: initial tests and GitHub Actions.
+- MP-006 implemented on the telemetry-schema feature branch: v1 schema, UTC timestamps, event IDs, sampling metadata, canonical units and automated validation.
 - No trained AI model, persisted database, external ingestion adapter or real-hardware connection.
 
 ## Milestone 0 — Existing proof of concept
@@ -36,7 +37,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 | ID | Status | Priority | Task | Acceptance evidence |
 |---|---|---|---|---|
-| MP-006 | TODO | P0 | Define versioned telemetry, asset, sensor, feature and event schemas | schema_version, event_id, asset_id, UTC timestamp, units, source, scenario, sampling metadata, examples and validation tests |
+| MP-006 | DONE | P0 | Define versioned telemetry, asset, sensor, feature and event schemas | schema_version, event_id, asset_id, UTC timestamp, units, source, scenario, sampling metadata, examples and validation tests |
 | MP-007 | TODO | P0 | Configurable fault scenario library | Healthy, imbalance, bearing wear, misalignment, overload; severity and duration parameters; deterministic tests |
 | MP-017 | TODO | P0 | Separate simulation progression from snapshot reads | GET snapshot is read-only; explicit step/start/pause/reset; integration tests |
 | MP-018 | TODO | P0 | Reproducible simulated clock and replay | Same seed and configuration reproduce timestamps and measurements, independent of wall clock |
