@@ -15,8 +15,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 ## Current baseline (2026-10-11)
 
 - `motorpulse/sim.py`: deterministic numeric synthetic signals for three fixed motors, features (RMS/peak-to-peak/crest factor), rule-based classifications.
-- `motorpulse/__main__.py`: localhost-only HTTP API, `/api/snapshot`, `/api/health`. Currently each GET snapshot advances the simulator.
-- `web/index.html`: polling dashboard with basic motor status cards; no history or scenario controls.
+- `motorpulse/__main__.py`: localhost-only `/api/snapshot`, `/api/status`, `/api/control`, `/api/health` API; GET no longer advances the simulator.
+- `web/index.html`: polling dashboard with Start/Pause/Step/Reset; historical storage and scenario controls are still pending.
 - `tests/test_sim.py` and `.github/workflows/test.yml`: initial tests and GitHub Actions.
 - MP-006 implemented on the telemetry-schema feature branch: v1 schema, UTC timestamps, event IDs, sampling metadata, canonical units and automated validation.
 - No trained AI model, persisted database, external ingestion adapter or real-hardware connection.
@@ -39,7 +39,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 |---|---|---|---|---|
 | MP-006 | DONE | P0 | Define versioned telemetry, asset, sensor, feature and event schemas | schema_version, event_id, asset_id, UTC timestamp, units, source, scenario, sampling metadata, examples and validation tests |
 | MP-007 | TODO | P0 | Configurable fault scenario library | Healthy, imbalance, bearing wear, misalignment, overload; severity and duration parameters; deterministic tests |
-| MP-017 | TODO | P0 | Separate simulation progression from snapshot reads | GET snapshot is read-only; explicit step/start/pause/reset; integration tests |
+| MP-017 | DONE | P0 | Separate simulation progression from snapshot reads | GET snapshot is read-only; explicit step/start/pause/reset; integration tests |
 | MP-018 | TODO | P0 | Reproducible simulated clock and replay | Same seed and configuration reproduce timestamps and measurements, independent of wall clock |
 | MP-019 | TODO | P0 | Physically defined waveform sampling | Sampling rate in Hz, sample count, units, window duration; documented waveform assumptions |
 | MP-020 | TODO | P0 | Progressive fault and degradation timelines | Configurable onset/growth across ticks; replayable healthy → degradation → alert transitions |

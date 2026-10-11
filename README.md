@@ -8,7 +8,7 @@
 - Reproducible simulated vibration, temperature and RPM signals for three motors.
 - Feature extraction: vibration RMS, peak-to-peak amplitude and crest factor.
 - Transparent rule-based health classification with fault examples.
-- Local REST endpoint and auto-refreshing browser dashboard.
+- Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
 - Unit tests via the Python standard library. **No Docker, cloud account, or hardware required.**
 
 ## Quick start
@@ -23,6 +23,11 @@ In another terminal, you can query a JSON snapshot:
 
 ```bash
 curl http://127.0.0.1:8765/api/snapshot
+curl http://127.0.0.1:8765/api/status
+
+# Pause, then advance exactly one tick:
+curl -X POST http://127.0.0.1:8765/api/control -H 'Content-Type: application/json' -d '{"action":"pause"}'
+curl -X POST http://127.0.0.1:8765/api/control -H 'Content-Type: application/json' -d '{"action":"step"}'
 ```
 
 Run tests:
@@ -42,7 +47,9 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 ```
 
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
+- `motorpulse/controller.py` — thread-safe, timed simulator worker.
 - `motorpulse/__main__.py` — localhost demo server.
+- `docs/SIMULATION_CONTROL.md` — simulation control API and lifecycle.
 - `web/index.html` — zero-build dashboard.
 - `docs/ARCHITECTURE.md` — design choices and future extensibility.
 - `TODO.md` — issue-ready tracker with explicit status.
@@ -50,6 +57,10 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 ## Telemetry contract (v1)
 
 The JSON snapshot now includes `schema_version`, stable per-simulation-event IDs, UTC measurement timestamps, explicit sensor units, sample rate and sample count. See [docs/TELEMETRY.md](docs/TELEMETRY.md), [the JSON Schema](docs/snapshot.schema.json), and [a validated example](docs/examples/snapshot-v1.json). Existing dashboard measurement fields remain compatible. The timestamps are still wall-clock readings, not replayable simulated time (tracked under MP-018).
+
+## Developer CI
+
+To limit GitHub Actions usage, tests run automatically on pull requests targeting `main` (not separately for feature pushes or merge pushes); manual runs remain available. Run `python -m unittest discover -s tests -v` locally first.
 
 ## Planned engineering work
 1. Add configurable fault fixtures and labelled synthetic datasets.

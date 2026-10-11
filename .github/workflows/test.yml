@@ -1,7 +1,12 @@
 name: Python tests
+# Minimize GitHub Actions usage: checks run for PRs only; no feature-push and merge duplicates.
 on:
-  push:
   pull_request:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: motorpulse-tests-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   test:
     runs-on: ubuntu-latest
