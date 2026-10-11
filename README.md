@@ -15,6 +15,7 @@
 - Optional bounded IMS-style **local-only** ASCII record importer using user-declared sampling metadata and no assumed defect labels.
 - Local IMS report integrity/chronology checks, native-rate Hann single-bin amplitude and train-only feature normalization across disjoint runs.
 - Reproducible synthetic and local-only IMS **exploratory quality reports** (numeric distributions, missingness, trends and provenance in JSON or Markdown).
+- Deterministic **train/validation/test split plans** that keep complete source runs together, reject duplicate groups, and offer explicitly exploratory synthetic chronological holdouts with purge gaps.
 - Transparent rule-based health classification with fault examples.
 - Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
 - Unit tests via the Python standard library. **No Docker, cloud account, or hardware required.**
@@ -107,6 +108,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/ims.py` / `docs/IMS_INGESTION.md` — bounded, local, user-supplied IMS-style ASCII ingestion and provenance-only reports; no copied real archive data.
 - `motorpulse/ims_validation.py`, `motorpulse/ims_tone.py` / `docs/IMS_VALIDATION.md` — local data-quality checks, optional native-rate tone analysis and leakage-safe train-only scaling.
 - `motorpulse/eda.py` / `docs/EDA.md` — deterministic exploratory distributions, missingness, trend samples, hashes, and explicit synthetic/IMS source separation.
+- `motorpulse/splits.py` / `docs/SPLITS.md` — train/validation/test split plans with whole-run boundaries, deterministic seeded assignment and synthetic-only chronological purge gaps.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -216,6 +218,19 @@ python -m motorpulse.eda --source synthetic --input datasets/demo-001 \
 ```
 
 For a full reproducible example and the separate local-only IMS command, see [docs/EDA.md](docs/EDA.md). The report is **descriptive, not a trained predictive model**.
+
+## Leakage-resistant split planning (MP-030)
+
+Before fitting a future model, **split entire runs rather than randomly selecting time-adjacent rows**. The dependency-free `motorpulse-split` command builds deterministic train/validation/test plans from three or more independent synthetic-export manifests or locally held IMS inspection reports. Repeated synthetic seed/config/start groups and duplicate IMS raw-record hashes are rejected; grouping does **not** inspect held-out failure labels.
+
+```bash
+python -m motorpulse.splits --source synthetic \
+  --input datasets/seed11/manifest.json datasets/seed22/manifest.json \
+          datasets/seed33/manifest.json \
+  --seed 42 --out datasets/group-split.json
+```
+
+The optional `--chronological --purge-ticks 4` mode is **synthetic-only**, operates on one run, and is *not* an independent-run validation. [docs/SPLITS.md](docs/SPLITS.md) explains prerequisites and leakage limitations. No data are copied, trained on or published.
 
 ## Developer CI
 

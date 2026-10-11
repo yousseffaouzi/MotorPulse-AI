@@ -45,7 +45,7 @@ A motor scenario file can be supplied from any working directory: `motorpulse-ai
 
 Both command-line help commands should succeed; the final command should print `True`. Starting the server from outside the repo should serve the bundled dashboard at `/`, while `GET /api/health` returns simulation status.
 
-The installed `motorpulse-export` CLI can produce offline CSV/JSONL data with `motorpulse-export --out-dir NEW_DIRECTORY --ticks 10`; see [DATASET.md](DATASET.md). The installed `motorpulse-ims` CLI inspects **user-provided local** timestamp-named bearing ASCII records (never downloads); see [IMS_INGESTION.md](IMS_INGESTION.md). `motorpulse-eda` creates reproducible local JSON/Markdown exploratory reports from synthetic exports or IMS inspection summaries; see [EDA.md](EDA.md).
+The installed `motorpulse-export` CLI can produce offline CSV/JSONL data with `motorpulse-export --out-dir NEW_DIRECTORY --ticks 10`; see [DATASET.md](DATASET.md). The installed `motorpulse-ims` CLI inspects **user-provided local** timestamp-named bearing ASCII records (never downloads); see [IMS_INGESTION.md](IMS_INGESTION.md). `motorpulse-eda` creates reproducible local JSON/Markdown exploratory reports from synthetic exports or IMS inspection summaries; see [EDA.md](EDA.md). The installed `motorpulse-split` CLI builds reproducible, label-blind train/validation/test split plans without training models or downloading data; see [SPLITS.md](SPLITS.md).
 
 The `pip wheel` command may fetch the **build-time** backend if your environment does not have a suitable version. In restricted/offline environments with build tools preinstalled, use `python -m pip wheel --no-deps --no-build-isolation . --wheel-dir dist/` instead.
 
