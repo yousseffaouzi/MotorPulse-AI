@@ -20,7 +20,7 @@ Send `Content-Type: application/json`. Invalid JSON/actions return HTTP 400, an 
 python -m motorpulse --seed 42 --start-time-utc 2026-01-01T00:00:00Z --step-seconds 2 --interval-seconds 0.5
 ```
 
-`--start-time-utc` must be an explicit UTC ISO 8601 instant (Z or +00:00), `--step-seconds` must be positive with whole-microsecond precision, and `--interval-seconds` is the real time between automatic ticks. The example produces simulated timestamps 00:00:00, 00:00:02, 00:00:04, … while stepping every 0.5 real seconds. The fixed step can differ from the signal sampling window of 0.125 seconds; MP-019 will address physical sampling assumptions.
+`--start-time-utc` must be an explicit UTC ISO 8601 instant (Z or +00:00), `--step-seconds` must be positive with whole-microsecond precision, and `--interval-seconds` is the real time between automatic ticks. The example produces simulated timestamps 00:00:00, 00:00:02, 00:00:04, … while stepping every 0.5 real seconds. The fixed step may differ from the signal sampling window of 1.0 second; if virtual steps are shorter, the modeled windows overlap in timestamp terms but are independently generated (no continuous physical phase model). MP-019 documents this approximation.
 
 ## Demo
 

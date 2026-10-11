@@ -8,7 +8,7 @@ MotorPulse AI publishes an additive, **versioned snapshot JSON** contract. Curre
 
 - Identity: `event_id` (currently `sim:<seed>:<asset_id>:<tick>`), `asset_id`, `name`, `source`, `scenario`.
 - Time: `timestamp_utc` is the UTC measurement/snapshot timestamp. In v1 it equals `recorded_at_utc` for all assets in the same tick. As of MP-018, these are deterministic **simulated UTC timestamps**: tick 1 is at `start_time_utc` and tick N at `start_time_utc + (N−1) × step_seconds`. They do not represent the real date/time of a HTTP request. See [SIMULATION_CONTROL.md](SIMULATION_CONTROL.md).
-- Sampling: `sample_rate_hz` (currently **1024 Hz**), `sample_count` (currently **128**) describe the uniform simulated acceleration samples used to calculate features. The implied window duration is 0.125 s. Raw samples are **not returned** by the current endpoint. A physically realistic signal generator is still planned (MP-019).
+- Sampling: `sample_rate_hz` (**1024 Hz**), `sample_count` (**1024**) describe the uniform simulated acceleration samples used to calculate features. The window is **1.0 s**, the Nyquist limit is **512 Hz**, and the nominal DFT bin spacing is **1 Hz**. Optional additive fields `window_duration_s` (**1.0**) and `shaft_frequency_hz` (unrounded RPM/60, rounded for display) describe the model. Raw samples are **not returned** by the current API. See [SIGNALS.md](SIGNALS.md).
 - Units: `units.vibration_acceleration = "g"` (acceleration as multiples of standard gravity, **not** grams of mass); `units.temperature = "degC"`; `units.rotational_speed = "rpm"`.
 - Measurements: `rpm` (revolutions/minute), `temperature_c` (degrees Celsius), `rms_g` and `peak_to_peak_g` (acceleration g), `crest_factor` (unitless).
 - Rule output: `health` is `normal`, `warning` or `critical`; `reasons` lists the fired demo thresholds. **Not** a learned prediction or validated failure probability.
@@ -34,4 +34,4 @@ The built-in validator checks v1 required fields, finite numeric readings, posit
 
 ## Limitations
 
-The 64 Hz synthetic sine (`sample_rate_hz / 16`) is currently independent of motor RPM and is **not** calibrated to shaft-frequency harmonics, bearing geometry or measured industrial loads. Thresholds in `motorpulse/sim.py` are examples only. No dataset interchange/streaming or external-device schema is promised yet.
+The synthetic base frequency now follows motor RPM / 60 (1×); a 2× component and optional illustrative 4.8× repeating bearing impulses are available. These models are **not** calibrated to real bearing geometry, sensor transfer functions, actual vibration velocity, or measured industrial loads. The generator does not implement anti-alias filtering for the pulse harmonics. Thresholds in `motorpulse/sim.py` are examples only. No dataset interchange/streaming or external-device schema is promised yet.

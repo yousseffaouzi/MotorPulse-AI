@@ -20,6 +20,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - `tests/test_sim.py`, `tests/test_clock.py` and `.github/workflows/test.yml`: simulator/replay tests and PR-only GitHub Actions.
 - MP-006 implemented: telemetry v1 schema, UTC timestamps, event IDs, sampling metadata, canonical units and automated validation.
 - MP-018 implemented: configurable virtual UTC epoch and tick spacing; identical configuration/seed/tick sequence reproduces complete snapshots, independent of wall clock.
+- MP-019 implemented: 1024 Hz / 1024-sample waveform windows, RPM-linked 1×/2× signatures, illustrative 4.8× bearing impacts, and numerical spectral regression tests.
 - No trained AI model, persisted database, external ingestion adapter or real-hardware connection.
 
 ## Milestone 0 — Existing proof of concept
@@ -42,7 +43,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-007 | TODO | P0 | Configurable fault scenario library | Healthy, imbalance, bearing wear, misalignment, overload; severity and duration parameters; deterministic tests |
 | MP-017 | DONE | P0 | Separate simulation progression from snapshot reads | GET snapshot is read-only; explicit step/start/pause/reset; integration tests |
 | MP-018 | DONE | P0 | Reproducible simulated clock and replay | Same seed and configuration reproduce timestamps and measurements, independent of wall clock |
-| MP-019 | TODO | P0 | Physically defined waveform sampling | Sampling rate in Hz, sample count, units, window duration; documented waveform assumptions |
+| MP-019 | DONE | P0 | Physically defined waveform sampling | Sampling rate in Hz, sample count, units, window duration; documented waveform assumptions |
 | MP-020 | TODO | P0 | Progressive fault and degradation timelines | Configurable onset/growth across ticks; replayable healthy → degradation → alert transitions |
 | MP-021 | TODO | P0 | API and simulator contract tests | Test payload shapes, invalid requests, concurrency, health and controls |
 | MP-022 | TODO | P1 | Packaging and consistent developer commands | pyproject.toml, documented setup and CLI on supported Python versions |

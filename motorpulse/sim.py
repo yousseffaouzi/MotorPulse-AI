@@ -3,10 +3,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
-from math import isfinite, pi, sin, sqrt
+from math import isfinite, sqrt
 from random import Random
 
 from .schema import SAMPLE_COUNT, SAMPLE_RATE_HZ, SCHEMA_VERSION, SENSOR_UNITS
+from .signals import generate_vibration
 
 DEFAULT_START_TIME_UTC = datetime(2026, 1, 1, tzinfo=timezone.utc)
 
@@ -101,21 +102,13 @@ class MotorSimulator:
         rng = Random(f"{self.seed}:{self.tick}:{asset_id}")
         base_rpm = 1480 + rng.uniform(-24, 24)
         temp = 47 + rng.uniform(-3, 3)
-        amplitude = 0.12
-        impulsive = False
         if scenario == "imbalance":
-            amplitude = 0.62
             temp += 13
         elif scenario == "bearing_wear":
-            amplitude = 0.43
             temp += 35
-            impulsive = True
-        samples = []
-        for i in range(SAMPLE_COUNT):
-            waveform = amplitude * sin(2 * pi * i / 16) + rng.gauss(0, 0.014)
-            if impulsive and i % 31 == 0:
-                waveform += 1.0
-            samples.append(waveform)
+        samples = generate_vibration(base_rpm, scenario, rng,
+                                     sample_rate_hz=SAMPLE_RATE_HZ,
+                                     sample_count=SAMPLE_COUNT)
         sensor = features(samples)
         health, reasons = classify(sensor["rms_g"], temp, sensor["crest_factor"])
         if timestamp_utc is None:
@@ -129,6 +122,8 @@ class MotorSimulator:
             "timestamp_utc": timestamp_utc,
             "sample_rate_hz": SAMPLE_RATE_HZ,
             "sample_count": SAMPLE_COUNT,
+            "window_duration_s": SAMPLE_COUNT / SAMPLE_RATE_HZ,
+            "shaft_frequency_hz": round(base_rpm / 60, 4),
             "units": SENSOR_UNITS.copy(),
             "rpm": round(base_rpm, 1),
             "temperature_c": round(temp, 1),

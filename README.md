@@ -6,6 +6,7 @@
 
 ## What you can run today
 - Reproducible simulated vibration, temperature and RPM signals for three motors.
+- RPM-linked synthetic vibration at 1× and 2× shaft speed, plus illustrative bearing impacts.
 - Feature extraction: vibration RMS, peak-to-peak amplitude and crest factor.
 - Transparent rule-based health classification with fault examples.
 - Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
@@ -49,7 +50,9 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
                                        Browser dashboard
 ```
 
+- `motorpulse/signals.py` — synthetic RPM-related acceleration waveform fixtures.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
+- `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `motorpulse/controller.py` — thread-safe, timed simulator worker.
 - `motorpulse/__main__.py` — localhost demo server.
 - `docs/SIMULATION_CONTROL.md` — simulation controls and virtual clock configuration.
@@ -60,6 +63,10 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 ## Telemetry contract (v1)
 
 The JSON snapshot now includes `schema_version`, stable per-simulation-event IDs, UTC measurement timestamps, explicit sensor units, sample rate and sample count. See [docs/TELEMETRY.md](docs/TELEMETRY.md), [the JSON Schema](docs/snapshot.schema.json), and [a validated example](docs/examples/snapshot-v1.json). Existing dashboard measurement fields remain compatible. Since MP-018, timestamps come from a deterministic **UTC virtual clock**, not the host wall clock. Tick 1 occurs at the configured start time (default: `2026-01-01T00:00:00+00:00`), and each tick advances by `--step-seconds` (default: 1.5). Reset reproduces the same complete JSON snapshot sequence. `--interval-seconds` controls execution speed only. The telemetry schema version remains 1.0.0.
+
+## MP-019 signal sampling
+
+Acceleration is generated at **1024 samples/second** over a **1-second window** (1024 samples; 1 Hz bin spacing). The shaft's 1× frequency is **RPM/60 Hz**, with a small 2× harmonic. The synthetic imbalance scenario increases 1× amplitude; bearing wear adds pulses at an **illustrative 4.8× ratio**, not a geometry-derived bearing defect frequency. The misalignment waveform is available as a test fixture, but is **not yet a selectable dashboard scenario** (MP-007). The timestamp is the virtual start of the acquisition window. Read [docs/SIGNALS.md](docs/SIGNALS.md) before interpreting these patterns.
 
 ## Developer CI
 

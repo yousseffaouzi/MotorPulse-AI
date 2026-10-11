@@ -13,7 +13,7 @@ from typing import Any
 
 SCHEMA_VERSION = "1.0.0"
 SAMPLE_RATE_HZ = 1024
-SAMPLE_COUNT = 128
+SAMPLE_COUNT = 1024
 SENSOR_UNITS = {
     "vibration_acceleration": "g",  # acceleration in standard gravity units
     "temperature": "degC",
@@ -84,8 +84,18 @@ def validate_snapshot(snapshot: Mapping[str, Any]) -> None:
         for key in ("sample_rate_hz", "sample_count"):
             _require(type(event.get(key)) is int and event[key] > 0,
                      f"{prefix}.{key} must be a positive integer")
+        # New optional v1 fields preserve compatibility with old fixture data.
+        if "window_duration_s" in event:
+            _numeric(event["window_duration_s"], f"{prefix}.window_duration_s", min_value=0)
+            _require(abs(event["window_duration_s"] -
+                         event["sample_count"] / event["sample_rate_hz"]) <= 1e-9,
+                     f"{prefix}.window_duration_s must match sample_count / sample_rate_hz")
         for key in ("rpm", "rms_g", "peak_to_peak_g", "crest_factor"):
             _numeric(event.get(key), f"{prefix}.{key}", min_value=0)
+        if "shaft_frequency_hz" in event:
+            _numeric(event["shaft_frequency_hz"], f"{prefix}.shaft_frequency_hz", min_value=0)
+            _require(abs(event["shaft_frequency_hz"] - event["rpm"] / 60) <= 0.001,
+                     f"{prefix}.shaft_frequency_hz must correspond to rpm / 60")
         _numeric(event.get("temperature_c"), f"{prefix}.temperature_c")
         health = event.get("health")
         _require(isinstance(health, str) and health in HEALTH_STATES,
