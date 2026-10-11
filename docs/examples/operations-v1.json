@@ -1,0 +1,36 @@
+{
+  "assets": [
+    {
+      "asset_id": "MTR-01",
+      "name": "Variable-load conveyor",
+      "scenario": "healthy",
+      "severity": 0,
+      "speed_variation_pct": 0.1,
+      "load_variation_pct": 0.2,
+      "sensor_noise_g": 0.014
+    },
+    {
+      "asset_id": "MTR-02",
+      "name": "Pump with dropout",
+      "scenario": "bearing_wear",
+      "severity": 0.7,
+      "onset_tick": 3,
+      "progression": "linear",
+      "start_severity": 0,
+      "ramp_ticks": 8,
+      "sensor_drift_g_per_tick": 0.0002,
+      "sensor_missing_onset_tick": 5,
+      "sensor_missing_duration_ticks": 2
+    },
+    {
+      "asset_id": "MTR-03",
+      "name": "Fan with sensor outlier",
+      "scenario": "healthy",
+      "severity": 0,
+      "sensor_noise_g": 0.025,
+      "sensor_outlier_onset_tick": 4,
+      "sensor_outlier_duration_ticks": 1,
+      "sensor_outlier_g": 1.5
+    }
+  ]
+}

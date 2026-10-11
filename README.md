@@ -9,6 +9,7 @@
 - RPM-linked synthetic vibration at 1× and 2× shaft speed, plus illustrative bearing impacts.
 - Five configurable synthetic scenarios: healthy, imbalance, bearing wear, misalignment, and overload; per-asset severity, onset, optional duration, and local JSON startup files.
 - Feature extraction: vibration RMS, peak-to-peak amplitude, crest factor, Hann-windowed spectral features and 5-tick rolling summaries.
+- Synthetic speed/load variability, vibration noise/drift, missing sensor intervals and outliers with explicit sensor-quality states.
 - Transparent rule-based health classification with fault examples.
 - Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
 - Unit tests via the Python standard library. **No Docker, cloud account, or hardware required.**
@@ -84,6 +85,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/signals.py` — synthetic RPM-related acceleration waveform fixtures.
 - `motorpulse/spectral.py` — dependency-free FFT, one-sided band power and harmonic peak estimates.
 - `docs/SPECTRAL.md` — spectral frequency/units conventions, rollup definitions and limits.
+- `docs/OPERATIONS.md` — operational variability, missing/outlier sensor behavior and caveats.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -138,6 +140,16 @@ Per motor, the dashboard now shows Hann-windowed **1×/2× shaft peak amplitudes
 ## Local scenario configuration (MP-024)
 
 The CLI accepts `--config <local-file.json>` with the same validated `assets` schema as the existing configuration API. It rejects duplicate JSON keys, oversized or malformed files, invalid fault settings, and non-finite numbers **before opening the server**. `--paused` and `--port` allow isolated local testing. Runtime dependencies remain zero, and all options bind only to `127.0.0.1`. Documentation: [docs/CONFIG_FILE.md](docs/CONFIG_FILE.md).
+
+## Operational variability and sensor events (MP-025)
+
+Motors now support configured speed/load fluctuations, sensor noise, drift, missing vibration windows and outlier injections. The simulator keeps machine fault truth separate from the sensor status: missing vibration yields JSON `null` and `health="unavailable"`, while an injected outlier is `health="suspect"`. Neither automatically proves a motor defect. The dashboard shows these statuses and avoids displaying missing features as zero.
+
+```bash
+python -m motorpulse --config docs/examples/operations-v1.json --paused
+```
+
+Step through the simulation to inspect onset and recovery. Parameter limits, provenance, and simplified physical assumptions: [docs/OPERATIONS.md](docs/OPERATIONS.md).
 
 ## Developer CI
 

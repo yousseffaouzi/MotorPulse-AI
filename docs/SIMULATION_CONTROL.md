@@ -13,7 +13,7 @@ On startup, the seed is 42, tick 1 is generated at virtual `2026-01-01T00:00:00+
 
 **Start** resumes automatic ticks; **Pause** freezes them. **Step** advances exactly one tick, only while paused (409 otherwise). **Reset** pauses and generates tick 1 again from the original seed. Both measurements and UTC timestamps are completely repeatable for the same seed, start time, step size, and tick sequence (MP-018). Tick 1 equals the chosen virtual start; subsequent ticks advance by the virtual step size. The worker's actual wall-clock delay does not alter those readings.
 
-Send `Content-Type: application/json`. Invalid JSON/actions return HTTP 400, an unsupported media type returns 415, and a step during running returns 409. Bodies are limited to 4096 bytes. The controller uses a condition lock for consistent concurrent access and clean thread shutdown.
+Send `Content-Type: application/json`. Invalid JSON/actions return HTTP 400, an unsupported media type returns 415, and a step during running returns 409. Bodies are limited to 16384 bytes. The controller uses a condition lock for consistent concurrent access and clean thread shutdown.
 
 ## Configurable virtual time
 

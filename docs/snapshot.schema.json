@@ -114,22 +114,33 @@
           "type": "number"
         },
         "rms_g": {
-          "type": "number",
+          "type": [
+            "number",
+            "null"
+          ],
           "minimum": 0
         },
         "peak_to_peak_g": {
-          "type": "number",
+          "type": [
+            "number",
+            "null"
+          ],
           "minimum": 0
         },
         "crest_factor": {
-          "type": "number",
+          "type": [
+            "number",
+            "null"
+          ],
           "minimum": 0
         },
         "health": {
           "enum": [
             "normal",
             "warning",
-            "critical"
+            "critical",
+            "unavailable",
+            "suspect"
           ]
         },
         "reasons": {
@@ -219,23 +230,38 @@
           "const": "hann"
         },
         "spectral_bin_hz": {
-          "type": "number",
+          "type": [
+            "number",
+            "null"
+          ],
           "exclusiveMinimum": 0
         },
         "dominant_frequency_hz": {
-          "type": "number",
+          "type": [
+            "number",
+            "null"
+          ],
           "minimum": 0
         },
         "shaft_1x_amplitude_g": {
-          "type": "number",
+          "type": [
+            "number",
+            "null"
+          ],
           "minimum": 0
         },
         "shaft_2x_amplitude_g": {
-          "type": "number",
+          "type": [
+            "number",
+            "null"
+          ],
           "minimum": 0
         },
         "band_80_400_rms_g": {
-          "type": "number",
+          "type": [
+            "number",
+            "null"
+          ],
           "minimum": 0
         },
         "rolling_window_ticks": {
@@ -247,11 +273,72 @@
           "minimum": 1
         },
         "rolling_rms_mean_g": {
-          "type": "number",
+          "type": [
+            "number",
+            "null"
+          ],
           "minimum": 0
         },
         "rolling_temperature_mean_c": {
           "type": "number"
+        },
+        "sensor_quality": {
+          "enum": [
+            "good",
+            "missing",
+            "outlier"
+          ]
+        },
+        "sensor_quality_reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "sensor_drift_g": {
+          "type": "number",
+          "minimum": -0.5,
+          "maximum": 0.5
+        },
+        "load_factor": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rolling_valid_observations": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "operating_config": {
+          "type": "object",
+          "properties": {
+            "speed_variation_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.2
+            },
+            "load_variation_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.3
+            },
+            "sensor_noise_g": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 0.1
+            },
+            "sensor_drift_g_per_tick": {
+              "type": "number",
+              "minimum": -0.001,
+              "maximum": 0.001
+            }
+          },
+          "required": [
+            "speed_variation_pct",
+            "load_variation_pct",
+            "sensor_noise_g",
+            "sensor_drift_g_per_tick"
+          ]
         }
       }
     }

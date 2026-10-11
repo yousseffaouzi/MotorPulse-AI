@@ -29,6 +29,7 @@ def generate_vibration(
     sample_rate_hz: int = 1024,
     sample_count: int = 1024,
     severity: float = 1.0,
+    noise_std_g: float = NOISE_STD_G,
 ) -> list[float]:
     """Produce equally spaced samples at times i / sample_rate_hz.
 
@@ -43,6 +44,8 @@ def generate_vibration(
         raise ValueError("rpm must be a finite positive number")
     if type(severity) not in (int, float) or not isfinite(severity) or not 0 <= severity <= 1:
         raise ValueError("severity must be between 0 and 1")
+    if type(noise_std_g) not in (int, float) or not isfinite(noise_std_g) or not 0 <= noise_std_g <= 0.1:
+        raise ValueError("noise_std_g must be finite and in [0, 0.1]")
     if scenario not in HARMONIC_AMPLITUDES_G:
         raise ValueError("unknown waveform scenario")
     if not isinstance(rng, Random):
@@ -72,7 +75,7 @@ def generate_vibration(
             phase = (BEARING_IMPACT_ORDER * shaft_hz * t) % 1.0
             phase_distance = min(phase, 1.0 - phase)
             value += severity * exp(-0.5 * (phase_distance / 0.085) ** 2)
-        value += rng.gauss(0, NOISE_STD_G)
+        value += rng.gauss(0, noise_std_g)
         samples.append(value)
     return samples
 

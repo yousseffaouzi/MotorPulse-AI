@@ -10,7 +10,13 @@ From the repository root, using Python 3.11 or later and **no third-party packag
 python -m unittest discover -s tests -v
 ```
 
-The suite contains **90 standard-library unittest test cases** (64 through MP-021, 4 packaging smoke tests from MP-022, 13 spectral/rolling checks from MP-023, and 9 JSON/CLI startup tests from MP-024). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
+The suite contains **101 standard-library unittest test cases** (64 through MP-021, 4 packaging smoke tests from MP-022, 13 spectral/rolling checks from MP-023, 9 JSON/CLI startup tests from MP-024, and 11 sensor/operating tests from MP-025). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
+
+For focused operating variability and sensor-quality tests:
+
+```bash
+python -m unittest discover -s tests -p 'test_operations.py' -v
+```
 
 For focused local config / CLI startup tests:
 
@@ -59,7 +65,7 @@ These integration tests bind an ephemeral `127.0.0.1` port and automatically shu
 - `GET /api/health`, `GET /api/status`, `GET /api/snapshot`, `GET /api/config`: `200` with JSON. Only explicit control actions advance simulation ticks.
 - `POST /api/control`: `200` for accepted start/pause/step/reset; `409` when stepping while running; `400` for invalid action/request.
 - `PUT /api/config`: `200` for valid replacements and atomic paused reset; `400` for invalid configs.
-- JSON request bodies have a **4096-byte maximum**; `415` for unsupported Content-Type, `411` for missing/malformed Content-Length, `413` for empty/oversized JSON body.
+- JSON request bodies have a **16384-byte maximum**; `415` for unsupported Content-Type, `411` for missing/malformed Content-Length, `413` for empty/oversized JSON body.
 - Unknown `/api/` paths, and POST/PUT on the wrong endpoint, currently return `404` JSON errors.
 - JSON responses include `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`.
 

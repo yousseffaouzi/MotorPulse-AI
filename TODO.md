@@ -27,6 +27,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-022 implemented: pyproject.toml and console script, a bundled dashboard asset, installation guide, four packaging tests, and an isolated offline wheel-build smoke check.
 - MP-023 implemented: Hann-windowed radix-2 FFT, RPM-aware 1×/2× spectral peaks, high-frequency band RMS, per-motor 5-tick rolling averages, API/JSON-schema fields, and numerical regression tests.
 - MP-024 implemented: local bounded JSON scenario loader, strict validation, `--config`/`--paused`/`--port` CLI flags, and nine file/startup regression tests.
+- MP-025 implemented: deterministic operating variability, simulated noise/drift, sensor missing/outlier windows, explicit sensor quality, nullable vibration features, and 11 new tests.
 - No trained AI model, persisted database, external ingestion adapter or real-hardware connection.
 
 ## Milestone 0 — Existing proof of concept
@@ -55,7 +56,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-022 | DONE | P1 | Packaging and consistent developer commands | pyproject.toml, documented setup and CLI on supported Python versions |
 | MP-023 | DONE | P1 | Extend signal-processing features | FFT/spectral and rolling features with reference numerical tests |
 | MP-024 | DONE | P1 | Scenario and asset configuration | Validated JSON/YAML or CLI configuration without source edits |
-| MP-025 | TODO | P1 | Operational variability and sensor problems | Speed/load variability, noise, missing values, drift and outliers with correct labels |
+| MP-025 | DONE | P1 | Operational variability and sensor problems | Speed/load variability, noise, missing values, drift and outliers with correct labels |
 | MP-026 | TODO | P1 | Document simulation physics and assumptions | Equations, units, thresholds and limits; no unvalidated industrial standards claims |
 
 **Exit criteria:** A replayable simulation produces time-stamped series with multiple configurable assets and progressive faults.

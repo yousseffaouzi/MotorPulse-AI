@@ -27,6 +27,15 @@ class AssetScenario:
     progression: str = "constant"
     start_severity: float = 0.0
     ramp_ticks: int | None = None
+    speed_variation_pct: float = 0.0
+    load_variation_pct: float = 0.0
+    sensor_noise_g: float = 0.014
+    sensor_drift_g_per_tick: float = 0.0
+    sensor_missing_onset_tick: int | None = None
+    sensor_missing_duration_ticks: int | None = None
+    sensor_outlier_onset_tick: int | None = None
+    sensor_outlier_duration_ticks: int | None = None
+    sensor_outlier_g: float = 0.0
 
     def __post_init__(self) -> None:
         if not isinstance(self.asset_id, str) or not ASSET_ID_PATTERN.fullmatch(self.asset_id):
@@ -61,6 +70,40 @@ class AssetScenario:
                 raise ValueError("ramp_ticks must be an integer between 2 and 100000")
             if self.duration_ticks is not None and self.duration_ticks < self.ramp_ticks:
                 raise ValueError("duration_ticks must be >= ramp_ticks for a progressive fault")
+
+        # Optional MP-025 operating and sensor-quality settings.
+        for key, high in (("speed_variation_pct", 0.2),
+                          ("load_variation_pct", 0.3),
+                          ("sensor_noise_g", 0.1),
+                          ("sensor_outlier_g", 2.0)):
+            value = getattr(self, key)
+            if type(value) not in (int, float) or not isfinite(value) or not 0 <= value <= high:
+                raise ValueError(f"{key} must be a finite number in [0, {high}]")
+        drift = self.sensor_drift_g_per_tick
+        if type(drift) not in (int, float) or not isfinite(drift) or not -0.001 <= drift <= 0.001:
+            raise ValueError("sensor_drift_g_per_tick must be finite and in [-0.001, 0.001]")
+        for kind in ("missing", "outlier"):
+            onset = getattr(self, f"sensor_{kind}_onset_tick")
+            duration = getattr(self, f"sensor_{kind}_duration_ticks")
+            if onset is None:
+                if duration is not None:
+                    raise ValueError(f"sensor_{kind}_duration_ticks requires an onset")
+                if kind == "outlier" and self.sensor_outlier_g != 0:
+                    raise ValueError("sensor_outlier_g requires an onset")
+                continue
+            if type(onset) is not int or not 1 <= onset <= 100000:
+                raise ValueError(f"sensor_{kind}_onset_tick must be an integer in [1, 100000]")
+            if type(duration) is not int or not 1 <= duration <= 100000:
+                raise ValueError(f"sensor_{kind}_duration_ticks must be an integer in [1, 100000]")
+            if kind == "outlier" and self.sensor_outlier_g <= 0:
+                raise ValueError("sensor_outlier_g must be positive for an outlier schedule")
+
+    def sensor_event_active(self, kind: str, tick: int) -> bool:
+        if kind not in ("missing", "outlier"):
+            raise ValueError("unknown sensor event")
+        onset = getattr(self, f"sensor_{kind}_onset_tick")
+        duration = getattr(self, f"sensor_{kind}_duration_ticks")
+        return onset is not None and onset <= tick < onset + duration
 
     def phase(self, tick: int) -> str:
         """State of the synthetic scenario at one integer tick."""
@@ -111,6 +154,15 @@ class AssetScenario:
             "progression": self.progression,
             "start_severity": float(self.start_severity),
             "ramp_ticks": self.ramp_ticks,
+            "speed_variation_pct": float(self.speed_variation_pct),
+            "load_variation_pct": float(self.load_variation_pct),
+            "sensor_noise_g": float(self.sensor_noise_g),
+            "sensor_drift_g_per_tick": float(self.sensor_drift_g_per_tick),
+            "sensor_missing_onset_tick": self.sensor_missing_onset_tick,
+            "sensor_missing_duration_ticks": self.sensor_missing_duration_ticks,
+            "sensor_outlier_onset_tick": self.sensor_outlier_onset_tick,
+            "sensor_outlier_duration_ticks": self.sensor_outlier_duration_ticks,
+            "sensor_outlier_g": float(self.sensor_outlier_g),
         }
 
 

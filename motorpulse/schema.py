@@ -19,7 +19,7 @@ SENSOR_UNITS = {
     "temperature": "degC",
     "rotational_speed": "rpm",
 }
-HEALTH_STATES = frozenset({"normal", "warning", "critical"})
+HEALTH_STATES = frozenset({"normal", "warning", "critical", "unavailable", "suspect"})
 
 
 def _require(condition: bool, message: str) -> None:
@@ -90,8 +90,34 @@ def validate_snapshot(snapshot: Mapping[str, Any]) -> None:
             _require(abs(event["window_duration_s"] -
                          event["sample_count"] / event["sample_rate_hz"]) <= 1e-9,
                      f"{prefix}.window_duration_s must match sample_count / sample_rate_hz")
+        quality = event.get("sensor_quality", "good")
+        _require(type(quality) is str and quality in ("good", "missing", "outlier"),
+                 f"{prefix}.sensor_quality invalid")
+        if "sensor_quality_reasons" in event:
+            qr = event["sensor_quality_reasons"]
+            _require(isinstance(qr, list) and
+                     all(isinstance(reason, str) and bool(reason) for reason in qr),
+                     f"{prefix}.sensor_quality_reasons must be a list of nonempty strings")
+        if "load_factor" in event:
+            _numeric(event["load_factor"], f"{prefix}.load_factor", min_value=0)
+        if "sensor_drift_g" in event:
+            _numeric(event["sensor_drift_g"], f"{prefix}.sensor_drift_g")
+            _require(abs(event["sensor_drift_g"]) <= 0.5,
+                     f"{prefix}.sensor_drift_g out of bounds")
+        if "operating_config" in event:
+            conf = event["operating_config"]
+            _require(isinstance(conf, Mapping), f"{prefix}.operating_config must be an object")
+            for key, lo, hi in (("speed_variation_pct", 0, .2),
+                                ("load_variation_pct", 0, .3),
+                                ("sensor_noise_g", 0, .1),
+                                ("sensor_drift_g_per_tick", -.001, .001)):
+                _numeric(conf.get(key), f"{prefix}.operating_config.{key}")
+                _require(lo <= conf[key] <= hi, f"{prefix}.operating_config.{key} out of bounds")
         for key in ("rpm", "rms_g", "peak_to_peak_g", "crest_factor"):
-            _numeric(event.get(key), f"{prefix}.{key}", min_value=0)
+            value = event.get(key)
+            if quality == "missing" and key != "rpm" and value is None:
+                continue
+            _numeric(value, f"{prefix}.{key}", min_value=0)
         if "shaft_frequency_hz" in event:
             _numeric(event["shaft_frequency_hz"], f"{prefix}.shaft_frequency_hz", min_value=0)
             _require(abs(event["shaft_frequency_hz"] - event["rpm"] / 60) <= 0.001,
@@ -141,9 +167,18 @@ def validate_snapshot(snapshot: Mapping[str, Any]) -> None:
                     "shaft_1x_amplitude_g", "shaft_2x_amplitude_g",
                     "band_80_400_rms_g", "rolling_rms_mean_g"):
             if key in event:
+                if quality == "missing" and event[key] is None:
+                    continue
                 _numeric(event[key], f"{prefix}.{key}", min_value=0)
         if "rolling_temperature_mean_c" in event:
             _numeric(event["rolling_temperature_mean_c"], f"{prefix}.rolling_temperature_mean_c")
+        if "rolling_valid_observations" in event:
+            count = event["rolling_valid_observations"]
+            _require(type(count) is int and count >= 0,
+                     f"{prefix}.rolling_valid_observations must be nonnegative")
+            if "rolling_observations" in event:
+                _require(count <= event["rolling_observations"],
+                         f"{prefix}.rolling_valid_observations exceeds rolling_observations")
         for key in ("rolling_window_ticks", "rolling_observations"):
             if key in event:
                 _require(type(event[key]) is int and event[key] > 0,
@@ -151,17 +186,29 @@ def validate_snapshot(snapshot: Mapping[str, Any]) -> None:
         if "rolling_observations" in event and "rolling_window_ticks" in event:
             _require(event["rolling_observations"] <= event["rolling_window_ticks"],
                      f"{prefix}.rolling_observations must not exceed rolling_window_ticks")
-        if "spectral_bin_hz" in event:
+        if event.get("spectral_bin_hz") is not None:
             _require(abs(event["spectral_bin_hz"] -
                          event["sample_rate_hz"] / event["sample_count"]) < 1e-5,
                      f"{prefix}.spectral_bin_hz mismatch")
-        if "dominant_frequency_hz" in event:
+        if event.get("dominant_frequency_hz") is not None:
             _require(event["dominant_frequency_hz"] <= event["sample_rate_hz"] / 2,
                      f"{prefix}.dominant_frequency_hz above Nyquist")
         _numeric(event.get("temperature_c"), f"{prefix}.temperature_c")
         health = event.get("health")
         _require(isinstance(health, str) and health in HEALTH_STATES,
-                 f"{prefix}.health must be normal, warning or critical")
+                 f"{prefix}.health has an invalid value")
+        if quality == "missing":
+            _require(health == "unavailable", f"{prefix}.health must be unavailable for missing data")
+            for key in ("rms_g", "peak_to_peak_g", "crest_factor", "spectral_bin_hz",
+                        "dominant_frequency_hz", "shaft_1x_amplitude_g", "shaft_2x_amplitude_g",
+                        "band_80_400_rms_g", "rolling_rms_mean_g"):
+                if key in event:
+                    _require(event[key] is None, f"{prefix}.{key} must be null if missing")
+        elif quality == "outlier":
+            _require(health == "suspect", f"{prefix}.health must be suspect for an outlier")
+        else:
+            _require(health in ("normal", "warning", "critical"),
+                     f"{prefix}.health is inconsistent with good sensor quality")
         reasons = event.get("reasons")
         _require(isinstance(reasons, list) and
                  all(isinstance(x, str) and bool(x) for x in reasons),

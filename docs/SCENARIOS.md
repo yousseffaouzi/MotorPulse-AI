@@ -28,6 +28,10 @@ Rules: 1–12 unique `asset_id` values (uppercase letters, digits, underscores a
 
 The *effective* fault applies from `onset_tick` (inclusive) through `onset_tick + duration_ticks` (exclusive); otherwise readings are healthy. The `scenario` and `severity` telemetry fields represent the **effective** state, while `configured_scenario`, `configured_severity`, `onset_tick`, and `duration_ticks` preserve the scheduled settings. `Reset` replays the same configuration, not the original defaults. Values stay constant during an active fault **by default**. As of MP-020, you can opt into deterministic linear or exponential ramps with additional `progression`, `start_severity` and `ramp_ticks` parameters; see [PROGRESSION.md](PROGRESSION.md).
 
+## Operating and sensor perturbations
+
+MP-025 adds optional speed/load variability, noise, drift, missing vibration windows and sensor outliers using the same per-asset configuration. The machine fault `scenario` is independent of the returned `sensor_quality`. Missing vibration must never be interpreted as healthy data. See [OPERATIONS.md](OPERATIONS.md) for fields, bounds, example configurations and limitations.
+
 ## Simplified fault fixtures
 
 | Scenario | Fault strength at severity 1 | Modeling assumption |

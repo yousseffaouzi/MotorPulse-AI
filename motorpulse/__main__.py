@@ -12,7 +12,7 @@ from .scenarios import AssetScenario, DEFAULT_ASSETS
 from .sim import DEFAULT_START_TIME_UTC, parse_start_time_utc
 
 ROOT = Path(__file__).resolve().parent / "web"
-MAX_CONTROL_BODY_BYTES = 4096
+MAX_CONTROL_BODY_BYTES = 16384
 
 
 class Handler(SimpleHTTPRequestHandler):

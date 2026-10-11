@@ -38,7 +38,7 @@ The accepted file format is exactly the body used by `PUT /api/config`: one top-
 }
 ```
 
-Details, validation ranges and synthetic assumptions are in [SCENARIOS.md](SCENARIOS.md) and [PROGRESSION.md](PROGRESSION.md). Unspecified optional fields use the existing scenario defaults, preserving compatibility with earlier JSON examples. The loader returns the project's immutable `AssetScenario` values; it does not implement a second configuration schema.
+Details, validation ranges and synthetic assumptions are in [SCENARIOS.md](SCENARIOS.md) and [PROGRESSION.md](PROGRESSION.md). For operating/sensor scenarios, see [OPERATIONS.md](OPERATIONS.md) and load `docs/examples/operations-v1.json`. Unspecified optional fields use the existing scenario defaults, preserving compatibility with earlier JSON examples. The loader returns the project's immutable `AssetScenario` values; it does not implement a second configuration schema.
 
 ## File path and error semantics
 
