@@ -3,3 +3,4 @@ include README.md
 include motorpulse/web/index.html
 recursive-include docs *.md *.json
 recursive-include tests test_*.py
+recursive-include tests/fixtures *

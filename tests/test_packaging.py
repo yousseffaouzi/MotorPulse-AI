@@ -30,6 +30,8 @@ class PackagingTests(unittest.TestCase):
                          "motorpulse.__main__:main")
         self.assertEqual(project["project"]["scripts"]["motorpulse-export"],
                          "motorpulse.export:main")
+        self.assertEqual(project["project"]["scripts"]["motorpulse-ims"],
+                         "motorpulse.ims:main")
         self.assertIn("web/index.html", project["tool"]["setuptools"]["package-data"]["motorpulse"])
 
     def test_browser_is_a_real_package_resource(self):

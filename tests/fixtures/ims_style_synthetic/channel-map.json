@@ -1,0 +1,10 @@
+{
+  "test_set": "2",
+  "channels": {
+    "1": "bearing-1",
+    "2": "bearing-2",
+    "3": "bearing-3",
+    "4": "bearing-4"
+  },
+  "source_note": "Hand-authored illustrative mapping only, not verified from the IMS archive."
+}

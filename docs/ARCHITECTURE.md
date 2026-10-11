@@ -10,7 +10,7 @@ The v1 JSON snapshot/event feature schema and deterministic scenario library alr
 
 ## Stage 2 (planned)
 
-Add *local, user-provided* ingestion adapters for public bearing datasets with verified per-user source terms, non-leaky splits by run/asset, supervised and unsupervised baselines, reproducible evaluations and confidence/uncertainty reporting. Never assume IMS waveforms use the synthetic 1024 Hz schema. No upstream archive or derived waveforms may be committed until rights are verified. Do not claim remaining useful life accuracy without validation.
+MP-009 now provides a **bounded local-only IMS-style ASCII inspector** operating on user-supplied, already-extracted files, preserving test-set/run/channel/timestamp keys and leaving unverified bearing mapping, timezone, physical units, onset and RUL unknown. It is not connected to the synthetic classifier or live HTTP server. See [IMS_INGESTION.md](IMS_INGESTION.md). Next steps: MP-028 rigorous dataset validation/preprocessing and later non-leaky splits by run/asset, supervised and unsupervised baselines, reproducible evaluations and uncertainty reporting. Never assume IMS waveforms use the synthetic 1024 Hz schema. No upstream archive or derived waveforms may be committed until rights are verified. Do not claim remaining useful life accuracy without validation.
 
 ## Stage 3 (planned)
 

@@ -179,7 +179,7 @@ Each Step advances one virtual tick only while paused. Repeat the same setup and
 5. **No external data validation:** synthetic examples are *not* the NASA IMS data. The IMS bearing datasets are separate real experimental resources requiring ingestion design, split-by-run/asset validation, provenance, and license/redistribution review.
 6. **No industrial safety assurance:** no protection, electrical/functional safety controls, cybersecurity architecture, SCADA/PLC connectivity, maintenance work-order approval or production alerting.
 
-**Next milestones:** MP-008 synthetic export and MP-027 IMS source-card research are complete. See [DATA_PROVENANCE.md](DATA_PROVENANCE.md) for the **unresolved** license/redistribution terms. MP-009 local, user-provided public dataset ingestion, MP-028+ nonleaky evaluation, and MP-010/011 ML baselines and held-out reporting remain; do not publish original or derived IMS files until rights are clarified. Do not call a simulated fault label a model prediction.
+**Next milestones:** MP-008 synthetic export and MP-027 IMS source-card research are complete. See [DATA_PROVENANCE.md](DATA_PROVENANCE.md) for the **unresolved** license/redistribution terms. MP-009 local-only IMS-style ingestion is implemented but has not been verified on real upstream files; MP-028+ nonleaky validation/evaluation, and MP-010/011 ML baselines and held-out reporting remain; do not publish original or derived IMS files until rights are clarified. Do not call a simulated fault label a model prediction.
 
 ## External methodological references
 

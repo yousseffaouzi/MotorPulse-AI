@@ -87,7 +87,7 @@ The following are **expected investigation items, not findings from an inspected
 6. Document collection date vs file-system packaging dates, archive version/URL, and archive SHA-256 **before** reporting a reproducible benchmark.
 7. Make any downstream feature-export license and citation policy explicit. Never mix IMS-derived measurements with **synthetic** training labels without a declared data-source column.
 
-**No real-data ingestion, waveform upload or ML evaluation was implemented in MP-027.** The next code milestone is MP-009 (read verified **user-provided local** files without bundling the dataset), followed by MP-028 (validation/preprocessing). If rights remain unclear, it is appropriate to keep redistribution blocked while allowing independent local research under the terms applicable to the user.
+**MP-009 now adds a local-only IMS-style ASCII inspection adapter**; it was tested only on [handwritten fixtures](../tests/fixtures/ims_style_synthetic/README.md), not an original archive. See [IMS_INGESTION.md](IMS_INGESTION.md). MP-028 will address deeper validation/preprocessing. Neither the importer nor a public download grants rights to redistribute original or derived data; that remains blocked under project policy pending rights clarification.
 
 ## How to validate this documentation offline
 
