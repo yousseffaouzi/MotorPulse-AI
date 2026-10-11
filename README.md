@@ -7,6 +7,7 @@
 ## What you can run today
 - Reproducible simulated vibration, temperature and RPM signals for three motors.
 - RPM-linked synthetic vibration at 1× and 2× shaft speed, plus illustrative bearing impacts.
+- Five configurable synthetic scenarios: healthy, imbalance, bearing wear, misalignment, and overload; per-asset severity, onset, and optional duration.
 - Feature extraction: vibration RMS, peak-to-peak amplitude and crest factor.
 - Transparent rule-based health classification with fault examples.
 - Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
@@ -53,6 +54,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/signals.py` — synthetic RPM-related acceleration waveform fixtures.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
+- `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
 - `motorpulse/controller.py` — thread-safe, timed simulator worker.
 - `motorpulse/__main__.py` — localhost demo server.
 - `docs/SIMULATION_CONTROL.md` — simulation controls and virtual clock configuration.
@@ -67,6 +69,18 @@ The JSON snapshot now includes `schema_version`, stable per-simulation-event IDs
 ## MP-019 signal sampling
 
 Acceleration is generated at **1024 samples/second** over a **1-second window** (1024 samples; 1 Hz bin spacing). The shaft's 1× frequency is **RPM/60 Hz**, with a small 2× harmonic. The synthetic imbalance scenario increases 1× amplitude; bearing wear adds pulses at an **illustrative 4.8× ratio**, not a geometry-derived bearing defect frequency. The misalignment waveform is available as a test fixture, but is **not yet a selectable dashboard scenario** (MP-007). The timestamp is the virtual start of the acquisition window. Read [docs/SIGNALS.md](docs/SIGNALS.md) before interpreting these patterns.
+
+## Configurable fault scenarios (MP-007)
+
+Use the dashboard to choose a fault for each motor and adjust its severity (0–1), onset tick, and optional duration. Clicking **Apply scenarios** atomically replaces the in-memory configuration, pauses, and resets the simulation to tick 1. These values are **illustrative**, not industrial severity calibration. The original seed and virtual clock settings are preserved.
+
+For scripts, read `GET /api/config` and replace all assets with `PUT /api/config` using `Content-Type: application/json` (1–12 motors, validation before mutation). You can load a reproducible example:
+
+```bash
+curl -X PUT http://127.0.0.1:8765/api/config -H 'Content-Type: application/json' --data-binary @docs/examples/scenarios-v1.json
+```
+
+See [docs/SCENARIOS.md](docs/SCENARIOS.md) for behavior, input constraints and limitations. A scenario runs at *constant* severity while active; automatic fault growth is planned in MP-020.
 
 ## Developer CI
 

@@ -7,6 +7,7 @@ This demo runs on **localhost only**, with no cloud, database, or third-party de
 On startup, the seed is 42, tick 1 is generated at virtual `2026-01-01T00:00:00+00:00`, and the controller runs automatically at 1.5-second **wall-clock** intervals. The virtual clock advances independently of the real timer.
 
 - `GET /api/snapshot`: read the latest v1 telemetry; repeated GET requests never trigger a step.
+- `GET /api/config`: inspect per-motor fault configuration. `PUT /api/config`: atomically replace validated motor scenarios, pause and reset tick 1. See [SCENARIOS.md](SCENARIOS.md).
 - `GET /api/status`: JSON containing `state`, `tick`, `seed`, `interval_seconds` (wall scheduling), `step_seconds` (virtual advance), `start_time_utc`, and `simulated_at_utc`.
 - `POST /api/control`: JSON with exactly one `action`: `start`, `pause`, `step`, or `reset`.
 

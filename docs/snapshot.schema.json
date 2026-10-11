@@ -148,6 +148,38 @@
           "type": "number",
           "exclusiveMinimum": 0,
           "description": "Derived shaft 1x frequency, rpm/60"
+        },
+        "severity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "configured_severity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "configured_scenario": {
+          "enum": [
+            "healthy",
+            "imbalance",
+            "bearing_wear",
+            "misalignment",
+            "overload"
+          ]
+        },
+        "onset_tick": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "duration_ticks": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1,
+          "maximum": 100000
         }
       }
     }

@@ -27,7 +27,8 @@ For equally spaced sample `i` at `t = i/fs`, define shaft frequency `f_s = RPM /
 | healthy | 0.12 g | 0.015 g | none | yes |
 | imbalance | 0.62 g | 0.020 g | none | yes |
 | bearing_wear | 0.22 g | 0.025 g | periodic smooth bumps at 4.8× | yes |
-| misalignment | 0.14 g | 0.28 g | none | no; waveform fixture only (MP-007) |
+| misalignment | 0.14 g | 0.28 g | none | yes (MP-007) |
+| overload | 0.20 g | 0.025 g | none | yes (MP-007; +50°C in thermal fixture) |
 
 For `bearing_wear`, `p(t)` is a 1.0 g peak, smooth periodic Gaussian-shaped bump with repeating phase `(4.8 f_s t) mod 1` and relative phase width 0.085 cycles.
 
@@ -37,7 +38,7 @@ For `bearing_wear`, `p(t)` is a 1.0 g peak, smooth periodic Gaussian-shaped bump
 
 At 1500 RPM: `f_s = 25 Hz`, 2× is `50 Hz`, and the illustrative 4.8× impact rate is `120 Hz`. Changing RPM to 1200 or 1800 moves 1× to 20 or 30 Hz respectively. The old frequency-independent 64 Hz sine has been removed.
 
-The generator is deterministic for the same motor asset, seed and tick. `motorpulse.signals.harmonic_amplitude_g()` provides a **single-frequency projection** for tests; it is not an FFT implementation. True Fourier spectra require suitable windowing, filtering, leakage accounting, sampling-time conventions and measured sensor calibration.
+The generator is deterministic for the same motor asset, seed, tick, and fault configuration. MP-007 interpolates 1×/2× amplitudes and illustrative bearing-pulse strength linearly from healthy (severity 0) to full synthetic fault (severity 1). It does not simulate progressive deterioration or maintenance-relevant severity thresholds. `motorpulse.signals.harmonic_amplitude_g()` provides a **single-frequency projection** for tests; it is not an FFT implementation. True Fourier spectra require suitable windowing, filtering, leakage accounting, sampling-time conventions and measured sensor calibration.
 
 ## Developer verification
 

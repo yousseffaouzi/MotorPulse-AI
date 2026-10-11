@@ -96,6 +96,24 @@ def validate_snapshot(snapshot: Mapping[str, Any]) -> None:
             _numeric(event["shaft_frequency_hz"], f"{prefix}.shaft_frequency_hz", min_value=0)
             _require(abs(event["shaft_frequency_hz"] - event["rpm"] / 60) <= 0.001,
                      f"{prefix}.shaft_frequency_hz must correspond to rpm / 60")
+        # Optional additive MP-007 fields preserve compatibility with older clients.
+        if "severity" in event:
+            _numeric(event["severity"], f"{prefix}.severity", min_value=0)
+            _require(event["severity"] <= 1, f"{prefix}.severity must be <= 1")
+        if "configured_severity" in event:
+            _numeric(event["configured_severity"], f"{prefix}.configured_severity", min_value=0)
+            _require(event["configured_severity"] <= 1, f"{prefix}.configured_severity must be <= 1")
+        if "configured_scenario" in event:
+            from .scenarios import SCENARIOS
+            _require(event["configured_scenario"] in SCENARIOS,
+                     f"{prefix}.configured_scenario invalid")
+        if "onset_tick" in event:
+            _require(type(event["onset_tick"]) is int and 1 <= event["onset_tick"] <= 100000,
+                     f"{prefix}.onset_tick invalid")
+        if "duration_ticks" in event:
+            d = event["duration_ticks"]
+            _require(d is None or (type(d) is int and 1 <= d <= 100000),
+                     f"{prefix}.duration_ticks invalid")
         _numeric(event.get("temperature_c"), f"{prefix}.temperature_c")
         health = event.get("health")
         _require(isinstance(health, str) and health in HEALTH_STATES,

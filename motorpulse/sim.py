@@ -8,6 +8,7 @@ from random import Random
 
 from .schema import SAMPLE_COUNT, SAMPLE_RATE_HZ, SCHEMA_VERSION, SENSOR_UNITS
 from .signals import generate_vibration
+from .scenarios import AssetScenario, DEFAULT_ASSETS
 
 DEFAULT_START_TIME_UTC = datetime(2026, 1, 1, tzinfo=timezone.utc)
 
@@ -25,11 +26,7 @@ def parse_start_time_utc(value: str) -> datetime:
     return moment.astimezone(timezone.utc)
 
 
-ASSETS = (
-    ("MTR-01", "Conveyor motor", "healthy"),
-    ("MTR-02", "Pump motor", "imbalance"),
-    ("MTR-03", "Fan motor", "bearing_wear"),
-)
+ASSETS = tuple((a.asset_id, a.name, a.scenario) for a in DEFAULT_ASSETS)
 
 
 def features(samples: list[float]) -> dict[str, float]:
@@ -66,6 +63,7 @@ class MotorSimulator:
     tick: int = 0
     start_time_utc: datetime = DEFAULT_START_TIME_UTC
     step_seconds: float = 1.5
+    assets: tuple[AssetScenario, ...] = DEFAULT_ASSETS
     _step_microseconds: int = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
@@ -83,6 +81,10 @@ class MotorSimulator:
         microseconds = round(raw_microseconds)
         if microseconds < 1 or abs(raw_microseconds - microseconds) > 1e-7:
             raise ValueError("step_seconds must resolve to whole microseconds")
+        if (not isinstance(self.assets, tuple) or not 1 <= len(self.assets) <= 12
+                or any(not isinstance(a, AssetScenario) for a in self.assets)
+                or len({a.asset_id for a in self.assets}) != len(self.assets)):
+            raise ValueError("assets must contain 1 to 12 uniquely identified AssetScenario objects")
         self._step_microseconds = microseconds
         self.step_seconds = microseconds / 1_000_000
 
@@ -97,18 +99,22 @@ class MotorSimulator:
         return time.isoformat()
 
     def sample_asset(self, asset_id: str, name: str, scenario: str,
-                     *, timestamp_utc: str | None = None) -> dict:
+                     *, timestamp_utc: str | None = None, severity: float = 1.0) -> dict:
         # Re-seeding by tick+asset ensures repeatable outputs across processes.
         rng = Random(f"{self.seed}:{self.tick}:{asset_id}")
         base_rpm = 1480 + rng.uniform(-24, 24)
         temp = 47 + rng.uniform(-3, 3)
         if scenario == "imbalance":
-            temp += 13
+            temp += 13 * severity
         elif scenario == "bearing_wear":
-            temp += 35
+            temp += 35 * severity
+        elif scenario == "misalignment":
+            temp += 9 * severity
+        elif scenario == "overload":
+            temp += 50 * severity
         samples = generate_vibration(base_rpm, scenario, rng,
                                      sample_rate_hz=SAMPLE_RATE_HZ,
-                                     sample_count=SAMPLE_COUNT)
+                                     sample_count=SAMPLE_COUNT, severity=severity)
         sensor = features(samples)
         health, reasons = classify(sensor["rms_g"], temp, sensor["crest_factor"])
         if timestamp_utc is None:
@@ -118,6 +124,7 @@ class MotorSimulator:
             "asset_id": asset_id,
             "name": name,
             "scenario": scenario,
+            "severity": severity,
             "source": "synthetic",
             "timestamp_utc": timestamp_utc,
             "sample_rate_hz": SAMPLE_RATE_HZ,
@@ -135,8 +142,19 @@ class MotorSimulator:
     def step(self) -> dict:
         self.tick += 1
         recorded_at_utc = self.timestamp_for_tick(self.tick)
-        assets = [self.sample_asset(*asset, timestamp_utc=recorded_at_utc)
-                  for asset in ASSETS]
+        assets = []
+        for config in self.assets:
+            active_scenario, active_severity = config.effective(self.tick)
+            row = self.sample_asset(config.asset_id, config.name, active_scenario,
+                                    timestamp_utc=recorded_at_utc,
+                                    severity=active_severity)
+            row.update({
+                "configured_scenario": config.scenario,
+                "configured_severity": float(config.severity),
+                "onset_tick": config.onset_tick,
+                "duration_ticks": config.duration_ticks,
+            })
+            assets.append(row)
         return {
             "schema_version": SCHEMA_VERSION,
             "source": "synthetic",

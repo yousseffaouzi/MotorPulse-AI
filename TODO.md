@@ -16,11 +16,12 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - `motorpulse/sim.py`: deterministic numeric synthetic signals for three fixed motors, features (RMS/peak-to-peak/crest factor), rule-based classifications.
 - `motorpulse/__main__.py`: localhost-only `/api/snapshot`, `/api/status`, `/api/control`, `/api/health` API; GET no longer advances the simulator.
-- `web/index.html`: polling dashboard with Start/Pause/Step/Reset; historical storage and scenario controls are still pending.
+- `web/index.html`: polling dashboard with Start/Pause/Step/Reset and an editable scenario configuration; persistent history remains pending.
 - `tests/test_sim.py`, `tests/test_clock.py` and `.github/workflows/test.yml`: simulator/replay tests and PR-only GitHub Actions.
 - MP-006 implemented: telemetry v1 schema, UTC timestamps, event IDs, sampling metadata, canonical units and automated validation.
 - MP-018 implemented: configurable virtual UTC epoch and tick spacing; identical configuration/seed/tick sequence reproduces complete snapshots, independent of wall clock.
 - MP-019 implemented: 1024 Hz / 1024-sample waveform windows, RPM-linked 1×/2× signatures, illustrative 4.8× bearing impacts, and numerical spectral regression tests.
+- MP-007 implemented: validated 1–12 motor scenarios with severity, onset/duration, browser editor, atomic configuration API, and deterministic replay; gradual degradation remains MP-020.
 - No trained AI model, persisted database, external ingestion adapter or real-hardware connection.
 
 ## Milestone 0 — Existing proof of concept
@@ -40,7 +41,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | ID | Status | Priority | Task | Acceptance evidence |
 |---|---|---|---|---|
 | MP-006 | DONE | P0 | Define versioned telemetry, asset, sensor, feature and event schemas | schema_version, event_id, asset_id, UTC timestamp, units, source, scenario, sampling metadata, examples and validation tests |
-| MP-007 | TODO | P0 | Configurable fault scenario library | Healthy, imbalance, bearing wear, misalignment, overload; severity and duration parameters; deterministic tests |
+| MP-007 | DONE | P0 | Configurable fault scenario library | Healthy, imbalance, bearing wear, misalignment, overload; severity and duration parameters; deterministic tests |
 | MP-017 | DONE | P0 | Separate simulation progression from snapshot reads | GET snapshot is read-only; explicit step/start/pause/reset; integration tests |
 | MP-018 | DONE | P0 | Reproducible simulated clock and replay | Same seed and configuration reproduce timestamps and measurements, independent of wall clock |
 | MP-019 | DONE | P0 | Physically defined waveform sampling | Sampling rate in Hz, sample count, units, window duration; documented waveform assumptions |

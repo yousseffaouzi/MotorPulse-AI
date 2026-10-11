@@ -17,6 +17,7 @@ HARMONIC_AMPLITUDES_G = {
     "imbalance": (0.62, 0.020),
     "bearing_wear": (0.22, 0.025),
     "misalignment": (0.14, 0.28),
+    "overload": (0.20, 0.025),
 }
 
 
@@ -27,6 +28,7 @@ def generate_vibration(
     *,
     sample_rate_hz: int = 1024,
     sample_count: int = 1024,
+    severity: float = 1.0,
 ) -> list[float]:
     """Produce equally spaced samples at times i / sample_rate_hz.
 
@@ -39,6 +41,8 @@ def generate_vibration(
     """
     if type(rpm) not in (float, int) or not isfinite(rpm) or rpm <= 0:
         raise ValueError("rpm must be a finite positive number")
+    if type(severity) not in (int, float) or not isfinite(severity) or not 0 <= severity <= 1:
+        raise ValueError("severity must be between 0 and 1")
     if scenario not in HARMONIC_AMPLITUDES_G:
         raise ValueError("unknown waveform scenario")
     if not isinstance(rng, Random):
@@ -52,7 +56,10 @@ def generate_vibration(
     if max_frequency_hz >= sample_rate_hz / 2:
         raise ValueError("modeled frequency must be below Nyquist; increase sample_rate_hz")
 
-    amp_1x, amp_2x = HARMONIC_AMPLITUDES_G[scenario]
+    normal_1x, normal_2x = HARMONIC_AMPLITUDES_G["healthy"]
+    target_1x, target_2x = HARMONIC_AMPLITUDES_G[scenario]
+    amp_1x = normal_1x + severity * (target_1x - normal_1x)
+    amp_2x = normal_2x + severity * (target_2x - normal_2x)
     samples = []
     for index in range(sample_count):
         t = index / sample_rate_hz
@@ -64,7 +71,7 @@ def generate_vibration(
             # anti-alias filtering or physical impact-response fidelity.
             phase = (BEARING_IMPACT_ORDER * shaft_hz * t) % 1.0
             phase_distance = min(phase, 1.0 - phase)
-            value += 1.0 * exp(-0.5 * (phase_distance / 0.085) ** 2)
+            value += severity * exp(-0.5 * (phase_distance / 0.085) ** 2)
         value += rng.gauss(0, NOISE_STD_G)
         samples.append(value)
     return samples
