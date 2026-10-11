@@ -55,7 +55,7 @@
       "Identify test sets, record counts, filenames and measurement timestamps",
       "Verify nominal sample rate versus sample count and actual sample duration",
       "Verify per-test bearing/channel mapping and vibration units",
-      "Identify documented run-end failures; do not invent window-level ground-truth onset",
+      "Identify documented run-end fault descriptions and failures; do not invent window-level ground-truth onset",
       "Group splits by physical bearing/run, keeping related channels/time windows together"
     ]
   },

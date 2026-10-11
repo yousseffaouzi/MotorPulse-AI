@@ -1,6 +1,6 @@
 # IMS bearing data — provenance, access and reuse review (MP-027)
 
-**Reviewed:** 2026-10-11 (UTC) · **Status:** METADATA REVIEW COMPLETE; RAW-DATA / DERIVATIVE REDISTRIBUTION **ON HOLD** pending a dataset-specific rights review. No original archive has been downloaded, inspected, or committed by MotorPulse AI. This is a project policy rather than a legal ruling.
+**Reviewed:** 2026-10-11 (UTC) · **Status:** METADATA REVIEW COMPLETE; RAW-DATA / DERIVATIVE REDISTRIBUTION **ON HOLD** pending a dataset-specific rights review. No original archive has been downloaded, inspected, or committed by MotorPulse AI. This is a conservative project policy, **not a legal ruling**.
 
 The machine-readable source card is [sources/ims-bearings.source.json](sources/ims-bearings.source.json). Read [MODEL_ASSUMPTIONS.md](MODEL_ASSUMPTIONS.md) to distinguish this *real experimental bearing dataset* from MotorPulse AI's wholly **synthetic** motor simulation.
 
