@@ -40,6 +40,10 @@ At 1500 RPM: `f_s = 25 Hz`, 2× is `50 Hz`, and the illustrative 4.8× impact ra
 
 The generator is deterministic for the same motor asset, seed, tick, and fault configuration. MP-007 interpolates 1×/2× amplitudes and illustrative bearing-pulse strength linearly from healthy (severity 0) to full synthetic fault (severity 1). It does not simulate progressive deterioration or maintenance-relevant severity thresholds. `motorpulse.signals.harmonic_amplitude_g()` provides a **single-frequency projection** for tests; it is not an FFT implementation. True Fourier spectra require suitable windowing, filtering, leakage accounting, sampling-time conventions and measured sensor calibration.
 
+## Frequency-domain and temporal feature extraction
+
+MP-023 provides additive spectral amplitude estimates, one-sided 80–400 Hz band RMS, and per-motor five-tick arithmetic rolling means. The frequency estimator uses a **periodic Hann window** and an O(N log N) pure-Python FFT. See [SPECTRAL.md](SPECTRAL.md) for windowing/leakage tradeoffs, g peak versus g RMS, and the distinction between rolling *mean of RMS features* and RMS over a concatenated waveform.
+
 ## Developer verification
 
 ```bash

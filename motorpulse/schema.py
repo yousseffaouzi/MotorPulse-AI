@@ -134,6 +134,30 @@ def validate_snapshot(snapshot: Mapping[str, Any]) -> None:
             _require(isinstance(event["fault_phase"], str) and
                      event["fault_phase"] in ("healthy", "scheduled", "ramping", "steady", "ended"),
                      f"{prefix}.fault_phase invalid")
+        # MP-023 optional FFT and tick-based rolling summaries.
+        if "spectral_window" in event:
+            _require(event["spectral_window"] == "hann", f"{prefix}.spectral_window must be hann")
+        for key in ("spectral_bin_hz", "dominant_frequency_hz",
+                    "shaft_1x_amplitude_g", "shaft_2x_amplitude_g",
+                    "band_80_400_rms_g", "rolling_rms_mean_g"):
+            if key in event:
+                _numeric(event[key], f"{prefix}.{key}", min_value=0)
+        if "rolling_temperature_mean_c" in event:
+            _numeric(event["rolling_temperature_mean_c"], f"{prefix}.rolling_temperature_mean_c")
+        for key in ("rolling_window_ticks", "rolling_observations"):
+            if key in event:
+                _require(type(event[key]) is int and event[key] > 0,
+                         f"{prefix}.{key} must be a positive integer")
+        if "rolling_observations" in event and "rolling_window_ticks" in event:
+            _require(event["rolling_observations"] <= event["rolling_window_ticks"],
+                     f"{prefix}.rolling_observations must not exceed rolling_window_ticks")
+        if "spectral_bin_hz" in event:
+            _require(abs(event["spectral_bin_hz"] -
+                         event["sample_rate_hz"] / event["sample_count"]) < 1e-5,
+                     f"{prefix}.spectral_bin_hz mismatch")
+        if "dominant_frequency_hz" in event:
+            _require(event["dominant_frequency_hz"] <= event["sample_rate_hz"] / 2,
+                     f"{prefix}.dominant_frequency_hz above Nyquist")
         _numeric(event.get("temperature_c"), f"{prefix}.temperature_c")
         health = event.get("health")
         _require(isinstance(health, str) and health in HEALTH_STATES,

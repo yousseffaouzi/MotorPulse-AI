@@ -214,6 +214,44 @@
             "steady",
             "ended"
           ]
+        },
+        "spectral_window": {
+          "const": "hann"
+        },
+        "spectral_bin_hz": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "dominant_frequency_hz": {
+          "type": "number",
+          "minimum": 0
+        },
+        "shaft_1x_amplitude_g": {
+          "type": "number",
+          "minimum": 0
+        },
+        "shaft_2x_amplitude_g": {
+          "type": "number",
+          "minimum": 0
+        },
+        "band_80_400_rms_g": {
+          "type": "number",
+          "minimum": 0
+        },
+        "rolling_window_ticks": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rolling_observations": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "rolling_rms_mean_g": {
+          "type": "number",
+          "minimum": 0
+        },
+        "rolling_temperature_mean_c": {
+          "type": "number"
         }
       }
     }

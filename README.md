@@ -8,7 +8,7 @@
 - Reproducible simulated vibration, temperature and RPM signals for three motors.
 - RPM-linked synthetic vibration at 1× and 2× shaft speed, plus illustrative bearing impacts.
 - Five configurable synthetic scenarios: healthy, imbalance, bearing wear, misalignment, and overload; per-asset severity, onset, and optional duration.
-- Feature extraction: vibration RMS, peak-to-peak amplitude and crest factor.
+- Feature extraction: vibration RMS, peak-to-peak amplitude, crest factor, Hann-windowed spectral features and 5-tick rolling summaries.
 - Transparent rule-based health classification with fault examples.
 - Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
 - Unit tests via the Python standard library. **No Docker, cloud account, or hardware required.**
@@ -74,6 +74,8 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 ```
 
 - `motorpulse/signals.py` — synthetic RPM-related acceleration waveform fixtures.
+- `motorpulse/spectral.py` — dependency-free FFT, one-sided band power and harmonic peak estimates.
+- `docs/SPECTRAL.md` — spectral frequency/units conventions, rollup definitions and limits.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -119,6 +121,10 @@ See [docs/PROGRESSION.md](docs/PROGRESSION.md) for exact ramp equations, validat
 ## Python packaging (MP-022)
 
 MotorPulse AI is packaged as **motorpulse-ai 0.1.0.dev0** (development-only metadata; **not published to PyPI**). All runtime modules are standard-library-only; installing or building the wheel needs Python packaging tools. The single source of truth for the dashboard is now `motorpulse/web/index.html`, so it works after installing from a wheel even when launched from another working directory. See [docs/INSTALL.md](docs/INSTALL.md) for instructions and smoke checks.
+
+## Spectral and rolling indicators (MP-023)
+
+Per motor, the dashboard now shows Hann-windowed **1×/2× shaft peak amplitudes (g peak)**, **80–400 Hz acceleration band RMS (g RMS)**, and a **five-simulation-tick average of vibration RMS**. The frequency bin spacing is 1 Hz at the default 1024 Hz / 1024 sample window. An efficient dependency-free radix-2 FFT keeps the zero-runtime-dependency promise. The simulation history is per motor and only advances when a new synthetic tick is produced, never from polling; reset replays the same values. These indicators are *not* validated diagnostic thresholds or trained predictions. Full definitions: [docs/SPECTRAL.md](docs/SPECTRAL.md).
 
 ## Developer CI
 

@@ -8,6 +8,7 @@ from random import Random
 
 from .schema import SAMPLE_COUNT, SAMPLE_RATE_HZ, SCHEMA_VERSION, SENSOR_UNITS
 from .signals import generate_vibration
+from .spectral import ROLLING_WINDOW_TICKS, spectral_features
 from .scenarios import AssetScenario, DEFAULT_ASSETS
 
 DEFAULT_START_TIME_UTC = datetime(2026, 1, 1, tzinfo=timezone.utc)
@@ -65,6 +66,7 @@ class MotorSimulator:
     step_seconds: float = 1.5
     assets: tuple[AssetScenario, ...] = DEFAULT_ASSETS
     _step_microseconds: int = field(init=False, repr=False)
+    _rolling_history: dict[str, list[tuple[float, float]]] = field(default_factory=dict, init=False, repr=False)
 
     def __post_init__(self) -> None:
         if type(self.seed) is not int:
@@ -116,6 +118,7 @@ class MotorSimulator:
                                      sample_rate_hz=SAMPLE_RATE_HZ,
                                      sample_count=SAMPLE_COUNT, severity=severity)
         sensor = features(samples)
+        sensor.update(spectral_features(samples, base_rpm, sample_rate_hz=SAMPLE_RATE_HZ))
         health, reasons = classify(sensor["rms_g"], temp, sensor["crest_factor"])
         if timestamp_utc is None:
             timestamp_utc = self.timestamp_for_tick(max(1, self.tick))
@@ -148,7 +151,15 @@ class MotorSimulator:
             row = self.sample_asset(config.asset_id, config.name, active_scenario,
                                     timestamp_utc=recorded_at_utc,
                                     severity=active_severity)
+            history = self._rolling_history.setdefault(config.asset_id, [])
+            history.append((row["rms_g"], row["temperature_c"]))
+            if len(history) > ROLLING_WINDOW_TICKS:
+                del history[:-ROLLING_WINDOW_TICKS]
             row.update({
+                "rolling_window_ticks": ROLLING_WINDOW_TICKS,
+                "rolling_observations": len(history),
+                "rolling_rms_mean_g": round(sum(value[0] for value in history) / len(history), 4),
+                "rolling_temperature_mean_c": round(sum(value[1] for value in history) / len(history), 4),
                 "configured_scenario": config.scenario,
                 "configured_severity": float(config.severity),
                 "onset_tick": config.onset_tick,

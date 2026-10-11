@@ -25,6 +25,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-020 implemented: deterministic linear/exponential fault severity growth, phases, strict config validation, dashboard severity preview, and reset/replay tests.
 - MP-021 implemented: 13 new localhost/API contract tests for JSON headers, error handling, malformed/oversized requests, concurrent stepping, replay, schema compatibility and dashboard smoke; 64 pre-packaging tests.
 - MP-022 implemented: pyproject.toml and console script, a bundled dashboard asset, installation guide, four packaging tests, and an isolated offline wheel-build smoke check.
+- MP-023 implemented: Hann-windowed radix-2 FFT, RPM-aware 1×/2× spectral peaks, high-frequency band RMS, per-motor 5-tick rolling averages, API/JSON-schema fields, and numerical regression tests.
 - No trained AI model, persisted database, external ingestion adapter or real-hardware connection.
 
 ## Milestone 0 — Existing proof of concept
@@ -51,7 +52,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-020 | DONE | P0 | Progressive fault and degradation timelines | Configurable onset/growth across ticks; replayable healthy → degradation → alert transitions |
 | MP-021 | DONE | P0 | API and simulator contract tests | Test payload shapes, invalid requests, concurrency, health and controls |
 | MP-022 | DONE | P1 | Packaging and consistent developer commands | pyproject.toml, documented setup and CLI on supported Python versions |
-| MP-023 | TODO | P1 | Extend signal-processing features | FFT/spectral and rolling features with reference numerical tests |
+| MP-023 | DONE | P1 | Extend signal-processing features | FFT/spectral and rolling features with reference numerical tests |
 | MP-024 | TODO | P1 | Scenario and asset configuration | Validated JSON/YAML or CLI configuration without source edits |
 | MP-025 | TODO | P1 | Operational variability and sensor problems | Speed/load variability, noise, missing values, drift and outliers with correct labels |
 | MP-026 | TODO | P1 | Document simulation physics and assumptions | Equations, units, thresholds and limits; no unvalidated industrial standards claims |
