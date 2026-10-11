@@ -10,7 +10,15 @@ From the repository root, using Python 3.11 or later and **no third-party packag
 python -m unittest discover -s tests -v
 ```
 
-The suite currently contains **64 standard-library unittest tests** (51 existing plus 13 new MP-021 contract tests). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
+The suite contains **68 standard-library unittest test cases** (64 through MP-021 plus 4 packaging smoke tests introduced by MP-022). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
+
+For focused packaging smoke tests (metadata, bundled dashboard, local HTTP and CLI help):
+
+```bash
+python -m unittest discover -s tests -p 'test_packaging.py' -v
+```
+
+To verify **a built wheel** from an isolated location, follow [INSTALL.md](INSTALL.md); the unit tests alone do not prove wheel contents.
 
 For focused API regression tests:
 

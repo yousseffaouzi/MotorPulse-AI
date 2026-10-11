@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 from .controller import ControlConflict, SimulationController
 from .sim import DEFAULT_START_TIME_UTC, parse_start_time_utc
 
-ROOT = Path(__file__).resolve().parents[1] / "web"
+ROOT = Path(__file__).resolve().parent / "web"
 MAX_CONTROL_BODY_BYTES = 4096
 
 

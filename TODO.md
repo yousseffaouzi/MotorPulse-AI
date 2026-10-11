@@ -16,14 +16,15 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - `motorpulse/sim.py`: deterministic numeric synthetic signals for three fixed motors, features (RMS/peak-to-peak/crest factor), rule-based classifications.
 - `motorpulse/__main__.py`: localhost-only `/api/snapshot`, `/api/status`, `/api/control`, `/api/health` API; GET no longer advances the simulator.
-- `web/index.html`: polling dashboard with Start/Pause/Step/Reset and an editable scenario configuration; persistent history remains pending.
+- `motorpulse/web/index.html`: packaged dashboard with Start/Pause/Step/Reset and scenario editor; persistent history remains pending.
 - `tests/test_sim.py`, `tests/test_clock.py`, `tests/test_contracts.py` and `.github/workflows/test.yml`: simulator, deterministic replay, and API contract tests; PR-only/manual GitHub Actions.
 - MP-006 implemented: telemetry v1 schema, UTC timestamps, event IDs, sampling metadata, canonical units and automated validation.
 - MP-018 implemented: configurable virtual UTC epoch and tick spacing; identical configuration/seed/tick sequence reproduces complete snapshots, independent of wall clock.
 - MP-019 implemented: 1024 Hz / 1024-sample waveform windows, RPM-linked 1×/2× signatures, illustrative 4.8× bearing impacts, and numerical spectral regression tests.
 - MP-007 implemented: validated 1–12 motor scenarios with severity, onset/duration, browser editor, atomic configuration API, and deterministic replay; gradual degradation remains MP-020.
 - MP-020 implemented: deterministic linear/exponential fault severity growth, phases, strict config validation, dashboard severity preview, and reset/replay tests.
-- MP-021 implemented: 13 new localhost/API contract tests for JSON headers, error handling, malformed/oversized requests, concurrent stepping, replay, schema compatibility and dashboard smoke; 64 total local tests.
+- MP-021 implemented: 13 new localhost/API contract tests for JSON headers, error handling, malformed/oversized requests, concurrent stepping, replay, schema compatibility and dashboard smoke; 64 pre-packaging tests.
+- MP-022 implemented: pyproject.toml and console script, a bundled dashboard asset, installation guide, four packaging tests, and an isolated offline wheel-build smoke check.
 - No trained AI model, persisted database, external ingestion adapter or real-hardware connection.
 
 ## Milestone 0 — Existing proof of concept
@@ -49,7 +50,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-019 | DONE | P0 | Physically defined waveform sampling | Sampling rate in Hz, sample count, units, window duration; documented waveform assumptions |
 | MP-020 | DONE | P0 | Progressive fault and degradation timelines | Configurable onset/growth across ticks; replayable healthy → degradation → alert transitions |
 | MP-021 | DONE | P0 | API and simulator contract tests | Test payload shapes, invalid requests, concurrency, health and controls |
-| MP-022 | TODO | P1 | Packaging and consistent developer commands | pyproject.toml, documented setup and CLI on supported Python versions |
+| MP-022 | DONE | P1 | Packaging and consistent developer commands | pyproject.toml, documented setup and CLI on supported Python versions |
 | MP-023 | TODO | P1 | Extend signal-processing features | FFT/spectral and rolling features with reference numerical tests |
 | MP-024 | TODO | P1 | Scenario and asset configuration | Validated JSON/YAML or CLI configuration without source edits |
 | MP-025 | TODO | P1 | Operational variability and sensor problems | Speed/load variability, noise, missing values, drift and outliers with correct labels |

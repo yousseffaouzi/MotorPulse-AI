@@ -14,15 +14,29 @@
 - Unit tests via the Python standard library. **No Docker, cloud account, or hardware required.**
 
 ## Quick start
-Requires Python 3.11+.
+Requires Python 3.11+. **From a fresh clone**, you can run directly without installing:
 
 ```bash
 python -m motorpulse
 # open http://127.0.0.1:8765
+```
 
-# Optional reproducible configuration (virtual clock is separate from real speed):
+Or install locally for development (macOS/Linux; on Windows activate the corresponding PowerShell virtual environment):
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+motorpulse-ai
+```
+
+The `motorpulse-ai` command and `python -m motorpulse` are equivalent; the dashboard is included with the installed package. To run at a different virtual clock speed:
+
+```bash
 python -m motorpulse --seed 42 --start-time-utc 2026-01-01T00:00:00Z --step-seconds 2 --interval-seconds 0.5
 ```
+
+See [docs/INSTALL.md](docs/INSTALL.md) for wheel builds, offline options, cross-directory verification, and troubleshooting.
 
 In another terminal, you can query a JSON snapshot:
 
@@ -35,7 +49,7 @@ curl -X POST http://127.0.0.1:8765/api/control -H 'Content-Type: application/jso
 curl -X POST http://127.0.0.1:8765/api/control -H 'Content-Type: application/json' -d '{"action":"step"}'
 ```
 
-Run the complete **64-test** standard-library suite locally:
+Run the complete standard-library test suite locally (64 prior tests plus packaging tests):
 
 ```bash
 python -m unittest discover -s tests -v
@@ -66,10 +80,11 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/controller.py` — thread-safe, timed simulator worker.
 - `motorpulse/__main__.py` — localhost demo server.
 - `docs/SIMULATION_CONTROL.md` — simulation controls and virtual clock configuration.
-- `web/index.html` — zero-build dashboard.
+- `motorpulse/web/index.html` — dashboard embedded in source and installed wheels.
 - `docs/ARCHITECTURE.md` — design choices and future extensibility.
 - `TODO.md` — issue-ready tracker with explicit status.
 - `docs/TESTING.md` — API, replay, schema and concurrent-request regression test guide.
+- `pyproject.toml` — installation metadata, console script and package asset inclusion.
 
 ## Telemetry contract (v1)
 
@@ -100,6 +115,10 @@ curl -X PUT http://127.0.0.1:8765/api/config -H 'Content-Type: application/json'
 ```
 
 See [docs/PROGRESSION.md](docs/PROGRESSION.md) for exact ramp equations, validation, and limitations. These curves are illustrative only; no field calibration or remaining-useful-life model is claimed.
+
+## Python packaging (MP-022)
+
+MotorPulse AI is packaged as **motorpulse-ai 0.1.0.dev0** (development-only metadata; **not published to PyPI**). All runtime modules are standard-library-only; installing or building the wheel needs Python packaging tools. The single source of truth for the dashboard is now `motorpulse/web/index.html`, so it works after installing from a wheel even when launched from another working directory. See [docs/INSTALL.md](docs/INSTALL.md) for instructions and smoke checks.
 
 ## Developer CI
 
