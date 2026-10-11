@@ -100,6 +100,8 @@ assert len(rows) == len(events)
 print(manifest["export_id"], "verified")
 ```
 
+The offline [exploratory quality reporter](EDA.md) can produce per-motor feature distributions, missingness counts, rule/label-category counts and trend samples from this export's validated JSONL file. Run `python -m motorpulse.eda --source synthetic --input YOUR_EXPORT_DIR --out NEW_REPORT.json`. It does not train an ML model.
+
 All events are **labelled synthetic examples**, so ML users must split by run/asset appropriately, separate fault truth from model output, and avoid training/evaluating on trivially duplicated seeds or time-adjacent windows. This exporter does *not* establish external dataset licenses, validate hardware faults, train models, or prevent downstream data leakage by itself. For a separate, **real** experimental IMS bearing dataset and unresolved third-party rights, see [DATA_PROVENANCE.md](DATA_PROVENANCE.md) and [sources/ims-bearings.source.json](sources/ims-bearings.source.json). Do not label synthetic exports as IMS measurements. The [IMS_INGESTION.md](IMS_INGESTION.md) adapter is a separate, local-only ingestion workflow; it neither modifies synthetic telemetry nor makes license or failure-label claims.
 
 ## Local verification

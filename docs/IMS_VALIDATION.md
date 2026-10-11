@@ -86,6 +86,10 @@ These APIs preserve `run_id`, `group_key`, `bearing_id`, source-record SHA-256 a
 
 **Leakage guard:** The entire source run (including related channels and neighboring acquisitions) must reside in one partition. Later MP-030 will formalize experiment-wide rig/bearing grouping and test-set holdouts. Do not normalize the entire dataset *before* splitting. See [scikit-learn's data-leakage guidance](https://scikit-learn.org/stable/common_pitfalls.html#data-leakage) for the methodological rationale; this project does not require scikit-learn at runtime.
 
+## Exploratory local quality reports
+
+MP-029 adds [EDA.md](EDA.md) and `motorpulse-eda --source ims --input YOUR_INSPECTION.json --out NEW_LOCAL_REPORT.json --verify-files`. It summarizes per-channel native-unit distributions, first/last timestamp trends and MP-028 inspection flags, preserving **unknown timezone**, **null failure labels**, and **local-only redistribution hold**.
+
 ## 4. Explicit limitations / follow-up
 
 - This implementation has been checked on **handwritten synthetic input fixtures only**. Original IMS ZIP layouts, sampling rate, channel/bearing mapping, units, timezone and failure annotations remain unverified.
