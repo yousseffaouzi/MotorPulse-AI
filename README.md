@@ -35,11 +35,19 @@ curl -X POST http://127.0.0.1:8765/api/control -H 'Content-Type: application/jso
 curl -X POST http://127.0.0.1:8765/api/control -H 'Content-Type: application/json' -d '{"action":"step"}'
 ```
 
-Run tests:
+Run the complete **64-test** standard-library suite locally:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
+
+For API contract tests only:
+
+```bash
+python -m unittest discover -s tests -p 'test_contracts.py' -v
+```
+
+See [docs/TESTING.md](docs/TESTING.md) for endpoint behavior, request validation, concurrency, replay coverage and known limitations.
 
 ## Software architecture
 
@@ -61,6 +69,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `web/index.html` — zero-build dashboard.
 - `docs/ARCHITECTURE.md` — design choices and future extensibility.
 - `TODO.md` — issue-ready tracker with explicit status.
+- `docs/TESTING.md` — API, replay, schema and concurrent-request regression test guide.
 
 ## Telemetry contract (v1)
 
