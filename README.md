@@ -10,6 +10,7 @@
 - Five configurable synthetic scenarios: healthy, imbalance, bearing wear, misalignment, and overload; per-asset severity, onset, optional duration, and local JSON startup files.
 - Feature extraction: vibration RMS, peak-to-peak amplitude, crest factor, Hann-windowed spectral features and 5-tick rolling summaries.
 - Synthetic speed/load variability, vibration noise/drift, missing sensor intervals and outliers with explicit sensor-quality states.
+- Deterministic, bounded CSV/JSONL dataset export with sensor labels and a checksummed provenance manifest.
 - Transparent rule-based health classification with fault examples.
 - Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
 - Unit tests via the Python standard library. **No Docker, cloud account, or hardware required.**
@@ -64,6 +65,16 @@ Run the complete standard-library test suite locally:
 python -m unittest discover -s tests -v
 ```
 
+To **export a labelled synthetic dataset** (make the parent directory first):
+
+```bash
+mkdir -p datasets
+python -m motorpulse.export --out-dir datasets/demo-001 --ticks 12 --format both \
+  --config docs/examples/operations-v1.json --seed 42
+```
+
+This creates `events.csv`, `events.jsonl`, and `manifest.json` with SHA-256 checksums, simulated timestamps and explicit sensor-quality labels. No destination files are overwritten. Installed packages also offer `motorpulse-export`. Read [docs/DATASET.md](docs/DATASET.md) for the full field dictionary, null conventions, reproducibility rules, size limits, and safety caveats.
+
 For API contract tests only:
 
 ```bash
@@ -87,6 +98,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `docs/SPECTRAL.md` — spectral frequency/units conventions, rollup definitions and limits.
 - `docs/OPERATIONS.md` — operational variability, missing/outlier sensor behavior and caveats.
 - `docs/MODEL_ASSUMPTIONS.md` — authoritative equations, units, thresholds, provenance and scientific limitations.
+- `motorpulse/export.py` / `docs/DATASET.md` — dependency-free CSV/JSONL synthetic export, per-run provenance and field dictionary.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -155,6 +167,10 @@ Step through the simulation to inspect onset and recovery. Parameter limits, pro
 ## Simulation model and scientific limitations (MP-026)
 
 **Read [docs/MODEL_ASSUMPTIONS.md](docs/MODEL_ASSUMPTIONS.md) before using or exporting synthetic readings.** It consolidates the formulas and units for shaft harmonics, illustrative bearing pulses, thermal offsets, configurable operating conditions, fault-severity curves, FFT features, and sensor-quality events. The current 'health' classes are **uncalibrated demo rules**, not a trained failure predictor; synthetic fault labels are not real diagnostic evidence. The documentation distinguishes g peak, g RMS, temperature, RPM, and simulated UTC time.
+
+## Synthetic dataset export (MP-008)
+
+Use `python -m motorpulse.export --out-dir NEW_DIRECTORY --ticks 100 --format both [--config FILE]` to export one event per motor per virtual tick. Each export has a stable content-derived `export_id`; the data records and checksums replay for the same inputs and model-source files. The manifest separately records the **real** creation time, which can change between exports. Missing vibration remains **JSON null / CSV blank**, not zero. This is not real sensor data, a trained prediction or a validated maintenance decision. See [docs/DATASET.md](docs/DATASET.md).
 
 ## Developer CI
 

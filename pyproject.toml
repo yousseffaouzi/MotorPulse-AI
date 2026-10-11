@@ -30,6 +30,7 @@ Issues = "https://github.com/yousseffaouzi/MotorPulse-AI/issues"
 
 [project.scripts]
 motorpulse-ai = "motorpulse.__main__:main"
+motorpulse-export = "motorpulse.export:main"
 
 [tool.setuptools]
 packages = ["motorpulse"]

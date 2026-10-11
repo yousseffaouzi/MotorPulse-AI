@@ -14,7 +14,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 ## Current baseline (2026-10-11)
 
-- `motorpulse/sim.py`: deterministic numeric synthetic signals for three fixed motors, features (RMS/peak-to-peak/crest factor), rule-based classifications.
+- `motorpulse/sim.py`: deterministic configurable multi-motor simulator with time/spectral and rolling features, fault/sensor labels, and rule-based classifications.
 - `motorpulse/__main__.py`: localhost-only `/api/snapshot`, `/api/status`, `/api/control`, `/api/health` API; GET no longer advances the simulator.
 - `motorpulse/web/index.html`: packaged dashboard with Start/Pause/Step/Reset and scenario editor; persistent history remains pending.
 - `tests/test_sim.py`, `tests/test_clock.py`, `tests/test_contracts.py` and `.github/workflows/test.yml`: simulator, deterministic replay, and API contract tests; PR-only/manual GitHub Actions.
@@ -29,6 +29,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-024 implemented: local bounded JSON scenario loader, strict validation, `--config`/`--paused`/`--port` CLI flags, and nine file/startup regression tests.
 - MP-025 implemented: deterministic operating variability, simulated noise/drift, sensor missing/outlier windows, explicit sensor quality, nullable vibration features, and 11 new tests.
 - MP-026 implemented: canonical scientific model reference with equations, parameter tables, temporal/acquisition units, synthetic threshold caveats, methodological citations, doc corrections and seven regression checks.
+- MP-008 implemented: bounded reproducible per-motor CSV/JSONL event export, seed/config/source SHA-256 provenance, data dictionary, null-handling, checksummed manifest, non-overwrite output and 12 export tests.
 - No trained AI model, persisted database, external ingestion adapter or real-hardware connection.
 
 ## Milestone 0 — Existing proof of concept
@@ -66,7 +67,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 | ID | Status | Priority | Task | Acceptance evidence |
 |---|---|---|---|---|
-| MP-008 | TODO | P1 | Export synthetic datasets | CSV/JSONL or Parquet CLI; metadata, seed, labels, dictionary, round-trip tests |
+| MP-008 | DONE | P1 | Export synthetic datasets | CSV/JSONL or Parquet CLI; metadata, seed, labels, dictionary, round-trip tests |
 | MP-009 | TODO | P1 | NASA IMS bearing data ingestion | Load local data + small test fixtures; do not commit third-party raw archives |
 | MP-027 | TODO | P1 | Dataset provenance and reuse review | Check citation, source, redistribution terms, checksum, acquisition date |
 | MP-028 | TODO | P1 | Dataset validation and preprocessing | Channel mapping, frequencies, units, timestamps, NaN handling, corrupt-file tests |
