@@ -36,6 +36,8 @@ class PackagingTests(unittest.TestCase):
                          "motorpulse.ims_validation:main")
         self.assertEqual(project["project"]["scripts"]["motorpulse-eda"],
                          "motorpulse.eda:main")
+        self.assertEqual(project["project"]["scripts"]["motorpulse-split"],
+                         "motorpulse.splits:main")
         self.assertIn("web/index.html", project["tool"]["setuptools"]["package-data"]["motorpulse"])
 
     def test_browser_is_a_real_package_resource(self):

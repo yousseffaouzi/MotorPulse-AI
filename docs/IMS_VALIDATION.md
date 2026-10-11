@@ -84,7 +84,7 @@ Each feature is transformed using the *population* mean and standard deviation *
 
 These APIs preserve `run_id`, `group_key`, `bearing_id`, source-record SHA-256 and timestamp metadata in resulting **in-memory** feature records. They never impute or guess fault labels. Save **no IMS-derived transformations to a public GitHub tree** before obtaining permission.
 
-**Leakage guard:** The entire source run (including related channels and neighboring acquisitions) must reside in one partition. Later MP-030 will formalize experiment-wide rig/bearing grouping and test-set holdouts. Do not normalize the entire dataset *before* splitting. See [scikit-learn's data-leakage guidance](https://scikit-learn.org/stable/common_pitfalls.html#data-leakage) for the methodological rationale; this project does not require scikit-learn at runtime.
+**Leakage guard:** The entire source run (including related channels and neighboring acquisitions) must reside in one partition. MP-030 now [plans whole-run train/validation/test holdouts](SPLITS.md), treating each IMS test set as a conservative independent run boundary; no splitting related bearings/channels inside a test set. Do not normalize the entire dataset *before* splitting. See [scikit-learn's data-leakage guidance](https://scikit-learn.org/stable/common_pitfalls.html#data-leakage) for the methodological rationale; this project does not require scikit-learn at runtime.
 
 ## Exploratory local quality reports
 

@@ -34,6 +34,7 @@ motorpulse-export = "motorpulse.export:main"
 motorpulse-ims = "motorpulse.ims:main"
 motorpulse-ims-validate = "motorpulse.ims_validation:main"
 motorpulse-eda = "motorpulse.eda:main"
+motorpulse-split = "motorpulse.splits:main"
 
 [tool.setuptools]
 packages = ["motorpulse"]
