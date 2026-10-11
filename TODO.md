@@ -30,6 +30,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-025 implemented: deterministic operating variability, simulated noise/drift, sensor missing/outlier windows, explicit sensor quality, nullable vibration features, and 11 new tests.
 - MP-026 implemented: canonical scientific model reference with equations, parameter tables, temporal/acquisition units, synthetic threshold caveats, methodological citations, doc corrections and seven regression checks.
 - MP-008 implemented: bounded reproducible per-motor CSV/JSONL event export, seed/config/source SHA-256 provenance, data dictionary, null-handling, checksummed manifest, non-overwrite output and 12 export tests.
+- MP-027 review completed: official IMS donor citation, download sources, NASA licensing caveat, source card and offline validation. **Raw-data and derivative redistribution permissions remain unverified and publication remains ON HOLD; no archive was downloaded or committed.**
 - No trained AI model, persisted database, external ingestion adapter or real-hardware connection.
 
 ## Milestone 0 — Existing proof of concept
@@ -69,7 +70,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 |---|---|---|---|---|
 | MP-008 | DONE | P1 | Export synthetic datasets | CSV/JSONL or Parquet CLI; metadata, seed, labels, dictionary, round-trip tests |
 | MP-009 | TODO | P1 | NASA IMS bearing data ingestion | Load local data + small test fixtures; do not commit third-party raw archives |
-| MP-027 | TODO | P1 | Dataset provenance and reuse review | Check citation, source, redistribution terms, checksum, acquisition date |
+| MP-027 | DONE | P1 | Dataset provenance and reuse review | Check citation, source, redistribution terms, checksum, acquisition date |
 | MP-028 | TODO | P1 | Dataset validation and preprocessing | Channel mapping, frequencies, units, timestamps, NaN handling, corrupt-file tests |
 | MP-029 | TODO | P1 | Exploratory data quality report | Reproducible distributions, trend examples, data quality and label caveats |
 | MP-030 | TODO | P1 | Leakage-resistant train/validation/test splitting | Group by run/bearing/asset; preserve temporal order when required |

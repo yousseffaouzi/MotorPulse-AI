@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0.0",
+  "source_id": "nasa-pcoe-ims-bearings",
+  "title": "IMS Bearings (Bearing Data Set)",
+  "source_kind": "third_party_experimental_bearing_run_to_failure",
+  "review": {
+    "reviewed_on_utc": "2026-10-11",
+    "review_method": "official_public_metadata_only",
+    "data_acquired": false,
+    "raw_archive_sha256": null,
+    "raw_archive_bytes": null,
+    "acquisition_date_utc": null,
+    "archive_inspected": false,
+    "rights_holder_contacted": false
+  },
+  "attribution": {
+    "original_provider": "Center for Intelligent Maintenance Systems (IMS), University of Cincinnati",
+    "collaborating_contributor": "Rexnord Technical Services",
+    "distributor": "NASA Ames Prognostics Center of Excellence (PCoE)",
+    "upstream_citation": "J. Lee, H. Qiu, G. Yu, J. Lin, and Rexnord Technical Services (2007). IMS, University of Cincinnati. “Bearing Data Set”, NASA Prognostics Data Repository, NASA Ames Research Center, Moffett Field, CA."
+  },
+  "sources": {
+    "nasa_pcoe_page": "https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/",
+    "nasa_open_data_page": "https://data.nasa.gov/dataset/ims-bearings",
+    "nasa_catalog_page": "https://catalog.data.gov/dataset/ims-bearings",
+    "nasa_open_data_archive": "https://data.nasa.gov/docs/legacy/IMS.zip",
+    "nasa_pcoe_archive": "https://phm-datasets.s3.amazonaws.com/NASA/4.+Bearings.zip",
+    "phm_society_mirror": "https://data.phmsociety.org/nasa/",
+    "nasa_data_license_guidance": "https://science.data.nasa.gov/about/license"
+  },
+  "license_and_use": {
+    "catalog_license_label": "other-license-specified",
+    "catalog_metadata_license_url": "https://www.usa.gov/government-works",
+    "dataset_specific_spdx_license": null,
+    "archive_license_file_checked": false,
+    "redistribution_permission": "unverified",
+    "derivative_republication_permission": "unverified",
+    "local_research_access": "publicly_downloadable; exact rights not yet verified",
+    "nasa_pcoe_acknowledgement_request": "Acknowledge the repository and original data donors in publications",
+    "project_policy": "do_not_commit_raw_archives_or_redistribute_derivatives_pending_rights_review",
+    "clearance_status": "hold",
+    "clearance_contact_status": "not_contacted"
+  },
+  "observations": {
+    "archive_content_examined": false,
+    "sample_rate_hz": null,
+    "samples_per_record": null,
+    "channel_mapping": null,
+    "physical_unit": null,
+    "test_set_count": null,
+    "labeling_basis": "run-end failure information in external literature; per-window fault onset/labels are NOT verified",
+    "chronological_grouping": "group by entire bearing/run/test set after local inspection; avoid neighboring windows in train/test",
+    "pending_checks": [
+      "Confirm archive package format and any embedded README/LICENSE",
+      "Identify test sets, record counts, filenames and measurement timestamps",
+      "Verify nominal sample rate versus sample count and actual sample duration",
+      "Verify per-test bearing/channel mapping and vibration units",
+      "Identify documented run-end failures; do not invent window-level ground-truth onset",
+      "Group splits by physical bearing/run, keeping related channels/time windows together"
+    ]
+  },
+  "publication_policy": {
+    "bundle_original_archive": false,
+    "commit_raw_waveforms": false,
+    "publish_processed_reconstructable_waveforms": false,
+    "publish_derived_features": "pending_rights_and_provenance_review",
+    "cite_upstream": true,
+    "refer_users_to_original_download_pages": true
+  }
+}

@@ -6,11 +6,11 @@ A deterministic synthetic plant starts with three configured motor assets and ge
 
 ## Stage 1 (planned)
 
-The v1 JSON snapshot/event feature schema and deterministic scenario library already exist. MP-008 now provides **CSV/JSONL synthetic feature-event export**, a source/config-hashed reproducible export identity, validated tick bounds, safe new-directory writes, and per-file SHA-256 provenance. Raw waveform export, globally unique run/session IDs, and independent data provenance/license review (MP-027) remain separate work. See [DATASET.md](DATASET.md). Keep samples and aggregate features separately for efficiency and traceability.
+The v1 JSON snapshot/event feature schema and deterministic scenario library already exist. MP-008 now provides **CSV/JSONL synthetic feature-event export**, a source/config-hashed reproducible export identity, validated tick bounds, safe new-directory writes, and per-file SHA-256 provenance. Raw waveform export and globally unique run/session IDs remain separate work. MP-027 has completed the **metadata-level** IMS provenance and licensing review in [DATA_PROVENANCE.md](DATA_PROVENANCE.md); **dataset-specific redistribution and derivative rights remain unresolved**, and original/processed third-party data must not be bundled. See [DATASET.md](DATASET.md). Keep samples and aggregate features separately for efficiency and traceability.
 
 ## Stage 2 (planned)
 
-Add ingestion adapters for public bearing datasets, non-leaky splits by run/asset, supervised and unsupervised baselines, reproducible evaluations and confidence/uncertainty reporting. Do not claim remaining useful life accuracy without validation.
+Add *local, user-provided* ingestion adapters for public bearing datasets with verified per-user source terms, non-leaky splits by run/asset, supervised and unsupervised baselines, reproducible evaluations and confidence/uncertainty reporting. Never assume IMS waveforms use the synthetic 1024 Hz schema. No upstream archive or derived waveforms may be committed until rights are verified. Do not claim remaining useful life accuracy without validation.
 
 ## Stage 3 (planned)
 

@@ -10,7 +10,8 @@
 - Five configurable synthetic scenarios: healthy, imbalance, bearing wear, misalignment, and overload; per-asset severity, onset, optional duration, and local JSON startup files.
 - Feature extraction: vibration RMS, peak-to-peak amplitude, crest factor, Hann-windowed spectral features and 5-tick rolling summaries.
 - Synthetic speed/load variability, vibration noise/drift, missing sensor intervals and outliers with explicit sensor-quality states.
-- Deterministic, bounded CSV/JSONL dataset export with sensor labels and a checksummed provenance manifest.
+- Deterministic, bounded CSV/JSONL **synthetic** dataset export with sensor labels and a checksummed provenance manifest.
+- Reviewed official IMS bearing-dataset sources and citations, with explicit third-party reuse restrictions and no bundled real data.
 - Transparent rule-based health classification with fault examples.
 - Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
 - Unit tests via the Python standard library. **No Docker, cloud account, or hardware required.**
@@ -99,6 +100,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `docs/OPERATIONS.md` — operational variability, missing/outlier sensor behavior and caveats.
 - `docs/MODEL_ASSUMPTIONS.md` — authoritative equations, units, thresholds, provenance and scientific limitations.
 - `motorpulse/export.py` / `docs/DATASET.md` — dependency-free CSV/JSONL synthetic export, per-run provenance and field dictionary.
+- `docs/DATA_PROVENANCE.md` / `docs/sources/ims-bearings.source.json` — NASA IMS source citation, verification status, license uncertainty, safe user-side acquisition instructions and future validation requirements.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -171,6 +173,10 @@ Step through the simulation to inspect onset and recovery. Parameter limits, pro
 ## Synthetic dataset export (MP-008)
 
 Use `python -m motorpulse.export --out-dir NEW_DIRECTORY --ticks 100 --format both [--config FILE]` to export one event per motor per virtual tick. Each export has a stable content-derived `export_id`; the data records and checksums replay for the same inputs and model-source files. The manifest separately records the **real** creation time, which can change between exports. Missing vibration remains **JSON null / CSV blank**, not zero. This is not real sensor data, a trained prediction or a validated maintenance decision. See [docs/DATASET.md](docs/DATASET.md).
+
+## IMS bearing dataset provenance (MP-027)
+
+The next real-data benchmark may use the **IMS Bearings** experimental archive, originally supplied by the University of Cincinnati and distributed through NASA's PCoE repository. The public NASA catalog's license badge is `other-license-specified`; the upstream archive's exact third-party redistribution and derived-data reuse permissions have **not been verified**. Therefore **no original bearing data is included or republished**, even though NASA provides download links. The source card records missing acquisition time, size and SHA-256 as `null` until somebody actually obtains and inspects the files. Read [docs/DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md) before MP-009 ingestion or publishing any real-data-derived files.
 
 ## Developer CI
 

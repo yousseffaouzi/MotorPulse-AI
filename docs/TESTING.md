@@ -10,7 +10,15 @@ From the repository root, using Python 3.11 or later and **no third-party packag
 python -m unittest discover -s tests -v
 ```
 
-The suite contains **120 standard-library unittest test cases** (64 through MP-021, 4 packaging smoke tests from MP-022, 13 spectral/rolling checks from MP-023, 9 JSON/CLI startup tests from MP-024, 11 sensor/operating tests from MP-025, 7 model-reference regression tests from MP-026, and 12 export/manifest regression tests from MP-008). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
+The suite contains **130 standard-library unittest test cases** (64 through MP-021, 4 packaging smoke tests from MP-022, 13 spectral/rolling checks from MP-023, 9 JSON/CLI startup tests from MP-024, 11 sensor/operating tests from MP-025, 7 model-reference regression tests from MP-026, 12 export/manifest regression tests from MP-008, and 10 offline source-card/provenance checks from MP-027). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
+
+For external-data provenance checks (offline only; no dataset download):
+
+```bash
+python -m unittest discover -s tests -p 'test_provenance.py' -v
+```
+
+These tests confirm citations, official reference URLs, rights uncertainty, unknown archive attributes and ignored raw data paths. They **do not** verify redistribution permission or the IMS archive's contents. See [DATA_PROVENANCE.md](DATA_PROVENANCE.md).
 
 For synthetic CSV/JSONL export regression tests:
 

@@ -100,7 +100,7 @@ assert len(rows) == len(events)
 print(manifest["export_id"], "verified")
 ```
 
-All events are **labelled synthetic examples**, so ML users must split by run/asset appropriately, separate fault truth from model output, and avoid training/evaluating on trivially duplicated seeds or time-adjacent windows. This exporter does *not* establish external dataset licenses, validate hardware faults, train models, or prevent downstream data leakage by itself.
+All events are **labelled synthetic examples**, so ML users must split by run/asset appropriately, separate fault truth from model output, and avoid training/evaluating on trivially duplicated seeds or time-adjacent windows. This exporter does *not* establish external dataset licenses, validate hardware faults, train models, or prevent downstream data leakage by itself. For a separate, **real** experimental IMS bearing dataset and unresolved third-party rights, see [DATA_PROVENANCE.md](DATA_PROVENANCE.md) and [sources/ims-bearings.source.json](sources/ims-bearings.source.json). Do not label synthetic exports as IMS measurements.
 
 ## Local verification
 
