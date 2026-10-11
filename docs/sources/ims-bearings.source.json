@@ -48,14 +48,14 @@
     "channel_mapping": null,
     "physical_unit": null,
     "test_set_count": null,
-    "labeling_basis": "run-end failure information in external literature; per-window fault onset/labels are NOT verified",
+    "labeling_basis": "Run-end failure reports exist in external literature; true per-window fault onset and labels remain unknown (not verified).",
     "chronological_grouping": "group by entire bearing/run/test set after local inspection; avoid neighboring windows in train/test",
     "pending_checks": [
       "Confirm archive package format and any embedded README/LICENSE",
       "Identify test sets, record counts, filenames and measurement timestamps",
       "Verify nominal sample rate versus sample count and actual sample duration",
       "Verify per-test bearing/channel mapping and vibration units",
-      "Identify documented run-end failures; do not invent window-level ground-truth onset",
+      "Identify documented run-end fault descriptions and failures; do not invent window-level ground-truth onset",
       "Group splits by physical bearing/run, keeping related channels/time windows together"
     ]
   },

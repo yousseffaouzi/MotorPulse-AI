@@ -12,6 +12,7 @@
 - Synthetic speed/load variability, vibration noise/drift, missing sensor intervals and outliers with explicit sensor-quality states.
 - Deterministic, bounded CSV/JSONL **synthetic** dataset export with sensor labels and a checksummed provenance manifest.
 - Reviewed official IMS bearing-dataset sources and citations, with explicit third-party reuse restrictions and no bundled real data.
+- Optional bounded IMS-style **local-only** ASCII record importer using user-declared sampling metadata and no assumed defect labels.
 - Transparent rule-based health classification with fault examples.
 - Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
 - Unit tests via the Python standard library. **No Docker, cloud account, or hardware required.**
@@ -101,6 +102,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `docs/MODEL_ASSUMPTIONS.md` — authoritative equations, units, thresholds, provenance and scientific limitations.
 - `motorpulse/export.py` / `docs/DATASET.md` — dependency-free CSV/JSONL synthetic export, per-run provenance and field dictionary.
 - `docs/DATA_PROVENANCE.md` / `docs/sources/ims-bearings.source.json` — NASA IMS source citation, verification status, license uncertainty, safe user-side acquisition instructions and future validation requirements.
+- `motorpulse/ims.py` / `docs/IMS_INGESTION.md` — bounded, local, user-supplied IMS-style ASCII ingestion and provenance-only reports; no copied real archive data.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -176,7 +178,18 @@ Use `python -m motorpulse.export --out-dir NEW_DIRECTORY --ticks 100 --format bo
 
 ## IMS bearing dataset provenance (MP-027)
 
-The next real-data benchmark may use the **IMS Bearings** experimental archive, originally supplied by the University of Cincinnati and distributed through NASA's PCoE repository. The public NASA catalog's license badge is `other-license-specified`; the upstream archive's exact third-party redistribution and derived-data reuse permissions have **not been verified**. Therefore **no original bearing data is included or republished**, even though NASA provides download links. The source card records missing acquisition time, size and SHA-256 as `null` until somebody actually obtains and inspects the files. Read [docs/DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md) before MP-009 ingestion or publishing any real-data-derived files.
+The next real-data benchmark may use the **IMS Bearings** experimental archive, originally supplied by the University of Cincinnati and distributed through NASA's PCoE repository. The public NASA catalog's license badge is `other-license-specified`; the upstream archive's exact third-party redistribution and derived-data reuse permissions have **not been verified**. Therefore **no original bearing data is included or republished**, even though NASA provides download links. The source card records missing acquisition time, size and SHA-256 as `null` until somebody actually obtains and inspects the files. Read [docs/DATA_PROVENANCE.md](docs/DATA_PROVENANCE.md) and [docs/IMS_INGESTION.md](docs/IMS_INGESTION.md) before using local IMS files or publishing any real-data-derived material.
+
+## Local IMS-style file ingestion (MP-009)
+
+MotorPulse AI can inspect **local user-supplied bearing-record files** without any download or archive extraction. The adapter requires **explicit** sample rate, row count, and channel count, as none of those have been verified against the original IMS ZIP in this repository. No bearing identity, unit, time zone, window-level fault label or RUL is invented. Run against the **handwritten synthetic parser fixture**:
+
+```bash
+python -m motorpulse.ims --input-dir tests/fixtures/ims_style_synthetic \
+  --test-set 2 --sample-rate-hz 8 --expected-samples 4 --expected-channels 4
+```
+
+For actual locally held IMS-like files, read [docs/IMS_INGESTION.md](docs/IMS_INGESTION.md). The installed command `motorpulse-ims` provides the same interface. **Do not commit inspected third-party raw data or derived local reports** while reuse rights remain unresolved.
 
 ## Developer CI
 

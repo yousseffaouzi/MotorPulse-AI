@@ -1,6 +1,6 @@
 # IMS bearing data — provenance, access and reuse review (MP-027)
 
-**Reviewed:** 2026-10-11 (UTC) · **Status:** METADATA REVIEW COMPLETE; RAW-DATA / DERIVATIVE REDISTRIBUTION **ON HOLD** pending a dataset-specific rights review. No original archive has been downloaded, inspected, or committed by MotorPulse AI. This is a project policy rather than a legal ruling.
+**Reviewed:** 2026-10-11 (UTC) · **Status:** METADATA REVIEW COMPLETE; RAW-DATA / DERIVATIVE REDISTRIBUTION **ON HOLD** pending a dataset-specific rights review. No original archive has been downloaded, inspected, or committed by MotorPulse AI. This is a conservative project policy, **not a legal ruling**.
 
 The machine-readable source card is [sources/ims-bearings.source.json](sources/ims-bearings.source.json). Read [MODEL_ASSUMPTIONS.md](MODEL_ASSUMPTIONS.md) to distinguish this *real experimental bearing dataset* from MotorPulse AI's wholly **synthetic** motor simulation.
 
@@ -87,7 +87,7 @@ The following are **expected investigation items, not findings from an inspected
 6. Document collection date vs file-system packaging dates, archive version/URL, and archive SHA-256 **before** reporting a reproducible benchmark.
 7. Make any downstream feature-export license and citation policy explicit. Never mix IMS-derived measurements with **synthetic** training labels without a declared data-source column.
 
-**No real-data ingestion, waveform upload or ML evaluation was implemented in MP-027.** The next code milestone is MP-009 (read verified **user-provided local** files without bundling the dataset), followed by MP-028 (validation/preprocessing). If rights remain unclear, it is appropriate to keep redistribution blocked while allowing independent local research under the terms applicable to the user.
+**MP-009 now adds a local-only IMS-style ASCII inspection adapter**; it was tested only on [handwritten fixtures](../tests/fixtures/ims_style_synthetic/README.md), not an original archive. See [IMS_INGESTION.md](IMS_INGESTION.md). MP-028 will address deeper validation/preprocessing. Neither the importer nor a public download grants rights to redistribute original or derived data; that remains blocked under project policy pending rights clarification.
 
 ## How to validate this documentation offline
 
