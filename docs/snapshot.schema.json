@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/yousseffaouzi/MotorPulse-AI/blob/main/docs/snapshot.schema.json",
+  "title": "MotorPulse AI telemetry snapshot v1",
+  "type": "object",
+  "required": ["schema_version", "source", "tick", "recorded_at_utc", "assets"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "source": { "type": "string", "minLength": 1 },
+    "tick": { "type": "integer", "minimum": 1 },
+    "recorded_at_utc": { "type": "string", "format": "date-time" },
+    "assets": { "type": "array", "items": { "$ref": "#/$defs/asset_event" } }
+  },
+  "$defs": {
+    "asset_event": {
+      "type": "object",
+      "required": ["event_id", "asset_id", "name", "scenario", "source", "timestamp_utc", "units", "sample_rate_hz", "sample_count", "rpm", "temperature_c", "rms_g", "peak_to_peak_g", "crest_factor", "health", "reasons"],
+      "properties": {
+        "event_id": { "type": "string", "minLength": 1 },
+        "asset_id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "scenario": { "type": "string", "minLength": 1 },
+        "source": { "type": "string", "minLength": 1 },
+        "timestamp_utc": { "type": "string", "format": "date-time" },
+        "sample_rate_hz": { "type": "integer", "minimum": 1 },
+        "sample_count": { "type": "integer", "minimum": 1 },
+        "units": {
+          "type": "object",
+          "required": ["vibration_acceleration", "temperature", "rotational_speed"],
+          "properties": {
+            "vibration_acceleration": { "const": "g" },
+            "temperature": { "const": "degC" },
+            "rotational_speed": { "const": "rpm" }
+          }
+        },
+        "rpm": { "type": "number", "minimum": 0 },
+        "temperature_c": { "type": "number" },
+        "rms_g": { "type": "number", "minimum": 0 },
+        "peak_to_peak_g": { "type": "number", "minimum": 0 },
+        "crest_factor": { "type": "number", "minimum": 0 },
+        "health": { "enum": ["normal", "warning", "critical"] },
+        "reasons": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    }
+  }
+}
