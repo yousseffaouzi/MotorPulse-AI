@@ -21,6 +21,10 @@ Event IDs are deterministic for a seed + asset + tick for reproducible lab examp
 
 **Compatibility:** existing measurement field names and UI consumption are preserved. Future backwards-compatible fields may be added. Breaking shapes or changes in units require a new major `schema_version`. API consumers should check the major version and tolerate additional fields.
 
+## CSV / JSONL feature-event export
+
+MP-008 adds an offline, deterministic per-motor event exporter. Each row contains the current telemetry summary plus `export_id`, `schema_version`, `tick` and `recorded_at_utc`; raw waveform samples are not exported. Missing vibration uses JSON `null` / CSV blank and sensor-quality labels remain separate from programmed motor-fault truth. A sidecar manifest describes the configuration, synthetic provenance, source/configuration hashes, virtual time range, file digests, and real export creation time. See [DATASET.md](DATASET.md) for complete columns and limitations.
+
 ## Validation
 
 ```bash
