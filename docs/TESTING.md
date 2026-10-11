@@ -10,7 +10,16 @@ From the repository root, using Python 3.11 or later and **no third-party packag
 python -m unittest discover -s tests -v
 ```
 
-The suite contains **145 standard-library unittest test cases** (64 through MP-021, 4 packaging smoke tests from MP-022, 13 spectral/rolling checks from MP-023, 9 JSON/CLI startup tests from MP-024, 11 sensor/operating tests from MP-025, 7 model-reference regression tests from MP-026, 12 export/manifest regression tests from MP-008, 10 offline source-card/provenance checks from MP-027, and 15 offline local IMS-style parser tests from MP-009). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
+The suite contains **169 standard-library unittest test cases** (64 through MP-021, 4 packaging smoke tests from MP-022, 13 spectral/rolling checks from MP-023, 9 JSON/CLI startup tests from MP-024, 11 sensor/operating tests from MP-025, 7 model-reference regression tests from MP-026, 12 export/manifest regression tests from MP-008, 10 offline source-card/provenance checks from MP-027, 15 offline local IMS-style parser tests from MP-009, 18 IMS report/normalization tests and 6 native-tone tests from MP-028). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
+
+For IMS validation, train-only normalization and native-rate tone tests (all local, handwritten fixtures):
+
+```bash
+python -m unittest discover -s tests -p 'test_ims_validation.py' -v
+python -m unittest discover -s tests -p 'test_ims_tone.py' -v
+```
+
+These do not validate the uninspected upstream IMS archive, sensor calibration, original licensing or physical failure-onset labels. See [IMS_VALIDATION.md](IMS_VALIDATION.md).
 
 For local IMS-style ASCII importer validation (all fixtures handwritten, no NASA data):
 

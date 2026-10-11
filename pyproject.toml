@@ -32,6 +32,7 @@ Issues = "https://github.com/yousseffaouzi/MotorPulse-AI/issues"
 motorpulse-ai = "motorpulse.__main__:main"
 motorpulse-export = "motorpulse.export:main"
 motorpulse-ims = "motorpulse.ims:main"
+motorpulse-ims-validate = "motorpulse.ims_validation:main"
 
 [tool.setuptools]
 packages = ["motorpulse"]

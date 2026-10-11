@@ -32,6 +32,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-008 implemented: bounded reproducible per-motor CSV/JSONL event export, seed/config/source SHA-256 provenance, data dictionary, null-handling, checksummed manifest, non-overwrite output and 12 export tests.
 - MP-027 review completed: official IMS donor citation, download sources, NASA licensing caveat, source card and offline validation. **Raw-data and derivative redistribution permissions remain unverified and publication remains ON HOLD; no archive was downloaded or committed.**
 - MP-009 implemented: bounded, no-network IMS-style local ASCII inspector, explicit rate/row/channel inputs, timestamp parsing, per-channel RMS/crest/peak-to-peak, local SHA-256 provenance, optional explicitly sourced bearing map, failure-onset/RUL nulls and 15 tests with entirely handwritten fixtures. **Not verified on the real source archive; original/derived data remain unpublishable under project policy.**
+- MP-028 implemented: offline local IMS report integrity and chronology validation, checksum re-verification, unit/channel consistency, review-only quality flags, optional native-rate Hann tone amplitude, and run-disjoint training-only standardization (24 new tests). No verified field calibration, real-archive ingestion or redistribution rights claimed.
 - No trained AI model, persisted database, external ingestion adapter or real-hardware connection.
 
 ## Milestone 0 — Existing proof of concept
@@ -72,7 +73,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-008 | DONE | P1 | Export synthetic datasets | CSV/JSONL or Parquet CLI; metadata, seed, labels, dictionary, round-trip tests |
 | MP-009 | DONE | P1 | NASA IMS bearing data ingestion | Load local data + small test fixtures; do not commit third-party raw archives |
 | MP-027 | DONE | P1 | Dataset provenance and reuse review | Check citation, source, redistribution terms, checksum, acquisition date |
-| MP-028 | TODO | P1 | Dataset validation and preprocessing | Channel mapping, frequencies, units, timestamps, NaN handling, corrupt-file tests |
+| MP-028 | DONE | P1 | Dataset validation and preprocessing | Channel mapping, frequencies, units, timestamps, NaN handling, corrupt-file tests |
 | MP-029 | TODO | P1 | Exploratory data quality report | Reproducible distributions, trend examples, data quality and label caveats |
 | MP-030 | TODO | P1 | Leakage-resistant train/validation/test splitting | Group by run/bearing/asset; preserve temporal order when required |
 | MP-031 | TODO | P2 | Optional CWRU data adapter | Reuse terms and dataset card; distinguish seeded faults from run-to-failure |
