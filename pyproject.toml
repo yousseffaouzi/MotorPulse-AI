@@ -33,6 +33,7 @@ motorpulse-ai = "motorpulse.__main__:main"
 motorpulse-export = "motorpulse.export:main"
 motorpulse-ims = "motorpulse.ims:main"
 motorpulse-ims-validate = "motorpulse.ims_validation:main"
+motorpulse-eda = "motorpulse.eda:main"
 
 [tool.setuptools]
 packages = ["motorpulse"]
