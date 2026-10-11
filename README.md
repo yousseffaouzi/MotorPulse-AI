@@ -58,7 +58,7 @@ curl -X POST http://127.0.0.1:8765/api/control -H 'Content-Type: application/jso
 curl -X POST http://127.0.0.1:8765/api/control -H 'Content-Type: application/json' -d '{"action":"step"}'
 ```
 
-Run the complete standard-library test suite locally (64 prior tests plus packaging tests):
+Run the complete standard-library test suite locally:
 
 ```bash
 python -m unittest discover -s tests -v
@@ -86,6 +86,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/spectral.py` — dependency-free FFT, one-sided band power and harmonic peak estimates.
 - `docs/SPECTRAL.md` — spectral frequency/units conventions, rollup definitions and limits.
 - `docs/OPERATIONS.md` — operational variability, missing/outlier sensor behavior and caveats.
+- `docs/MODEL_ASSUMPTIONS.md` — authoritative equations, units, thresholds, provenance and scientific limitations.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -150,6 +151,10 @@ python -m motorpulse --config docs/examples/operations-v1.json --paused
 ```
 
 Step through the simulation to inspect onset and recovery. Parameter limits, provenance, and simplified physical assumptions: [docs/OPERATIONS.md](docs/OPERATIONS.md).
+
+## Simulation model and scientific limitations (MP-026)
+
+**Read [docs/MODEL_ASSUMPTIONS.md](docs/MODEL_ASSUMPTIONS.md) before using or exporting synthetic readings.** It consolidates the formulas and units for shaft harmonics, illustrative bearing pulses, thermal offsets, configurable operating conditions, fault-severity curves, FFT features, and sensor-quality events. The current 'health' classes are **uncalibrated demo rules**, not a trained failure predictor; synthetic fault labels are not real diagnostic evidence. The documentation distinguishes g peak, g RMS, temperature, RPM, and simulated UTC time.
 
 ## Developer CI
 

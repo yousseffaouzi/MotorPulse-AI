@@ -20,7 +20,7 @@ For equally spaced sample `i` at `t = i/fs`, define shaft frequency `f_s = RPM /
 
 `a(t) = A1 · sin(2π f_s t) + A2 · sin(4π f_s t + 0.35) + n(t) + p(t)`
 
-`n(t)` is repeatable pseudorandom Gaussian noise (standard deviation 0.014 g). The synthetic scenarios use these illustrative **peak acceleration** amplitudes:
+`n(t)` is repeatable pseudorandom Gaussian noise (default standard deviation 0.014 g, configurable per motor up to 0.1 g). The synthetic scenarios use these illustrative **peak acceleration** amplitudes:
 
 | Scenario | A1 (1×) | A2 (2×) | Extra pulse | Available in 3-motor dashboard? |
 |---|---:|---:|---|---|
@@ -38,11 +38,13 @@ For `bearing_wear`, `p(t)` is a 1.0 g peak, smooth periodic Gaussian-shaped bump
 
 At 1500 RPM: `f_s = 25 Hz`, 2× is `50 Hz`, and the illustrative 4.8× impact rate is `120 Hz`. Changing RPM to 1200 or 1800 moves 1× to 20 or 30 Hz respectively. The old frequency-independent 64 Hz sine has been removed.
 
-The generator is deterministic for the same motor asset, seed, tick, and fault configuration. MP-007 interpolates 1×/2× amplitudes and illustrative bearing-pulse strength linearly from healthy (severity 0) to full synthetic fault (severity 1). It does not simulate progressive deterioration or maintenance-relevant severity thresholds. `motorpulse.signals.harmonic_amplitude_g()` provides a **single-frequency projection** for tests; it is not an FFT implementation. True Fourier spectra require suitable windowing, filtering, leakage accounting, sampling-time conventions and measured sensor calibration.
+The generator is deterministic for the same motor asset, seed, tick, and fault configuration. MP-007 interpolates 1×/2× amplitudes and illustrative bearing-pulse strength linearly from healthy (severity 0) to full synthetic fault (severity 1). MP-020 adds *scripted* constant, linear, or exponential severity profiles; these are not physically validated deterioration dynamics or maintenance-relevant severity thresholds. `motorpulse.signals.harmonic_amplitude_g()` provides a **single-frequency projection** for tests; it is not an FFT implementation. True Fourier spectra require suitable windowing, filtering, leakage accounting, sampling-time conventions and measured sensor calibration.
 
 ## Frequency-domain and temporal feature extraction
 
 MP-023 provides additive spectral amplitude estimates, one-sided 80–400 Hz band RMS, and per-motor five-tick arithmetic rolling means. The frequency estimator uses a **periodic Hann window** and an O(N log N) pure-Python FFT. See [SPECTRAL.md](SPECTRAL.md) for windowing/leakage tradeoffs, g peak versus g RMS, and the distinction between rolling *mean of RMS features* and RMS over a concatenated waveform.
+
+For all equations, sensor-quality conditions and physical limitations in one location, read [MODEL_ASSUMPTIONS.md](MODEL_ASSUMPTIONS.md).
 
 ## Developer verification
 
