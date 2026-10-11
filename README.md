@@ -13,6 +13,7 @@
 - Deterministic, bounded CSV/JSONL **synthetic** dataset export with sensor labels and a checksummed provenance manifest.
 - Reviewed official IMS bearing-dataset sources and citations, with explicit third-party reuse restrictions and no bundled real data.
 - Optional bounded IMS-style **local-only** ASCII record importer using user-declared sampling metadata and no assumed defect labels.
+- Local IMS report integrity/chronology checks, native-rate Hann single-bin amplitude and train-only feature normalization across disjoint runs.
 - Transparent rule-based health classification with fault examples.
 - Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
 - Unit tests via the Python standard library. **No Docker, cloud account, or hardware required.**
@@ -103,6 +104,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/export.py` / `docs/DATASET.md` — dependency-free CSV/JSONL synthetic export, per-run provenance and field dictionary.
 - `docs/DATA_PROVENANCE.md` / `docs/sources/ims-bearings.source.json` — NASA IMS source citation, verification status, license uncertainty, safe user-side acquisition instructions and future validation requirements.
 - `motorpulse/ims.py` / `docs/IMS_INGESTION.md` — bounded, local, user-supplied IMS-style ASCII ingestion and provenance-only reports; no copied real archive data.
+- `motorpulse/ims_validation.py`, `motorpulse/ims_tone.py` / `docs/IMS_VALIDATION.md` — local data-quality checks, optional native-rate tone analysis and leakage-safe train-only scaling.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -190,6 +192,17 @@ python -m motorpulse.ims --input-dir tests/fixtures/ims_style_synthetic \
 ```
 
 For actual locally held IMS-like files, read [docs/IMS_INGESTION.md](docs/IMS_INGESTION.md). The installed command `motorpulse-ims` provides the same interface. **Do not commit inspected third-party raw data or derived local reports** while reuse rights remain unresolved.
+
+## Local IMS dataset validation (MP-028)
+
+A second offline CLI validates MP-009 inspection reports, checks chronology, sensor/channel metadata and optionally rehashes the source files. It flags possible flatlines or high-crest values for **review only**, without diagnosing a bearing fault. The Python API also supports **train-only normalization** with explicit disjoint run groups and a *native sampling-rate* Hann single-bin amplitude measurement (no resampling or g/volts conversion).
+
+```bash
+python -m motorpulse.ims_validation --report /tmp/ims-inspection.json \
+  --verify-files --expected-interval-s 10 --out /tmp/ims-quality.json
+```
+
+The installed command is `motorpulse-ims-validate`. See [docs/IMS_VALIDATION.md](docs/IMS_VALIDATION.md). **All IMS-derived records and quality summaries remain local**, and original/derived redistribution rights are unresolved.
 
 ## Developer CI
 

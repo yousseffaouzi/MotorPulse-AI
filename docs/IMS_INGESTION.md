@@ -105,6 +105,10 @@ Supply `--archive-sha256 <your-64-hex-checksum>` and `--acquired-on YYYY-MM-DD` 
 
 `--manifest data/external/your-new-report.json` writes a single JSON report containing input directory, full file summaries, grouping and source metadata. Its content is locally derived from any inspected third-party files. **Do not add it to a public git repository** while source-data reuse rights remain unresolved. Use ignored `data/external/` or `data/processed/` paths and review `git status`.
 
+## Next step: local report validation
+
+MP-028 adds [IMS_VALIDATION.md](IMS_VALIDATION.md) with a checksum/cadence/quality CLI, an optional frequency-bin estimate at the **declared** native sample rate, and a run-separated, training-only scaling API. No original IMS data is bundled or automatically downloaded.
+
 ## Testing / known gaps
 
 ```bash
