@@ -37,6 +37,7 @@ motorpulse-eda = "motorpulse.eda:main"
 motorpulse-split = "motorpulse.splits:main"
 motorpulse-card = "motorpulse.dataset_cards:main"
 motorpulse-anomaly = "motorpulse.anomaly:main"
+motorpulse-evaluate = "motorpulse.evaluation:main"
 
 [tool.setuptools]
 packages = ["motorpulse"]
