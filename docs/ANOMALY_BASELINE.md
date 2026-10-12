@@ -107,4 +107,4 @@ The regression suite creates reproducible synthetic exports in temporary directo
 
 See also [dataset cards](DATASET_CARDS.md), [simulation export](DATASET.md), [source-run split plans](SPLITS.md), and [scientific model assumptions](MODEL_ASSUMPTIONS.md).
 
-**Next:** MP-011 held-out event/detection metrics; MP-033 experiment CLI/repeatability and MP-035 versioned model-artifact load/save.
+**Next:** MP-011 now provides [frozen held-out synthetic detection metrics](EVALUATION.md), including event-level false positives, PR average precision, comparable original rules and scripted episode delays. MP-033 experiment CLI/repeatability and MP-035 artifact load/save follow.
