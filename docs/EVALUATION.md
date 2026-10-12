@@ -103,6 +103,6 @@ python -m unittest discover -s tests -v
 
 The 21 regression tests cover numerical confusion matrices and PR-AP/tie handling, zero-positive/zero-negative edge cases, false alarms, onset/delay/missed episodes, quality abstentions, frozen training parameters, source/split tamper rejection, deterministic replay, operating-regime breakdowns and non-overwriting CLI outputs.
 
-MP-033 now provides [strict-config reproducible experiments](EXPERIMENTS.md), running the same frozen MP-011 held-out evaluation on validation and test with a source-linked SHA-256 artifact index.
+MP-035 adds [portable source-verified model artifacts](MODEL_ARTIFACTS.md), accepted by the `--model` CLI flag alongside legacy MP-010 model JSON; strict loading checks source/split/processor provenance before scoring. MP-033 now provides [strict-config reproducible experiments](EXPERIMENTS.md), running the same frozen MP-011 held-out evaluation on validation and test with a source-linked SHA-256 artifact index.
 
 **References:** [MP-008 synthetic exports](DATASET.md), [MP-010 trained baseline](ANOMALY_BASELINE.md), [MP-030 leakage-aware group splits](SPLITS.md), [MP-032 dataset cards](DATASET_CARDS.md), and [data provenance / IMS rights](DATA_PROVENANCE.md).

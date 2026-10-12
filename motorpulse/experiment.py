@@ -20,6 +20,7 @@ from .dataset_cards import synthetic_run_card
 from .evaluation import evaluate, markdown as evaluation_markdown
 from .export import export_dataset
 from .ims import _read_strict_json, write_local_manifest
+from .model_artifact import build_model_artifact, save_model_artifact, load_model_artifact
 from .scenarios import configuration_dict, parse_configuration
 from .sim import MotorSimulator, parse_start_time_utc
 from .splits import _hash, _ratios, group_split
@@ -173,9 +174,18 @@ def run_experiment(config: dict, output_dir: str | Path) -> dict:
         model = train_baseline(plan, manifests)
         write_local_manifest(root / "trained-model.json", {"model": model})
         stable_paths.append("trained-model.json")
+        artifact = build_model_artifact(plan, manifests, model)
+        save_model_artifact(root / "model-artifact.json", artifact)
+        stable_paths.append("model-artifact.json")
+        # Verify the written artifact and all its original sources before
+        # evaluating either holdout; never silently reload/recalibrate state.
+        verified_model = load_model_artifact(
+            root / "model-artifact.json", plan=plan, manifests=manifests)
+        if verified_model != model:
+            raise ValueError("portable artifact changed the frozen model")
         reports = {}
         for partition in ("validation", "test"):
-            report = evaluate(plan, manifests, model, partition=partition,
+            report = evaluate(plan, manifests, verified_model, partition=partition,
                               max_events=0)
             reports[partition] = report
             filename = f"{partition}-metrics.json"
@@ -205,6 +215,8 @@ def run_experiment(config: dict, output_dir: str | Path) -> dict:
             "stable_artifact_sha256": stable_hashes,
             "split_plan_sha256": plan["plan_sha256"],
             "model_sha256": model["model_sha256"],
+            "model_artifact_sha256": artifact["artifact_sha256"],
+            "model_artifact_version": artifact["artifact_version"],
             "feature_pipeline_sha256": model["feature_processing"]["pipeline_sha256"],
             "feature_pipeline_version": model["feature_processing"]["pipeline_version"],
             "evaluation_sha256": {p: reports[p]["evaluation_sha256"]

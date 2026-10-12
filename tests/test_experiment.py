@@ -158,6 +158,7 @@ class ExperimentIntegrationTests(unittest.TestCase):
             self.assertEqual(a["experiment_sha256"],b["experiment_sha256"])
             self.assertEqual(a["stable_artifact_sha256"],b["stable_artifact_sha256"])
             self.assertEqual(a["model_sha256"],b["model_sha256"])
+            self.assertEqual(a["model_artifact_sha256"],b["model_artifact_sha256"])
             self.assertEqual(a["evaluation_sha256"],b["evaluation_sha256"])
             self.assertEqual(a["source_manifest_semantic_sha256"],
                              b["source_manifest_semantic_sha256"])
@@ -165,7 +166,7 @@ class ExperimentIntegrationTests(unittest.TestCase):
                              (root/"b"/"SUMMARY.md").read_bytes())
             self.assertEqual(a["stable_artifact_sha256"]["experiment-config.json"],
                              _sha_file(root/"a"/"experiment-config.json"))
-            self.assertEqual(len(a["stable_artifact_sha256"]),3*2+6)
+            self.assertEqual(len(a["stable_artifact_sha256"]),3*2+7)
 
     def test_index_hashes_match_exact_stable_files_and_semantic_manifests(self):
         from motorpulse.splits import _hash

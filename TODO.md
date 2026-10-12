@@ -40,6 +40,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-011 implemented: **held-out whole-run** synthetic detection metrics (TP/FP/TN/FN, precision/recall/F1/FPR, score-ranked PR average precision, synthetic false alarms/hour), identical eligible windows for model/rules, sensor abstentions, per-run/motor/regime/fault breakdowns, missed episodes and virtual onset-to-first-alert delays. Includes 21 regression tests and source/model/plan provenance checks; no real machinery accuracy claims.
 - MP-033 implemented: one offline strict-config synthetic experiment runner generates distinct seed runs, MP-032 dataset cards, label-blind MP-030 split, train-only MP-010 model, frozen MP-011 validation/test metrics, Markdown summary and SHA-256 artifact index. Source exporter wall-clock manifests are semantically hashed excluding timestamp. Includes 16 new tests for determinism, safety/cleanup, bad inputs and full provenance; not real-world predictive maintenance.
 - MP-034 implemented: versioned five-feature train-only scaling contract, verified sampling/rolling metadata, duplicate/window/group leakage guards, SHA-256-linked processor and source provenance checked in model scoring and held-out evaluation, independent synthetic chronological gap validation, and MP-033 artifact index integration. Includes 19 synthetic-only tests; no calibrated physical failure probabilities.
+- MP-035 implemented: strict non-executable JSON model artifacts with full MP-010 model, MP-034 train-only fitted preprocessing, source/split/dataset-card fingerprints, deterministic SHA-256, size/format/version validation, exclusive save and verified load. MP-033 exports and reloads the artifact before held-out scoring; MP-011 accepts both portable and legacy model JSON. Added 19 offline tests and CLI; no real IMS data or physical prognostic claims.
 - No trained AI model, persisted database, external ingestion adapter or real-hardware connection.
 
 ## Milestone 0 — Existing proof of concept
@@ -96,7 +97,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-011 | DONE | P1 | Fault detection metrics | False alarms, precision/recall/PR-AUC where relevant, detection delay and lead time |
 | MP-033 | DONE | P1 | Reproducible training/evaluation CLI | Seeded configuration, frozen dependencies, repeatable metrics and saved reports |
 | MP-034 | DONE | P1 | Leakage-free feature pipelines | Preprocessing fitted on training only; overlapping-window and group split tests |
-| MP-035 | TODO | P1 | Versioned model artifacts | Save/load with feature contract, config, dataset and training metadata |
+| MP-035 | DONE | P1 | Versioned model artifacts | Save/load with feature contract, config, dataset and training metadata |
 | MP-036 | TODO | P1 | Robustness across operating regimes | Evaluate by fault type, speed, load, noise and dataset; no cross-domain overclaims |
 | MP-037 | TODO | P1 | Side-by-side rules vs ML | Same input, separate outputs, explanations and false-positive examples |
 | MP-038 | TODO | P2 | Calibrate anomaly thresholds | Validation-only selection with false-alarm tradeoffs; untouched test split |

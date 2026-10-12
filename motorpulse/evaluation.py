@@ -450,7 +450,7 @@ def main() -> None:
         description="Evaluate frozen healthy-trained MP-010 scores versus heuristic rules on disjoint synthetic runs")
     parser.add_argument("--split", type=Path, required=True)
     parser.add_argument("--model", type=Path, required=True,
-                        help="MP-010 JSON from motorpulse-anomaly")
+                        help="MP-010 trained JSON or MP-035 verified portable artifact")
     parser.add_argument("--input", nargs="+", type=Path, required=True,
                         help="ALL source manifest.json files listed in MP-030 plan")
     parser.add_argument("--partition", choices=EVAL_PARTITIONS, default="test")
@@ -459,10 +459,20 @@ def main() -> None:
     args = parser.parse_args()
     try:
         plan = _read_strict_json(args.split, 256 * 1024)
-        package = _read_strict_json(args.model, 256 * 1024)
-        if type(package) is not dict or type(package.get("model")) is not dict:
-            raise ValueError("--model must be MP-010 JSON containing model")
-        result = evaluate(plan, args.input, package["model"], partition=args.partition)
+        package = _read_strict_json(args.model, 512 * 1024)
+        if type(package) is not dict:
+            raise ValueError("--model must be a JSON object")
+        if "artifact_version" in package:
+            # Full MP-035 source/card/model verification before any scoring.
+            from .model_artifact import verify_model_artifact
+            trained = verify_model_artifact(package, plan, args.input)
+        elif type(package.get("model")) is dict:
+            # Backward compatible MP-010 wrapper; evaluate() still validates
+            # split, source-group, model and MP-034 preprocessing provenance.
+            trained = package["model"]
+        else:
+            raise ValueError("--model must be MP-010 JSON or MP-035 artifact")
+        result = evaluate(plan, args.input, trained, partition=args.partition)
         if args.markdown and args.markdown.resolve() == args.out.resolve():
             raise ValueError("JSON and Markdown outputs must have different paths")
         # Preflight both output paths so we never clobber existing artifacts.
