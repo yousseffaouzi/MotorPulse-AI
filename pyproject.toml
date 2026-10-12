@@ -35,10 +35,11 @@ motorpulse-ims = "motorpulse.ims:main"
 motorpulse-ims-validate = "motorpulse.ims_validation:main"
 motorpulse-eda = "motorpulse.eda:main"
 motorpulse-split = "motorpulse.splits:main"
+motorpulse-card = "motorpulse.dataset_cards:main"
 
 [tool.setuptools]
 packages = ["motorpulse"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-motorpulse = ["web/index.html"]
+motorpulse = ["web/index.html", "cards/*.json"]

@@ -90,6 +90,8 @@ These APIs preserve `run_id`, `group_key`, `bearing_id`, source-record SHA-256 a
 
 MP-029 adds [EDA.md](EDA.md) and `motorpulse-eda --source ims --input YOUR_INSPECTION.json --out NEW_LOCAL_REPORT.json --verify-files`. It summarizes per-channel native-unit distributions, first/last timestamp trends and MP-028 inspection flags, preserving **unknown timezone**, **null failure labels**, and **local-only redistribution hold**.
 
+The [MP-032 IMS dataset card](DATASET_CARDS.md) distinguishes user-declared sampling attributes from unverified original acquisition facts, labels and rights. A card is not a sensor calibration, failure annotation or license approval.
+
 ## 4. Explicit limitations / follow-up
 
 - This implementation has been checked on **handwritten synthetic input fixtures only**. Original IMS ZIP layouts, sampling rate, channel/bearing mapping, units, timezone and failure annotations remain unverified.
