@@ -37,3 +37,7 @@ MP-035 artifact loading verifies source byte hashes, MP-030 train-group membersh
 The synthetic example is a scripted educational comparison. Simulator seeded runs reuse the same underlying formulas; they are not domain-independent operating sites. No NASA IMS or CWRU raw data or redistribution, no unverified field labels, no hardware, no cloud services, no field-calibrated fault probability, no predictive maintenance recommendation or physical RUL. A checksum is an integrity check, not a cryptographic signature.
 
 MP-037 will add human-readable side-by-side explanations and concrete false-positive examples; MP-038 may explore validation-only threshold tradeoffs without touching the test split.
+
+## Follow-on MP-037: concrete disagreements and false positives
+
+[MP-037](COMPARISON.md) complements these aggregate regime slices by reporting same-window decisions, original rule checks, numeric model distance decomposition and source-verified concrete false-positive examples. Both tools retain the frozen training threshold, shared good-sensor denominator, and strict synthetic-only limitations.
