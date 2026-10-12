@@ -1,0 +1,89 @@
+{
+  "experiment_version": "1.0.0",
+  "seeds": [
+    11,
+    22,
+    33,
+    44,
+    55
+  ],
+  "ticks": 24,
+  "assets": {
+    "assets": [
+      {
+        "asset_id": "MTR-01",
+        "name": "Nominal healthy reference",
+        "scenario": "healthy"
+      },
+      {
+        "asset_id": "MTR-02",
+        "name": "Healthy variable speed and load",
+        "scenario": "healthy",
+        "speed_variation_pct": 0.2,
+        "load_variation_pct": 0.3
+      },
+      {
+        "asset_id": "MTR-03",
+        "name": "Healthy noisy drifting vibration",
+        "scenario": "healthy",
+        "sensor_noise_g": 0.1,
+        "sensor_drift_g_per_tick": -0.001
+      },
+      {
+        "asset_id": "MTR-04",
+        "name": "Slow low-strength bearing ramp",
+        "scenario": "bearing_wear",
+        "severity": 0.3,
+        "onset_tick": 3,
+        "progression": "linear",
+        "start_severity": 0,
+        "ramp_ticks": 8
+      },
+      {
+        "asset_id": "MTR-05",
+        "name": "Early strong bearing impulse",
+        "scenario": "bearing_wear",
+        "severity": 0.9,
+        "onset_tick": 2
+      },
+      {
+        "asset_id": "MTR-06",
+        "name": "Delayed imbalance with outlier",
+        "scenario": "imbalance",
+        "severity": 0.7,
+        "onset_tick": 10,
+        "sensor_outlier_onset_tick": 12,
+        "sensor_outlier_duration_ticks": 2,
+        "sensor_outlier_g": 1
+      },
+      {
+        "asset_id": "MTR-07",
+        "name": "Misalignment with missing sensor",
+        "scenario": "misalignment",
+        "severity": 0.6,
+        "onset_tick": 1,
+        "sensor_missing_onset_tick": 5,
+        "sensor_missing_duration_ticks": 3
+      },
+      {
+        "asset_id": "MTR-08",
+        "name": "Progressive overload with moderate noise",
+        "scenario": "overload",
+        "severity": 0.8,
+        "onset_tick": 3,
+        "progression": "exponential",
+        "start_severity": 0,
+        "ramp_ticks": 5,
+        "sensor_noise_g": 0.04
+      }
+    ]
+  },
+  "virtual_start_utc": "2026-01-01T00:00:00+00:00",
+  "step_seconds": 1.5,
+  "split_seed": 42,
+  "split_ratios": [
+    0.6,
+    0.2,
+    0.2
+  ]
+}

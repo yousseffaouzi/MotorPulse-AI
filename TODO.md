@@ -41,7 +41,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-033 implemented: one offline strict-config synthetic experiment runner generates distinct seed runs, MP-032 dataset cards, label-blind MP-030 split, train-only MP-010 model, frozen MP-011 validation/test metrics, Markdown summary and SHA-256 artifact index. Source exporter wall-clock manifests are semantically hashed excluding timestamp. Includes 16 new tests for determinism, safety/cleanup, bad inputs and full provenance; not real-world predictive maintenance.
 - MP-034 implemented: versioned five-feature train-only scaling contract, verified sampling/rolling metadata, duplicate/window/group leakage guards, SHA-256-linked processor and source provenance checked in model scoring and held-out evaluation, independent synthetic chronological gap validation, and MP-033 artifact index integration. Includes 19 synthetic-only tests; no calibrated physical failure probabilities.
 - MP-035 implemented: strict non-executable JSON model artifacts with full MP-010 model, MP-034 train-only fitted preprocessing, source/split/dataset-card fingerprints, deterministic SHA-256, size/format/version validation, exclusive save and verified load. MP-033 exports and reloads the artifact before held-out scoring; MP-011 accepts both portable and legacy model JSON. Added 19 offline tests and CLI; no real IMS data or physical prognostic claims.
-- No trained AI model, persisted database, external ingestion adapter or real-hardware connection.
+- MP-036 implemented: versioned synthetic robustness slices across configured speed/load, noise/drift, fault families, severity/progression/onset and observed sensor quality, with original MP-035 model/processor/threshold frozen and revalidated against split, dataset cards and MP-033 file index. Reports MP-011-equivalent eligible-window metrics and full-track synthetic delay, with honest undefined one-class metrics and no invented window-sliced episodes. Includes an eight-asset scenario example, offline tests and write-once CLI; no real data, causal/industrial generalization or RUL claims.
+- A trained **synthetic-only** anomaly baseline exists; there is still no field-validated AI model, persisted database, external live ingestion adapter or real-hardware connection.
 
 ## Milestone 0 — Existing proof of concept
 
@@ -98,7 +99,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-033 | DONE | P1 | Reproducible training/evaluation CLI | Seeded configuration, frozen dependencies, repeatable metrics and saved reports |
 | MP-034 | DONE | P1 | Leakage-free feature pipelines | Preprocessing fitted on training only; overlapping-window and group split tests |
 | MP-035 | DONE | P1 | Versioned model artifacts | Save/load with feature contract, config, dataset and training metadata |
-| MP-036 | TODO | P1 | Robustness across operating regimes | Evaluate by fault type, speed, load, noise and dataset; no cross-domain overclaims |
+| MP-036 | DONE | P1 | Robustness across operating regimes | Evaluate by fault type, speed, load, noise and dataset; no cross-domain overclaims |
 | MP-037 | TODO | P1 | Side-by-side rules vs ML | Same input, separate outputs, explanations and false-positive examples |
 | MP-038 | TODO | P2 | Calibrate anomaly thresholds | Validation-only selection with false-alarm tradeoffs; untouched test split |
 | MP-039 | TODO | P2 | Consider RUL as separate research track | Define failure labels, censoring and metrics before any RUL claims |

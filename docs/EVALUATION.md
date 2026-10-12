@@ -106,3 +106,7 @@ The 21 regression tests cover numerical confusion matrices and PR-AP/tie handlin
 MP-035 adds [portable source-verified model artifacts](MODEL_ARTIFACTS.md), accepted by the `--model` CLI flag alongside legacy MP-010 model JSON; strict loading checks source/split/processor provenance before scoring. MP-033 now provides [strict-config reproducible experiments](EXPERIMENTS.md), running the same frozen MP-011 held-out evaluation on validation and test with a source-linked SHA-256 artifact index.
 
 **References:** [MP-008 synthetic exports](DATASET.md), [MP-010 trained baseline](ANOMALY_BASELINE.md), [MP-030 leakage-aware group splits](SPLITS.md), [MP-032 dataset cards](DATASET_CARDS.md), and [data provenance / IMS rights](DATA_PROVENANCE.md).
+
+## MP-036 robustness slices
+
+For frozen-model, common-cohort comparisons across controlled synthetic speed/load, noise/drift, fault strength/onset and sensor quality, see [ROBUSTNESS.md](ROBUSTNESS.md). MP-036 verifies and reproduces the MP-011 held-out overall metrics before producing stress slices; no recalibration or source mutation is allowed. Window-only slices intentionally suppress episode-delay metrics to avoid spurious onsets.

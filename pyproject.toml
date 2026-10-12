@@ -40,6 +40,7 @@ motorpulse-anomaly = "motorpulse.anomaly:main"
 motorpulse-evaluate = "motorpulse.evaluation:main"
 motorpulse-experiment = "motorpulse.experiment:main"
 motorpulse-model = "motorpulse.model_artifact:main"
+motorpulse-robustness = "motorpulse.robustness:main"
 
 [tool.setuptools]
 packages = ["motorpulse"]
