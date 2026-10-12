@@ -57,6 +57,8 @@ Per-channel summary fields include native RMS, peak-to-peak and crest distributi
 
 Crucially, original filename timestamps have **unknown timezone**, are never converted to UTC, and **per-window fault labels, fault onset and RUL remain null**. A high-crest sample is an inspection flag, not a verified bearing failure. Native voltages are **not converted to g** and the synthetic demo rules are **never applied** to IMS data.
 
+MP-032 adds [dataset cards](DATASET_CARDS.md) documenting provenance, true/unknown labels and reuse rights. Exploratory summaries complement these disclosures but are not a source-license clearance or dataset card.
+
 ## 3. JSON shape
 
 Both output types use `report_version="1.0.0"` and identify `source_type` and `publication_status`.

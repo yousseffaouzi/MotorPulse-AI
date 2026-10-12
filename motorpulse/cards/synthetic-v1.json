@@ -1,0 +1,71 @@
+{
+  "card_version": "1.0.0",
+  "instance_kind": "template",
+  "run_provenance": null,
+  "card_id": "motorpulse-synthetic-motors-v1",
+  "dataset_type": "synthetic_motor_feature_events",
+  "title": "MotorPulse AI Synthetic Motor Feature Events",
+  "creator_or_provider": "MotorPulse AI contributors — programmatically generated",
+  "distributor": "MotorPulse AI repository (generator code only)",
+  "provenance_status": "generated_by_documented_simulator_not_measured",
+  "citation": "MotorPulse AI contributors. MotorPulse-AI (software-first motor simulation), version 0.1.0.dev0. https://github.com/yousseffaouzi/MotorPulse-AI",
+  "license": {
+    "code_license": "MIT",
+    "dataset_specific_license": null,
+    "license_status": "not_separately_specified",
+    "original_or_derived_redistribution": "no third-party inputs; review any use-specific output terms independently"
+  },
+  "collection": {
+    "method": "seeded simulated acceleration, temperature, RPM and fault schedules; exported per-asset derived features",
+    "data_origin": "software_generated_not_sensors",
+    "sample_rate_hz": 1024,
+    "sample_count": 1024,
+    "window_duration_s": 1,
+    "temporal_timestamps": "UTC virtual timestamps, distinct from real export time",
+    "actual_independent_runs": "different seeds are not proven independent physical conditions"
+  },
+  "labels": {
+    "motor_fault": "controlled synthetic scenario (healthy/imbalance/bearing_wear/misalignment/overload), not diagnosed machine failure",
+    "sensor_quality": "injected good/missing/outlier condition, not instrument certification",
+    "health": "uncalibrated rule-based normal/warning/critical or unavailable/suspect; not ML output",
+    "failure_probability": null,
+    "remaining_useful_life": null
+  },
+  "measurement_quality": {
+    "missingness": "JSON null vibration when sensor_quality=missing; CSV blank; never coerce to healthy/zero",
+    "outliers": "synthetically injected sensor impulses are not verified machine faults",
+    "calibration": "illustrative coefficients, unvalidated physically"
+  },
+  "recommended_splits": "Group complete generator runs and asset histories; do not split repeated seed/config/clock source across partitions; purged same-run chronological split only exploratory.",
+  "intended_uses": [
+    "Teaching signal processing and data engineering",
+    "Testing software contracts and synthetic data pipelines",
+    "Prototyping classical anomaly-detection methods with clearly labeled simulated truth"
+  ],
+  "excluded_uses": [
+    "Diagnosing or controlling real rotating equipment",
+    "Calibrating industrial protection thresholds",
+    "Estimating actual failure probability or RUL",
+    "Reporting synthetic classifier performance as field predictive-maintenance accuracy"
+  ],
+  "known_limitations": [
+    "No physically calibrated motor or bearing geometry, sensor transfer function, or real field failure logs",
+    "Seeded runs may share generator assumptions and programmed fault patterns",
+    "Temperature/load patterns and heuristic health thresholds are educational fixtures",
+    "No physical validation, measurement uncertainty calibration or industrial safety assurance"
+  ],
+  "references": {
+    "generation_guide": "docs/DATASET.md",
+    "physics_guide": "docs/MODEL_ASSUMPTIONS.md",
+    "schema": "docs/snapshot.schema.json",
+    "exploration_guide": "docs/EDA.md",
+    "split_guide": "docs/SPLITS.md"
+  },
+  "publication_status": "synthetic_demo",
+  "rights_review": {
+    "status": "no_third_party_source_inputs",
+    "raw_third_party_data_included": false,
+    "derived_publication_cleared": null,
+    "notes": "Code MIT license does not itself establish a separately issued dataset license."
+  }
+}

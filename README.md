@@ -16,6 +16,7 @@
 - Local IMS report integrity/chronology checks, native-rate Hann single-bin amplitude and train-only feature normalization across disjoint runs.
 - Reproducible synthetic and local-only IMS **exploratory quality reports** (numeric distributions, missingness, trends and provenance in JSON or Markdown).
 - Deterministic **train/validation/test split plans** that keep complete source runs together, reject duplicate groups, and offer explicitly exploratory synthetic chronological holdouts with purge gaps.
+- Versioned **dataset cards** for synthetic events and IMS source metadata, with local provenance-bound run cards and explicit licensing limitations.
 - Transparent rule-based health classification with fault examples.
 - Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
 - Unit tests via the Python standard library. **No Docker, cloud account, or hardware required.**
@@ -109,6 +110,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/ims_validation.py`, `motorpulse/ims_tone.py` / `docs/IMS_VALIDATION.md` — local data-quality checks, optional native-rate tone analysis and leakage-safe train-only scaling.
 - `motorpulse/eda.py` / `docs/EDA.md` — deterministic exploratory distributions, missingness, trend samples, hashes, and explicit synthetic/IMS source separation.
 - `motorpulse/splits.py` / `docs/SPLITS.md` — train/validation/test split plans with whole-run boundaries, deterministic seeded assignment and synthetic-only chronological purge gaps.
+- `motorpulse/cards/*.json`, `motorpulse/dataset_cards.py` / `docs/DATASET_CARDS.md` — versioned dataset cards, source-bound metadata and rights/label safeguards.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -231,6 +233,17 @@ python -m motorpulse.splits --source synthetic \
 ```
 
 The optional `--chronological --purge-ticks 4` mode is **synthetic-only**, operates on one run, and is *not* an independent-run validation. [docs/SPLITS.md](docs/SPLITS.md) explains prerequisites and leakage limitations. No data are copied, trained on or published.
+
+## Dataset cards and provenance (MP-032)
+
+Two packaged machine-readable cards describe the **synthetic** motor dataset and **IMS experimental source metadata** separately. They disclose contributor citation, provenance, intended/excluded uses, limitations, original data rights, simulated versus unverified labels, and leakage risks. The `motorpulse-card` CLI generates a **run-specific card** from a validated local export or IMS inspection report without downloading or publishing third-party data.
+
+```bash
+python -m motorpulse.dataset_cards --source synthetic \
+  --input datasets/demo-001 --out datasets/demo-001/dataset-card.json
+```
+
+Synthetic cards include verified export-file, configuration and model-source SHA-256 digests. IMS cards leave per-window labels and RUL null and retain the **local-only redistribution HOLD**. The code's MIT license does not imply an IMS source license. See [docs/DATASET_CARDS.md](docs/DATASET_CARDS.md).
 
 ## Developer CI
 

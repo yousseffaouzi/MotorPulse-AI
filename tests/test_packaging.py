@@ -38,7 +38,12 @@ class PackagingTests(unittest.TestCase):
                          "motorpulse.eda:main")
         self.assertEqual(project["project"]["scripts"]["motorpulse-split"],
                          "motorpulse.splits:main")
+        self.assertEqual(project["project"]["scripts"]["motorpulse-card"],
+                         "motorpulse.dataset_cards:main")
         self.assertIn("web/index.html", project["tool"]["setuptools"]["package-data"]["motorpulse"])
+        self.assertIn("cards/*.json", project["tool"]["setuptools"]["package-data"]["motorpulse"])
+        for name in ("synthetic-v1.json", "ims-v1.json"):
+            self.assertTrue(files("motorpulse").joinpath("cards", name).is_file())
 
     def test_browser_is_a_real_package_resource(self):
         resource = files("motorpulse").joinpath("web", "index.html")

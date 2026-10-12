@@ -111,4 +111,6 @@ python -m unittest discover -s tests -p 'test_export.py' -v
 python -m unittest discover -s tests -v
 ```
 
+For provenance, intended use and licensing distinctions, see the [versioned synthetic dataset card](../motorpulse/cards/synthetic-v1.json) and [MP-032 run-card generator](DATASET_CARDS.md). A generated run card includes verified export file, configuration and model-source SHA-256 digests. The software's MIT license is **not** claimed as an independently granted license for every generated dataset.
+
 The exporter uses only the Python standard library's `csv`, `json`, `hashlib` and filesystem tools. CSV empty-cell semantics follow [Python's CSV module documentation](https://docs.python.org/3/library/csv.html); JSONL uses the [JSON Lines UTF-8/newline conventions](https://jsonlines.org/).

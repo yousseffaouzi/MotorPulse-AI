@@ -1,0 +1,76 @@
+{
+  "card_version": "1.0.0",
+  "instance_kind": "template",
+  "run_provenance": null,
+  "card_id": "nasa-ims-bearings-local-v1",
+  "dataset_type": "user_supplied_local_ims_style",
+  "title": "IMS Bearings — Experimental Source and Local-Only Inspection Metadata",
+  "creator_or_provider": "Center for Intelligent Maintenance Systems (IMS), University of Cincinnati; Rexnord Technical Services",
+  "distributor": "NASA Ames Prognostics Center of Excellence (PCoE) — upstream archive; MotorPulse AI does not distribute it",
+  "provenance_status": "official_catalog_metadata_only_no_archive_inspected",
+  "citation": "J. Lee, H. Qiu, G. Yu, J. Lin, and Rexnord Technical Services (2007). IMS, University of Cincinnati. Bearing Data Set. NASA Prognostics Data Repository, NASA Ames Research Center, Moffett Field, CA.",
+  "license": {
+    "code_license": "MIT (MotorPulse AI software only)",
+    "dataset_specific_license": null,
+    "license_status": "other-license-specified",
+    "original_or_derived_redistribution": "unverified; HOLD pending source-specific rights confirmation"
+  },
+  "collection": {
+    "method": "Third-party run-to-failure bearing vibration experiment; optional user-provided local ASCII file inspection",
+    "data_origin": "experimental_bearing_measurements_not_generated_by_motorpulse",
+    "sample_rate_hz": null,
+    "sample_count": null,
+    "window_duration_s": null,
+    "temporal_timestamps": "Timestamp-shaped source filenames have unknown timezone; not converted to UTC",
+    "actual_independent_runs": "IMS test-set/run is conservative grouping boundary; rig/bearing independence still requires documentation"
+  },
+  "labels": {
+    "motor_fault": null,
+    "sensor_quality": null,
+    "health": null,
+    "failure_probability": null,
+    "remaining_useful_life": null,
+    "window_fault_onset": null,
+    "notes": "External references mention run-end failures; validated per-window fault labels and onset remain unknown."
+  },
+  "measurement_quality": {
+    "missingness": "User-supplied local reports contain review flags; do not infer full archive missingness",
+    "outliers": "High crest or flatline is a review prompt, not a verified failure mode",
+    "calibration": "Native physical vibration units, true channel-to-bearing mapping and timezone not verified by the project"
+  },
+  "recommended_splits": "Treat whole IMS test set/run and all related channels/timestamps as one group. Never random-split adjacent windows; fit scalers using training groups only.",
+  "intended_uses": [
+    "Documenting original dataset source, contributors, and uncertainty",
+    "Optional research with user-supplied local records under applicable source terms",
+    "Preparing reproducible run-group validation plans with unknown labels preserved"
+  ],
+  "excluded_uses": [
+    "Publishing original recordings or derived IMS features to this GitHub repository before rights review",
+    "Inferring per-window fault onset or RUL without evidence",
+    "Assuming synthetic motor sample rate, units or fault classes apply",
+    "Claiming dataset-specific public-domain or commercial redistribution rights"
+  ],
+  "known_limitations": [
+    "Original IMS archive not obtained or inspected by this project",
+    "Archive-specific license and redistribution rights unresolved",
+    "Original acquisition rate, record count, channel map, physical units and timezone not verified",
+    "No actual IMS evaluation results, per-window onset ground truth or transferable RUL measurements"
+  ],
+  "references": {
+    "source_card": "docs/sources/ims-bearings.source.json",
+    "provenance_guide": "docs/DATA_PROVENANCE.md",
+    "ingestion_guide": "docs/IMS_INGESTION.md",
+    "validation_guide": "docs/IMS_VALIDATION.md",
+    "exploration_guide": "docs/EDA.md",
+    "split_guide": "docs/SPLITS.md",
+    "official_nasa": "https://data.nasa.gov/dataset/ims-bearings",
+    "official_pcoe": "https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/"
+  },
+  "publication_status": "local_only_do_not_redistribute",
+  "rights_review": {
+    "status": "hold",
+    "raw_third_party_data_included": false,
+    "derived_publication_cleared": false,
+    "notes": "NASA hosting alone is not proof that third-party IMS source and derived materials may be redistributed; source-specific terms still unverified."
+  }
+}

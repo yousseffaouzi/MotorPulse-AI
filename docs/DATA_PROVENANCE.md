@@ -2,7 +2,7 @@
 
 **Reviewed:** 2026-10-11 (UTC) · **Status:** METADATA REVIEW COMPLETE; RAW-DATA / DERIVATIVE REDISTRIBUTION **ON HOLD** pending a dataset-specific rights review. No original archive has been downloaded, inspected, or committed by MotorPulse AI. This is a conservative project policy, **not a legal ruling**.
 
-The machine-readable source card is [sources/ims-bearings.source.json](sources/ims-bearings.source.json). Read [MODEL_ASSUMPTIONS.md](MODEL_ASSUMPTIONS.md) to distinguish this *real experimental bearing dataset* from MotorPulse AI's wholly **synthetic** motor simulation.
+The machine-readable upstream source card is [sources/ims-bearings.source.json](sources/ims-bearings.source.json); MP-032 adds a separate [IMS dataset-card template](../motorpulse/cards/ims-v1.json) and [local-only run-card instructions](DATASET_CARDS.md) without implying archive acquisition or redistribution approval. Read [MODEL_ASSUMPTIONS.md](MODEL_ASSUMPTIONS.md) to distinguish this *real experimental bearing dataset* from MotorPulse AI's wholly **synthetic** motor simulation.
 
 ## Official record and citation
 

@@ -67,6 +67,8 @@ The first term prevents a five-tick rolling RMS from pulling earlier partition v
 
 The purge gap is a defense for these explicitly modeled window dependencies, **not proof of statistical independence**. Multi-asset labels and scripted scenarios still correlate across the run. **IMS chronological splitting is intentionally prohibited**: without independent rig, bearing and channel grouping evidence, that shortcut would overstate real-world transfer performance.
 
+[MP-032 dataset cards](DATASET_CARDS.md) carry source, label and licensing disclosures and can bind to local source provenance. Split plans govern assignment and leakage; they do **not** replace dataset cards or grant data-distribution rights.
+
 ## Plan format and validity
 
 All JSON plans include:
