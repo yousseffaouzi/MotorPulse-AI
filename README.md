@@ -121,6 +121,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/experiment.py` / `docs/EXPERIMENTS.md` — one strict JSON-configured offline synthetic experiment command with grouped splits, trained model, validation/test reports and deterministic artifact provenance.
 - `motorpulse/feature_pipeline.py` / `docs/FEATURE_PIPELINE.md` — train-only, SHA-256-bound feature scaling, sampling/rolling contracts and independent synthetic chronological overlap checks.
 - `motorpulse/model_artifact.py` / `docs/MODEL_ARTIFACTS.md` — strict portable synthetic model JSON, source-linked save/load/verify CLI, safe compatibility checks and MP-033 artifact integration.
+- `motorpulse/robustness.py` / `docs/ROBUSTNESS.md` — source-verified held-out synthetic regime slices with frozen model/rule comparisons and abstention-aware reports.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -317,6 +318,17 @@ python -m motorpulse.model_artifact verify \
 ```
 
 MP-033 experiments now write `model-artifact.json` and reload its verified model before evaluating. MP-011 still accepts legacy model wrappers for compatibility. See [docs/MODEL_ARTIFACTS.md](docs/MODEL_ARTIFACTS.md). The synthetic model is **not** a validated physical failure-probability or RUL estimator.
+
+## Frozen synthetic robustness by operating regime (MP-036)
+
+After an MP-033 experiment has completed, `motorpulse-robustness` verifies its MP-035 model artifact, original source manifests, MP-030 split, dataset cards and reproducibility index. It compares the **same frozen model and unchanged rule outputs** across held-out simulated speed, load, vibration noise/drift, fault, phase and sensor-quality conditions. It reports common-cohort confusion, AP when defined, synthetic false alarms per negative exposure hour, missing/outlier abstentions and full-track fault-alert delays.
+
+```bash
+python -m motorpulse.experiment --config docs/examples/robustness-experiment-v1.json --out-dir /tmp/mp036-run
+python -m motorpulse.robustness --experiment-dir /tmp/mp036-run --partition test --out-json /tmp/mp036-test.json --out-md /tmp/mp036-test.md
+```
+
+See [docs/ROBUSTNESS.md](docs/ROBUSTNESS.md). These are **descriptive slices of programmed synthetic generator data**, not independent operating-domain trials or evidence of industrial failure risk, physical lead time or RUL. Different stress bins can have different class prevalence; no test-label tuning occurs.
 
 ## Developer CI
 
