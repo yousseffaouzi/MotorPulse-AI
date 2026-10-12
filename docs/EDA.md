@@ -85,6 +85,8 @@ The exporter is bounded and streaming at input, but descriptive distributions st
 
 The tools make **no network calls** and write report files with exclusive-create semantics. They do not require NumPy, Pandas, scikit-learn or plotting libraries. Input should still be trusted local experimental material: validation and hashing do not establish licensing, truth of upstream metadata, verified hardware calibration, or industrial safety.
 
-For later leakage-safe learning, reports are **exploration only**. MP-030 now implements [deterministic split plans](SPLITS.md): keep entire source runs in one partition by default, or explicitly choose **synthetic-only** purged chronology for exploratory analysis. Downstream fitted models must consume the plan and fit transforms using training partitions only. Fit preprocessing on training groups only; adjacent per-window random splits and feature normalization over held-out runs are unsafe.
+For later leakage-safe learning, reports are **exploration only**. MP-010 adds a [trained anomaly-score baseline](ANOMALY_BASELINE.md), which uses only training-partition healthy, sensor-good synthetic windows for model statistics and threshold. EDA counts and descriptive group summaries must not be used to tune those parameters across held-out runs.
+
+MP-030 now implements [deterministic split plans](SPLITS.md): keep entire source runs in one partition by default, or explicitly choose **synthetic-only** purged chronology for exploratory analysis. Downstream fitted models must consume the plan and fit transforms using training partitions only. Fit preprocessing on training groups only; adjacent per-window random splits and feature normalization over held-out runs are unsafe.
 
 Further context: [IMS_VALIDATION.md](IMS_VALIDATION.md), [IMS_INGESTION.md](IMS_INGESTION.md), [DATASET.md](DATASET.md), and [MODEL_ASSUMPTIONS.md](MODEL_ASSUMPTIONS.md).
