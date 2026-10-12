@@ -107,3 +107,7 @@ python -m unittest discover -s tests -v
 MP-033 adds 16 automated tests covering valid/invalid configurations, source ownership and path safety, byte-stable source/result hashes, reordered seeds, no overwrite, interrupted-run cleanup, insufficient healthy records, full held-out model/metric provenance, CLI and docs. They generate all source data locally from the simulator; no IMS archive or third-party material is downloaded, inspected or committed.
 
 **Next:** MP-034 train-only preprocessing and MP-035 portable model artifacts are implemented; MP-036 operating-regime robustness and MP-037 interpretability/rules-vs-ML experiments follow.
+
+## MP-037 explanatory comparison reports
+
+After creating the versioned MP-033 experiment, you can produce a post-hoc side-by-side breakdown with the command in [COMPARISON.md](COMPARISON.md). It re-verifies the original MP-035 artifact and complete source index, then samples deterministic, clearly nonrepresentative explanatory examples from the frozen MP-011 held-out model and rules. No extra experiment setting or retraining is required.

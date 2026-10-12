@@ -110,3 +110,7 @@ MP-035 adds [portable source-verified model artifacts](MODEL_ARTIFACTS.md), acce
 ## MP-036 robustness slices
 
 For frozen-model, common-cohort comparisons across controlled synthetic speed/load, noise/drift, fault strength/onset and sensor quality, see [ROBUSTNESS.md](ROBUSTNESS.md). MP-036 verifies and reproduces the MP-011 held-out overall metrics before producing stress slices; no recalibration or source mutation is allowed. Window-only slices intentionally suppress episode-delay metrics to avoid spurious onsets.
+
+## MP-037 — Same-window rule and model explanations
+
+The [MP-037 comparison guide](COMPARISON.md) describes event-by-event provenance, independently rechecked original rule reasons, five-feature arithmetic distance accounting, nine alert/disagreement outcome categories and bounded concrete synthetic false-positive examples. Every reported event belongs to a verified held-out MP-030 complete-run partition, and both methods abstain on suspect/missing sensor windows. Report metrics are independently checked against the original MP-011 results. No new model fitting or test-set threshold tuning occurs.
