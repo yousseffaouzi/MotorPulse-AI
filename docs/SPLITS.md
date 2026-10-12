@@ -69,6 +69,8 @@ The purge gap is a defense for these explicitly modeled window dependencies, **n
 
 [MP-032 dataset cards](DATASET_CARDS.md) carry source, label and licensing disclosures and can bind to local source provenance. Split plans govern assignment and leakage; they do **not** replace dataset cards or grant data-distribution rights.
 
+MP-033 uses these [whole-run split plans](EXPERIMENTS.md) as authoritative input for one-command reproducible synthetic experiments; the same fitted model is evaluated on both held-out partitions without refitting.
+
 ## Plan format and validity
 
 All JSON plans include:

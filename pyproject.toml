@@ -38,6 +38,7 @@ motorpulse-split = "motorpulse.splits:main"
 motorpulse-card = "motorpulse.dataset_cards:main"
 motorpulse-anomaly = "motorpulse.anomaly:main"
 motorpulse-evaluate = "motorpulse.evaluation:main"
+motorpulse-experiment = "motorpulse.experiment:main"
 
 [tool.setuptools]
 packages = ["motorpulse"]
