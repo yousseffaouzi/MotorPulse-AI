@@ -40,6 +40,8 @@ class PackagingTests(unittest.TestCase):
                          "motorpulse.splits:main")
         self.assertEqual(project["project"]["scripts"]["motorpulse-card"],
                          "motorpulse.dataset_cards:main")
+        self.assertEqual(project["project"]["scripts"]["motorpulse-anomaly"],
+                         "motorpulse.anomaly:main")
         self.assertIn("web/index.html", project["tool"]["setuptools"]["package-data"]["motorpulse"])
         self.assertIn("cards/*.json", project["tool"]["setuptools"]["package-data"]["motorpulse"])
         for name in ("synthetic-v1.json", "ims-v1.json"):

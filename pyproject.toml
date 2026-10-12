@@ -36,6 +36,7 @@ motorpulse-ims-validate = "motorpulse.ims_validation:main"
 motorpulse-eda = "motorpulse.eda:main"
 motorpulse-split = "motorpulse.splits:main"
 motorpulse-card = "motorpulse.dataset_cards:main"
+motorpulse-anomaly = "motorpulse.anomaly:main"
 
 [tool.setuptools]
 packages = ["motorpulse"]

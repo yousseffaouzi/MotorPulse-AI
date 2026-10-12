@@ -36,6 +36,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-029 implemented: bounded, deterministic JSON/Markdown exploratory summaries for verified synthetic exports and local-only IMS inspection reports; numeric distributions, missingness, group trends, provenance, review flags and 18 regression tests. No IMS data, trained model or inferred failure labels are bundled.
 - MP-030 implemented: deterministic source-run grouped train/validation/test plans, duplicate raw-record and synthetic run identity checks, label-blind assignment, synthetic-only chronological holdout with purge gaps, source-bound provenance and 16 tests. IMS data remain local and labels unverified.
 - MP-032 implemented: packaged synthetic/IMS v1 dataset-card templates, source-bound local run cards, rights/label assertions and 16 new tests; includes intended/excluded uses, deterministic export fingerprints, donor citations and explicit unknown IMS measurement/fault status.
+- MP-010 implemented: healthy-only, good-sensor training **on MP-030 whole synthetic runs**, five explicit numeric features, training-only means/scales and 99th-percentile anomaly threshold, run/model hash guards, unscorable sensor states, separate existing rule output and 19 regression tests. This trained demo score is not a calibrated failure probability or RUL.
 - No trained AI model, persisted database, external ingestion adapter or real-hardware connection.
 
 ## Milestone 0 — Existing proof of concept
@@ -88,7 +89,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 | ID | Status | Priority | Task | Acceptance evidence |
 |---|---|---|---|---|
-| MP-010 | TODO | P1 | Classical ML baselines | Compare existing rules with healthy-trained anomaly detector; supervised baseline only if labels permit |
+| MP-010 | DONE | P1 | Classical ML baselines | Compare existing rules with healthy-trained anomaly detector; supervised baseline only if labels permit |
 | MP-011 | TODO | P1 | Fault detection metrics | False alarms, precision/recall/PR-AUC where relevant, detection delay and lead time |
 | MP-033 | TODO | P1 | Reproducible training/evaluation CLI | Seeded configuration, frozen dependencies, repeatable metrics and saved reports |
 | MP-034 | TODO | P1 | Leakage-free feature pipelines | Preprocessing fitted on training only; overlapping-window and group split tests |

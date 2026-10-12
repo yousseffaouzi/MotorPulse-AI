@@ -17,6 +17,7 @@
 - Reproducible synthetic and local-only IMS **exploratory quality reports** (numeric distributions, missingness, trends and provenance in JSON or Markdown).
 - Deterministic **train/validation/test split plans** that keep complete source runs together, reject duplicate groups, and offer explicitly exploratory synthetic chronological holdouts with purge gaps.
 - Versioned **dataset cards** for synthetic events and IMS source metadata, with local provenance-bound run cards and explicit licensing limitations.
+- First **trained synthetic-only anomaly baseline**: healthy-window standardized distance, training-only 99th-percentile threshold, strict whole-run split provenance and sensor-quality-aware scoring.
 - Transparent rule-based health classification with fault examples.
 - Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
 - Unit tests via the Python standard library. **No Docker, cloud account, or hardware required.**
@@ -111,6 +112,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/eda.py` / `docs/EDA.md` — deterministic exploratory distributions, missingness, trend samples, hashes, and explicit synthetic/IMS source separation.
 - `motorpulse/splits.py` / `docs/SPLITS.md` — train/validation/test split plans with whole-run boundaries, deterministic seeded assignment and synthetic-only chronological purge gaps.
 - `motorpulse/cards/*.json`, `motorpulse/dataset_cards.py` / `docs/DATASET_CARDS.md` — versioned dataset cards, source-bound metadata and rights/label safeguards.
+- `motorpulse/anomaly.py` / `docs/ANOMALY_BASELINE.md` — trained healthy-only synthetic feature baseline with data-leakage checks, train-calibrated threshold and separate rule-based health preview.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -244,6 +246,19 @@ python -m motorpulse.dataset_cards --source synthetic \
 ```
 
 Synthetic cards include verified export-file, configuration and model-source SHA-256 digests. IMS cards leave per-window labels and RUL null and retain the **local-only redistribution HOLD**. The code's MIT license does not imply an IMS source license. See [docs/DATASET_CARDS.md](docs/DATASET_CARDS.md).
+
+## First trained anomaly baseline (MP-010)
+
+MotorPulse-AI now includes an **actually fitted model** for synthetic motor features: a five-feature standardized Euclidean anomaly score trained on `scenario=healthy`, `sensor_quality=good` windows **from whole training runs only**. A 99th-percentile score threshold is calibrated on that same training subset. The model refuses chronological same-run/IMS splits, source tampering or repeated run identities, and returns `null` instead of a fabricated score for missing/outlier sensor windows.
+
+```bash
+python -m motorpulse.anomaly --split datasets/baseline-split.json \
+  --input datasets/baseline-11/manifest.json datasets/baseline-22/manifest.json \
+          datasets/baseline-33/manifest.json \
+  --preview validation --out datasets/baseline-model.json
+```
+
+Generate the three source exports and split plan first using [docs/ANOMALY_BASELINE.md](docs/ANOMALY_BASELINE.md). The installed command is `motorpulse-anomaly`. These scores are **not failure probabilities, industrial diagnostics or RUL**, and the current rule-based alerts remain a separate baseline.
 
 ## Developer CI
 
