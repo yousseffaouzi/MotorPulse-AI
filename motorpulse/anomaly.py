@@ -17,13 +17,14 @@ from statistics import fmean
 from typing import Any, Sequence
 
 from .dataset_cards import synthetic_run_card
+from .feature_pipeline import (
+    FEATURES, UNITS as FEATURE_UNITS, fit_preprocessing,
+    validate_window_contract, verify_fitted_preprocessing,
+)
 from .eda import MAX_LINE_BYTES, MAX_SYNTHETIC_EVENTS, _json
 from .ims import _read_strict_json, write_local_manifest
 from .splits import _hash, _source, PARTITIONS
 
-FEATURES = ("rms_g", "crest_factor", "band_80_400_rms_g",
-            "temperature_c", "rpm")
-FEATURE_UNITS = ("g RMS", "dimensionless", "g RMS", "degC", "rpm")
 MIN_HEALTHY_SAMPLES = 8
 MAX_GROUPS = 100
 MODEL_VERSION = "1.0.0"
@@ -158,23 +159,24 @@ def train_baseline(plan: dict, manifests: Sequence[str | Path]) -> dict:
                             "config_sha256": source["config_sha256"],
                             "model_source_sha256": source["model_source_sha256"]})
         for event in _events(source):
+            validate_window_contract(event)
             if event.get("sensor_quality") != "good":
                 rejection["bad_sensor_quality"] += 1
                 continue
             if event.get("scenario") != "healthy":
                 rejection["nonhealthy_synthetic_truth"] += 1
                 continue
-            healthy.append(_vector(event))
-    if len(healthy) < MIN_HEALTHY_SAMPLES:
-        raise ValueError(f"need at least {MIN_HEALTHY_SAMPLES} healthy good-sensor training events")
-    centers = [fmean(row[j] for row in healthy) for j in range(len(FEATURES))]
-    deviations = [sqrt(fmean((row[j] - centers[j]) ** 2 for row in healthy))
-                  for j in range(len(FEATURES))]
-    # An exact/near-constant training feature should not divide by zero.
-    # This engineering floor prevents numerical explosions; not calibration.
-    scales = [max(sd, abs(mu) * 0.01, 1e-6)
-              for mu, sd in zip(centers, deviations)]
-    distances = [_score(v, centers, scales) for v in healthy]
+            healthy.append((group_id, event))
+    # Every scaler parameter is derived exclusively from eligible training
+    # windows with verified group membership, never held-out partitions.
+    pipeline = fit_preprocessing(
+        healthy, train_groups=train_groups, split_plan_sha256=plan["plan_sha256"],
+        source_hashes={g: sources[g]["source_data_sha256"] for g in train_groups},
+    )
+    centers = pipeline["center"]
+    deviations = pipeline["population_std"]
+    scales = pipeline["effective_scales"]
+    distances = [_score(_vector(event), centers, scales) for _, event in healthy]
     threshold = _percentile(distances, TRAIN_QUANTILE)
     if not all(isfinite(x) for x in centers + deviations + scales + distances + [threshold]):
         raise ValueError("nonfinite training statistics")
@@ -211,6 +213,7 @@ def train_baseline(plan: dict, manifests: Sequence[str | Path]) -> dict:
             "method_note": "in-sample empirical quantile; not a guaranteed false-alarm rate",
         },
         "center": centers, "population_std": deviations, "effective_scales": scales,
+        "feature_processing": pipeline,
         "limitations": [
             "Synthetic-only healthy-trained anomaly score; not a calibrated failure probability or RUL",
             "Training-only 99th percentile is in-sample and not a statistically validated false-alarm guarantee",
@@ -237,6 +240,8 @@ def score_partition(plan: dict, manifests: Sequence[str | Path], model: dict,
             model.get("training", {}).get("groups") != sorted(plan["partitions"]["train"]["group_ids"]) or
             _hash({k: v for k, v in model.items() if k != "model_sha256"}) != model.get("model_sha256")):
         raise ValueError("model provenance or checksum mismatch")
+    verify_fitted_preprocessing(model.get("feature_processing"), model=model,
+                                 plan=plan, sources=sources)
     centers = model["center"]
     scales = model["effective_scales"]
     if (model.get("feature_contract", {}).get("names") != list(FEATURES) or
@@ -254,6 +259,7 @@ def score_partition(plan: dict, manifests: Sequence[str | Path], model: dict,
     for group_id in sorted(plan["partitions"][partition]["group_ids"]):
         for event in _events(sources[group_id]):
             seen += 1
+            validate_window_contract(event)
             quality = event.get("sensor_quality")
             if quality != "good":
                 reason = "missing_sensor" if quality == "missing" else "sensor_outlier"

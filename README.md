@@ -20,6 +20,7 @@
 - First **trained synthetic-only anomaly baseline**: healthy-window standardized distance, training-only 99th-percentile threshold, strict whole-run split provenance and sensor-quality-aware scoring.
 - Held-out synthetic performance reports: shared eligible cohorts, precision/recall/F1, PR average precision, false alarms and scripted fault-episode detection delays.
 - One-command **reproducible synthetic ML experiments**: source runs, dataset cards, split, trained model, held-out metrics, Markdown report and SHA-256 artifact index.
+- Versioned **train-only feature preprocessing** with fixed feature/measurement contracts, source-group hashes and chronological overlap/purge safeguards.
 - Transparent rule-based health classification with fault examples.
 - Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
 - Unit tests via the Python standard library. **No Docker, cloud account, or hardware required.**
@@ -117,6 +118,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/anomaly.py` / `docs/ANOMALY_BASELINE.md` — trained healthy-only synthetic feature baseline with data-leakage checks, train-calibrated threshold and separate rule-based health preview.
 - `motorpulse/evaluation.py` / `docs/EVALUATION.md` — whole-run held-out synthetic detection metrics, fair rule comparison, PR average precision, abstentions and virtual-time fault-episode delays.
 - `motorpulse/experiment.py` / `docs/EXPERIMENTS.md` — one strict JSON-configured offline synthetic experiment command with grouped splits, trained model, validation/test reports and deterministic artifact provenance.
+- `motorpulse/feature_pipeline.py` / `docs/FEATURE_PIPELINE.md` — train-only, SHA-256-bound feature scaling, sampling/rolling contracts and independent synthetic chronological overlap checks.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -290,6 +292,16 @@ python -m motorpulse.experiment --config docs/examples/experiment-v1.json \
 ```
 
 The exporter's actual wall-clock creation timestamp is excluded only from **semantic** reproducibility hashes; the original exporter manifests keep truthful creation times. See [docs/EXPERIMENTS.md](docs/EXPERIMENTS.md). All results are **synthetic-only** and make no real-world predictive maintenance, failure probability, or RUL claims.
+
+## Leakage-safe feature preprocessing (MP-034)
+
+The synthetic anomaly model now embeds a versioned `feature_processing` record with five allowlisted features, sampling and rolling-window metadata, **train-only** fitted means/scales, source-group SHA-256s and a preprocessing hash. Both preview scoring and held-out evaluation verify it before use. Shortened synthetic chronological purge gaps, repeated training windows, invalid measurements, and mismatched fitted parameters are rejected.
+
+```bash
+python -m unittest discover -s tests -p 'test_feature_pipeline.py' -v
+```
+
+See [docs/FEATURE_PIPELINE.md](docs/FEATURE_PIPELINE.md). Scores remain experimental and are not real-world failure probabilities or RUL.
 
 ## Developer CI
 

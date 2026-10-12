@@ -4,7 +4,7 @@ MotorPulse AI now evaluates a **frozen, trained MP-010 anomaly detector** and th
 
 These are **software-generated experiments with scripted fault truth**, not evidence of physical machinery reliability, calibrated failure probability, predictive failure time, or remaining useful life (**RUL**). No original IMS archive is bundled or used for supervised evaluation; real IMS per-window fault labels, native physical units and derived-data redistribution rights are still unverified.
 
-The evaluator never retrains a model, chooses a feature, changes a threshold, or uses validation/test labels for parameter fitting. Data leakage is checked through group identity, source integrity, split-plan hash, training provenance and model checksum, though shared simulator assumptions across seeds still constrain how strongly any result generalizes.
+The evaluator never retrains a model, chooses a feature, changes a threshold, or uses validation/test labels for parameter fitting. MP-034 now independently verifies the model's [train-only fitted preprocessing](FEATURE_PIPELINE.md), exact source-run SHA-256s, feature/sampling contract and parameter consistency before scoring. Data leakage is checked through group identity, source integrity, split-plan hash, training provenance and model checksum, though shared simulator assumptions across seeds still constrain how strongly any result generalizes.
 
 ## 1. Reproducible end-to-end example
 
