@@ -21,6 +21,7 @@
 - Held-out synthetic performance reports: shared eligible cohorts, precision/recall/F1, PR average precision, false alarms and scripted fault-episode detection delays.
 - One-command **reproducible synthetic ML experiments**: source runs, dataset cards, split, trained model, held-out metrics, Markdown report and SHA-256 artifact index.
 - Versioned **train-only feature preprocessing** with fixed feature/measurement contracts, source-group hashes and chronological overlap/purge safeguards.
+- **Portable, verified model artifacts**: strict non-executable JSON, source/split/dataset-card identity checks, frozen preprocessing and deterministic SHA-256.
 - Transparent rule-based health classification with fault examples.
 - Local REST endpoints and a dashboard with Start/Pause/Step/Reset controls.
 - Unit tests via the Python standard library. **No Docker, cloud account, or hardware required.**
@@ -119,6 +120,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/evaluation.py` / `docs/EVALUATION.md` — whole-run held-out synthetic detection metrics, fair rule comparison, PR average precision, abstentions and virtual-time fault-episode delays.
 - `motorpulse/experiment.py` / `docs/EXPERIMENTS.md` — one strict JSON-configured offline synthetic experiment command with grouped splits, trained model, validation/test reports and deterministic artifact provenance.
 - `motorpulse/feature_pipeline.py` / `docs/FEATURE_PIPELINE.md` — train-only, SHA-256-bound feature scaling, sampling/rolling contracts and independent synthetic chronological overlap checks.
+- `motorpulse/model_artifact.py` / `docs/MODEL_ARTIFACTS.md` — strict portable synthetic model JSON, source-linked save/load/verify CLI, safe compatibility checks and MP-033 artifact integration.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -302,6 +304,19 @@ python -m unittest discover -s tests -p 'test_feature_pipeline.py' -v
 ```
 
 See [docs/FEATURE_PIPELINE.md](docs/FEATURE_PIPELINE.md). Scores remain experimental and are not real-world failure probabilities or RUL.
+
+## Portable and verifiable model artifacts (MP-035)
+
+The `motorpulse-model` command saves or verifies a versioned **non-executable JSON model artifact**. It includes fitted MP-010/MP-034 model parameters, exact feature order/units, frozen train threshold, source and dataset-card references, MP-030 split membership and SHA-256 integrity metadata. **Loading for scoring requires the original split plan and local source manifests**—a bare artifact checksum is not treated as authenticity evidence.
+
+```bash
+python -m motorpulse.model_artifact verify \
+  --artifact datasets/experiment-v1/model-artifact.json \
+  --split datasets/experiment-v1/split-plan.json \
+  --input datasets/experiment-v1/runs/seed-*/manifest.json
+```
+
+MP-033 experiments now write `model-artifact.json` and reload its verified model before evaluating. MP-011 still accepts legacy model wrappers for compatibility. See [docs/MODEL_ARTIFACTS.md](docs/MODEL_ARTIFACTS.md). The synthetic model is **not** a validated physical failure-probability or RUL estimator.
 
 ## Developer CI
 

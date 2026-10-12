@@ -39,6 +39,7 @@ motorpulse-card = "motorpulse.dataset_cards:main"
 motorpulse-anomaly = "motorpulse.anomaly:main"
 motorpulse-evaluate = "motorpulse.evaluation:main"
 motorpulse-experiment = "motorpulse.experiment:main"
+motorpulse-model = "motorpulse.model_artifact:main"
 
 [tool.setuptools]
 packages = ["motorpulse"]

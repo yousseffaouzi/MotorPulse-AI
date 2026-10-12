@@ -66,7 +66,7 @@ The default 1.5-second step requires **4 discarded ticks**; a 0.1-second virtual
 
 ## 4. Reproducible experiment integration
 
-MP-033's existing one-command workflow now persists the fitted feature processor inside `trained-model.json`, and records its **SHA-256 and version** in `experiment-index.json` and `SUMMARY.md`.
+MP-033's existing one-command workflow now persists the fitted feature processor inside `trained-model.json`, and records its **SHA-256 and version** in `experiment-index.json` and `SUMMARY.md`. MP-035 also [packages and verifies the exact processor](MODEL_ARTIFACTS.md) as part of a portable model JSON, bound to every whole source run and MP-030 split before held-out scoring.
 
 ```bash
 mkdir -p datasets

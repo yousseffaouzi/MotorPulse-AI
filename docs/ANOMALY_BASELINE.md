@@ -85,7 +85,7 @@ The trained baseline requires **`policy="whole_run_grouped"`** and `source_type=
 
 The result records training **group IDs**, synthetic dataset-card identities, data-source/config/model-code hashes, feature contracts and explicit `fit_partitions=["train"]`. MP-034 additionally stores a [versioned train-only preprocessing artifact](FEATURE_PIPELINE.md) with source-run SHA-256s, fixed sampling/rolling contract, fitted means/scales and its own verified checksum. The model SHA-256 is a reproducibility fingerprint of the complete fitted numeric parameters and provenance, **not a digital signature or proof of model validity**.
 
-All healthy-window selection, preprocessing/scaling and threshold calibration occur only on the **training** partition. The model is not updated when validation/test data are scored. A stored model can later be validated against its own source-linked split plan, but the MP-010 CLI is deliberately a small reproducible demo rather than the full experiment/artifact manager planned for MP-033 and MP-035.
+All healthy-window selection, preprocessing/scaling and threshold calibration occur only on the **training** partition. The model is not updated when validation/test data are scored. A stored model can later be validated against its own source-linked split plan, but the MP-010 CLI is deliberately a small reproducible demo rather than the now-implemented [MP-033 experiment](EXPERIMENTS.md) and [MP-035 source-verified model artifact](MODEL_ARTIFACTS.md) workflows.
 
 ## Scientific limitations
 
@@ -107,4 +107,4 @@ The regression suite creates reproducible synthetic exports in temporary directo
 
 See also [dataset cards](DATASET_CARDS.md), [simulation export](DATASET.md), [source-run split plans](SPLITS.md), and [scientific model assumptions](MODEL_ASSUMPTIONS.md).
 
-**Next:** MP-011 now provides [frozen held-out synthetic detection metrics](EVALUATION.md), including event-level false positives, PR average precision, comparable original rules and scripted episode delays. MP-033 now provides an [offline reproducible experiment runner](EXPERIMENTS.md) tying generated runs, train-only models and held-out reports to SHA-256 provenance; MP-035 portable artifact load/save follows.
+**Next:** MP-011 now provides [frozen held-out synthetic detection metrics](EVALUATION.md), including event-level false positives, PR average precision, comparable original rules and scripted episode delays. MP-033 now provides an [offline reproducible experiment runner](EXPERIMENTS.md) tying generated runs, train-only models and held-out reports to SHA-256 provenance; [MP-035 portable JSON model save/load](MODEL_ARTIFACTS.md) now verifies exact MP-034 preprocessing, source cards, train/test split and source SHA-256 before evaluating a restored model.
