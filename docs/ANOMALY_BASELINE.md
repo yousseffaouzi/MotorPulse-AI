@@ -83,7 +83,7 @@ The trained baseline requires **`policy="whole_run_grouped"`** and `source_type=
 - Split-plan checksum mismatches, missing planned runs, group overlap between partitions, repeated seed/config/start source groups, changed source-file digests, or inconsistent source IDs and record counts.
 - Training with too few healthy, good-sensor records; nonfinite/negative features or unrecognized sensor data.
 
-The result records training **group IDs**, synthetic dataset-card identities, data-source/config/model-code hashes, feature contracts and explicit `fit_partitions=["train"]`. The model SHA-256 is a reproducibility fingerprint of the complete fitted numeric parameters and provenance, **not a digital signature or proof of model validity**.
+The result records training **group IDs**, synthetic dataset-card identities, data-source/config/model-code hashes, feature contracts and explicit `fit_partitions=["train"]`. MP-034 additionally stores a [versioned train-only preprocessing artifact](FEATURE_PIPELINE.md) with source-run SHA-256s, fixed sampling/rolling contract, fitted means/scales and its own verified checksum. The model SHA-256 is a reproducibility fingerprint of the complete fitted numeric parameters and provenance, **not a digital signature or proof of model validity**.
 
 All healthy-window selection, preprocessing/scaling and threshold calibration occur only on the **training** partition. The model is not updated when validation/test data are scored. A stored model can later be validated against its own source-linked split plan, but the MP-010 CLI is deliberately a small reproducible demo rather than the full experiment/artifact manager planned for MP-033 and MP-035.
 

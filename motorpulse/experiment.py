@@ -105,7 +105,8 @@ def _summary(config: dict, model: dict, reports: dict[str, dict]) -> str:
         f"- Virtual start UTC: {config['virtual_start_utc']}",
         f"- Split ratios by full source run: {config['split_ratios']}",
         f"- Healthy sensor-good training windows: {model['training']['healthy_good_sensor_events']}",
-        f"- Frozen training anomaly threshold: {model['calibration']['threshold']}", "",
+        f"- Frozen training anomaly threshold: {model['calibration']['threshold']}",
+        f"- Training-only preprocessing SHA-256: {model['feature_processing']['pipeline_sha256']}", "",
     ]
     for name in ("validation", "test"):
         lines += ["## " + name.title(), "", evaluation_markdown(reports[name]), ""]
@@ -204,6 +205,8 @@ def run_experiment(config: dict, output_dir: str | Path) -> dict:
             "stable_artifact_sha256": stable_hashes,
             "split_plan_sha256": plan["plan_sha256"],
             "model_sha256": model["model_sha256"],
+            "feature_pipeline_sha256": model["feature_processing"]["pipeline_sha256"],
+            "feature_pipeline_version": model["feature_processing"]["pipeline_version"],
             "evaluation_sha256": {p: reports[p]["evaluation_sha256"]
                                   for p in ("validation", "test")},
             "training_groups": plan["partitions"]["train"]["group_ids"],

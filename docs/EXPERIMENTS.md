@@ -62,7 +62,7 @@ experiment-v1/
     ... (one folder per seed)
 ```
 
-The index contains the normalized configuration digest, Python interpreter/version and implementation, a SHA-256 of `motorpulse/experiment.py`, dataset card IDs, each run's source-data digest, split-plan digest, model digest, train and held-out group identities, and SHA-256 checksums of **stable output file bytes**. Each evaluation has its own content hash and source-run traceability. `SUMMARY.md` is a concise reader-friendly overview of validation/test metrics and explicit scientific disclaimers.
+The index contains the normalized configuration digest, Python interpreter/version and implementation, a SHA-256 of `motorpulse/experiment.py`, dataset card IDs, each run's source-data digest, split-plan digest, model digest, **MP-034 versioned train-only preprocessing SHA-256**, train and held-out group identities, and SHA-256 checksums of **stable output file bytes**. Each evaluation has its own content hash and source-run traceability. `SUMMARY.md` is a concise reader-friendly overview of validation/test metrics and explicit scientific disclaimers.
 
 For integrity auditing of stable files:
 
@@ -92,7 +92,7 @@ With the same source code, Python version, configuration and seed set, stable ar
 
 **Train, validation and test always use disjoint complete generator runs.** All assets/windows within a run stay together. The split routine rejects repeats of the same seed/config/virtual-clock generator source under altered tick lengths. The orchestrator supplies every source manifest to each stage; trained parameters and threshold are fitted using only *healthy* and *sensor-good* training windows. The evaluation stages check that model source identities and group assignments match the split and refuse test-label tuning or refitting.
 
-Validation and test use the **same frozen model** and threshold. The original heuristic health rules and new anomaly decisions are scored on identical good-sensor held-out events. Missing and synthetic outlier sensor windows are listed separately as abstentions rather than classified as healthy. Undefined metrics remain JSON `null`.
+Validation and test use the **same frozen model, MP-034 fitted feature processing and threshold**. The [feature preprocessing contract](FEATURE_PIPELINE.md) records feature units, training-only source hashes and the sampling/rolling-window geometry; both scoring paths verify it before use. The original heuristic health rules and new anomaly decisions are scored on identical good-sensor held-out events. Missing and synthetic outlier sensor windows are listed separately as abstentions rather than classified as healthy. Undefined metrics remain JSON `null`.
 
 Anomalies and fault delays represent responses to **scripted synthetic truth**. They do **not** establish an industrial false alarm rate, physical maintenance lead time, calibrated **failure probability** or **RUL**. Distinct random seeds do not turn a shared simulation generator into independently validated real-world machines.
 

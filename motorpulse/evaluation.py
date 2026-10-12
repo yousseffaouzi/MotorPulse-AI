@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any, Sequence
 
 from .anomaly import FEATURES, FEATURE_UNITS, MODEL_VERSION, _events, _score, _validated_sources, _vector
+from .feature_pipeline import validate_window_contract, verify_fitted_preprocessing
 from .dataset_cards import synthetic_run_card
 from .ims import _read_strict_json, write_local_manifest
 from .splits import _hash
@@ -143,6 +144,8 @@ def _validate_model(model: dict, plan: dict, sources: dict) -> None:
                 or card.get("model_source_sha256") != source["model_source_sha256"]
                 or card.get("config_sha256") != source["config_sha256"]):
             raise ValueError("trained source/card provenance disagrees with split")
+    verify_fitted_preprocessing(model.get("feature_processing"), model=model,
+                                plan=plan, sources=sources)
 
 
 def _regime(event: dict) -> str:
@@ -274,6 +277,7 @@ def evaluate(plan: dict, manifests: Sequence[str | Path], model: dict, *,
         })
         for event in _events(source):
             total += 1
+            validate_window_contract(event)
             tick = event.get("tick")
             asset = event.get("asset_id")
             if type(tick) is not int or not 1 <= tick <= source["ticks"] or (
@@ -380,6 +384,7 @@ def evaluate(plan: dict, manifests: Sequence[str | Path], model: dict, *,
         "training_groups": sorted(plan["partitions"]["train"]["group_ids"]),
         "evaluated_groups": group_ids, "source_provenance": group_metadata,
         "threshold_fixed_from_training": threshold,
+        "feature_pipeline_sha256": model["feature_processing"]["pipeline_sha256"],
         "comparison_cohort": {
             "total_windows": total, "eligible_both_methods": len(eligible_rows),
             "abstentions": dict(sorted(abstentions.items())),

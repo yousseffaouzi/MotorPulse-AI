@@ -243,6 +243,14 @@ def chronological_split(source_manifest: str | Path, *,
         "label_blind_assignment": True,
         "publication_status": "synthetic_demo",
     }
+    # An independently maintained feature contract rechecks inclusive tick
+    # ranges, the 5-tick rolling lookback and physical waveform window width.
+    # Chronological plans remain exploratory; MP-010 training rejects them.
+    from .feature_pipeline import validate_chronological_boundaries
+    validate_chronological_boundaries(
+        result, window_duration_s=entry["window_duration_s"],
+        step_seconds=entry["step_seconds"],
+    )
     result["plan_sha256"] = _hash(result)
     return result
 
