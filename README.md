@@ -122,6 +122,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/feature_pipeline.py` / `docs/FEATURE_PIPELINE.md` — train-only, SHA-256-bound feature scaling, sampling/rolling contracts and independent synthetic chronological overlap checks.
 - `motorpulse/model_artifact.py` / `docs/MODEL_ARTIFACTS.md` — strict portable synthetic model JSON, source-linked save/load/verify CLI, safe compatibility checks and MP-033 artifact integration.
 - `motorpulse/robustness.py` / `docs/ROBUSTNESS.md` — source-verified held-out synthetic regime slices with frozen model/rule comparisons and abstention-aware reports.
+- `motorpulse/comparison.py` / `docs/COMPARISON.md` — explainable same-window MP-003 rules versus frozen MP-010 model with concrete synthetic false-positive and sensor-abstention examples.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -329,6 +330,17 @@ python -m motorpulse.robustness --experiment-dir /tmp/mp036-run --partition test
 ```
 
 See [docs/ROBUSTNESS.md](docs/ROBUSTNESS.md). These are **descriptive slices of programmed synthetic generator data**, not independent operating-domain trials or evidence of industrial failure risk, physical lead time or RUL. Different stress bins can have different class prevalence; no test-label tuning occurs.
+
+## Explainable rules versus ML side by side (MP-037)
+
+MP-037 runs a **source-verified, frozen** rules/model comparison on complete MP-033 held-out source runs. It checks that overall and per-run metrics exactly match MP-011 and that both methods abstain for missing/outlier sensor windows. Reports include nine mutually exclusive outcomes (model-only / rules-only / shared alerts and mistakes), deterministic bounded concrete examples, the original rule threshold checks and five training-scaled feature contributions that numerically reproduce the anomaly score. Contributions are *not causal fault explanations*.
+
+```bash
+python -m motorpulse.experiment --config docs/examples/robustness-experiment-v1.json --out-dir /tmp/mp037-experiment
+python -m motorpulse.comparison --experiment-dir /tmp/mp037-experiment --partition test --max-examples 4 --out-json /tmp/mp037-test.json --out-md /tmp/mp037-test.md
+```
+
+See [docs/COMPARISON.md](docs/COMPARISON.md). Results remain **synthetic-only** and are not industrial detection rates, maintenance advice, physical failure probabilities or RUL.
 
 ## Developer CI
 
