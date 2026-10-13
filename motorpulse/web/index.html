@@ -73,7 +73,7 @@ const runtimeForm=document.querySelector('#runtime-form'),runtimeMessage=documen
 const runtimeSeed=document.querySelector('#runtime-seed'),runtimeStep=document.querySelector('#runtime-step'),runtimeInterval=document.querySelector('#runtime-interval'),runtimeActive=document.querySelector('#runtime-active');
 let runtimeLoaded=false;
 async function refreshMode(){try{const r=await fetch('/api/status',{cache:'no-store'});if(!r.ok)throw Error('Status unavailable');const s=await r.json();mode.textContent=(s.state==='running'?'Running':'Paused')+' · seed '+s.seed+' · virtual '+s.step_seconds+' s/tick · wall '+s.interval_seconds+' s/update';runtimeActive.textContent='Active seed '+s.seed+' · virtual step '+s.step_seconds+' seconds · real update interval '+s.interval_seconds+' seconds'+(s.session_id?' · recording session '+s.session_id:'')+(s.storage==='error'?' · storage error; restart required':'');if(!runtimeLoaded){runtimeSeed.value=s.seed;runtimeStep.value=s.step_seconds;runtimeInterval.value=s.interval_seconds;runtimeLoaded=true}for(const b of buttons){const a=b.dataset.action;b.disabled=busy||(a==='start'&&s.state==='running')||(a==='pause'&&s.state==='paused')||(a==='step'&&s.state==='running');}runtimeApply.disabled=busy;}catch(e){mode.textContent='Cannot read simulation status';runtimeActive.textContent='Status unavailable; settings not confirmed';}}
-async function sendControl(action){if(busy)return;busy=true;buttons.forEach(b=>b.disabled=true);try{const r=await fetch('/api/control',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action})});const d=await r.json();if(!r.ok)throw Error(d.error||'Control failed');await refresh();}catch(e){st.textContent='Control error: '+e.message;}finally{busy=false;await refreshMode();}}
+async function sendControl(action){if(busy)return;busy=true;buttons.forEach(b=>b.disabled=true);try{const r=await fetch('/api/control',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action})});const d=await r.json();if(!r.ok)throw Error(d.error||'Control failed');await refresh();if(window.MotorPulseHistory){if(action==='reset')void window.MotorPulseHistory.reloadSessions({preferCurrent:true});else if(action==='step')void window.MotorPulseHistory.refresh();}}catch(e){st.textContent='Control error: '+e.message;}finally{busy=false;await refreshMode();}}
 buttons.forEach(b=>b.addEventListener('click',()=>sendControl(b.dataset.action)));
 runtimeForm.addEventListener('submit',async event=>{
   event.preventDefault();
@@ -91,7 +91,7 @@ runtimeForm.addEventListener('submit',async event=>{
     if(!r.ok)throw Error(result.error||'Could not update simulation settings');
     runtimeSeed.value=result.seed;runtimeStep.value=result.step_seconds;runtimeInterval.value=result.interval_seconds;
     runtimeMessage.textContent='Applied. Paused at virtual tick 1 with seed '+result.seed+'.';
-    await refresh();
+    await refresh();if(window.MotorPulseHistory)void window.MotorPulseHistory.reloadSessions({preferCurrent:true});
   }catch(err){runtimeMessage.textContent='Settings error: '+err.message;runtimeMessage.classList.add('error')}
   finally{busy=false;applyButton.disabled=false;await refreshMode()}
 });
@@ -165,7 +165,7 @@ applyButton.addEventListener('click',async()=>{
     });
     const r=await fetch('/api/config',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({assets})});
     const result=await r.json();if(!r.ok)throw Error(result.error||'Could not apply scenarios');
-    configMessage.textContent='Applied. Simulation paused at tick 1.';await loadConfig();
+    configMessage.textContent='Applied. Simulation paused at tick 1.';await loadConfig();if(window.MotorPulseHistory)void window.MotorPulseHistory.reloadSessions({preferCurrent:true});
   }catch(err){configMessage.textContent=err.message;configMessage.classList.add('error')}
   finally{busy=false;applyButton.disabled=false;await refresh();await refreshMode()}
 });
