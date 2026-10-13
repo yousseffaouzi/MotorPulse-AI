@@ -69,3 +69,13 @@ The packaging checks read build metadata, verify that the dashboard exists as a 
 If installation fails due to unavailable build dependencies, provision setuptools and wheel in the virtual environment first (or use the zero-install source path). If port 8765 is occupied, stop the other local process using it. Tests themselves use ephemeral local ports.
 
 See [Python Packaging User Guide](https://packaging.python.org/en/latest/tutorials/packaging-projects/), [setuptools package data](https://setuptools.pypa.io/en/stable/userguide/datafiles.html), and [wheel/project metadata](https://packaging.python.org/en/latest/specifications/pyproject-toml/) for the conventions used.
+
+## Optional MP-012 persistent synthetic telemetry history
+
+To retain feature snapshots and illustrative rule warnings across restarts, use a local SQLite file with a pre-existing parent directory:
+
+```bash
+python -m motorpulse --paused --database ./motorpulse-local.sqlite3
+```
+
+Memory-only mode is the default and creates no database. Each fresh process/reset/configuration begins a new independent persistence session; old SQLite history is preserved but the simulator does not resume a previously running tick. For the v1→v2 migration policy, data model, bounded Python queries and scientific limits, see [SQLITE_HISTORY.md](SQLITE_HISTORY.md). History REST endpoints are planned separately as MP-040.
