@@ -364,6 +364,16 @@ python -m motorpulse.rul_research --protocol docs/examples/rul-protocol-v1.json 
 
 The shipped example is **fabricated research-contract metadata** and intentionally yields `blocked`. See [docs/RUL_RESEARCH.md](docs/RUL_RESEARCH.md) for failure definitions, informative censoring, prospective IPCW/concordance metrics, field-evidence prerequisites and leakage controls.
 
+## Durable local SQLite telemetry and rule-alert history (MP-012)
+
+MotorPulse-AI now supports **opt-in** SQLite storage of the complete simulated feature snapshot, each motor event and illustrative good-sensor rule warning/critical decisions. One transaction commits a full tick; failed writes never advance the live simulator. Restart, reset and scenario configuration create **distinct persistence sessions**, preserving previous history and deterministic replay. No database is created in the memory-only default.
+
+```bash
+python -m motorpulse --paused --database ./motorpulse-local.sqlite3
+```
+
+The existing live API remains backward compatible. When persistence is enabled, `/api/status` additionally reports the session ID and storage health; historical data is queryable through bounded, parameterized Python storage/controller methods. **HTTP history endpoints are MP-040, trend charts MP-013, and alert lifecycle deduplication MP-042.** Stored alarms are only synthetic rule evaluations, not physical fault diagnoses. See [docs/SQLITE_HISTORY.md](docs/SQLITE_HISTORY.md).
+
 ## Developer CI
 
 To limit GitHub Actions usage, tests run automatically on pull requests targeting `main` (not separately for feature pushes or merge pushes); manual runs remain available. Run `python -m unittest discover -s tests -v` locally first.

@@ -1,6 +1,7 @@
 """Local-only demonstration server: python -m motorpulse"""
 import argparse
 import json
+import sqlite3
 from datetime import datetime
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -84,6 +85,8 @@ class Handler(SimpleHTTPRequestHandler):
             self._json(400, {"error": str(exc)})
         except ControlConflict as exc:
             self._json(409, {"error": str(exc)})
+        except (sqlite3.Error, OSError) as exc:
+            self._json(503, {"error": "SQLite persistence unavailable"})
         else:
             self._json(200, result)
 
@@ -100,6 +103,8 @@ class Handler(SimpleHTTPRequestHandler):
             self._json(400, {"error": str(exc)})
         except ControlConflict as exc:
             self._json(409, {"error": str(exc)})
+        except (sqlite3.Error, OSError) as exc:
+            self._json(503, {"error": "SQLite persistence unavailable"})
         else:
             self._json(200, result)
 
@@ -111,13 +116,18 @@ class MotorPulseServer(ThreadingHTTPServer):
                  interval_seconds: float = 1.5, autostart: bool = True,
                  start_time_utc: datetime = DEFAULT_START_TIME_UTC,
                  step_seconds: float = 1.5,
-                 assets: tuple[AssetScenario, ...] = DEFAULT_ASSETS):
+                 assets: tuple[AssetScenario, ...] = DEFAULT_ASSETS,
+                 database_path: str | Path | None = None):
         super().__init__(server_address, Handler)
-        self.controller = SimulationController(
-            seed=seed, interval_seconds=interval_seconds, autostart=autostart,
-            start_time_utc=start_time_utc, step_seconds=step_seconds,
-            assets=assets,
-        )
+        try:
+            self.controller = SimulationController(
+                seed=seed, interval_seconds=interval_seconds, autostart=autostart,
+                start_time_utc=start_time_utc, step_seconds=step_seconds,
+                assets=assets, database_path=database_path,
+            )
+        except BaseException:
+            super().server_close()
+            raise
 
     def server_close(self) -> None:
         self.controller.close()
@@ -135,6 +145,8 @@ def main() -> None:
                         help="wall-clock seconds between automatic ticks (default: 1.5)")
     parser.add_argument("--config", type=Path, metavar="FILE.json",
                         help="load a validated local motor/scenario JSON file before startup")
+    parser.add_argument("--database", type=Path, metavar="PATH.sqlite3",
+                        help="optional local persistent synthetic telemetry/alert SQLite file")
     parser.add_argument("--paused", action="store_true",
                         help="start paused at tick 1 for deterministic inspection")
     parser.add_argument("--port", type=int, default=8765, metavar="PORT",
@@ -148,8 +160,9 @@ def main() -> None:
                                 start_time_utc=args.start_time_utc,
                                 step_seconds=args.step_seconds,
                                 interval_seconds=args.interval_seconds,
-                                autostart=not args.paused, assets=assets)
-    except (OSError, ValueError) as exc:
+                                autostart=not args.paused, assets=assets,
+                                database_path=args.database)
+    except (OSError, ValueError, sqlite3.Error) as exc:
         parser.error(str(exc))
     with httpd:
         print(f"MotorPulse AI (synthetic demo): http://127.0.0.1:{httpd.server_address[1]}", flush=True)

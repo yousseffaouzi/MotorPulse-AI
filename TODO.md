@@ -45,7 +45,9 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-037 implemented: frozen source-verified MP-011 rule-versus-ML same-event explanations, nine mutually exclusive outcome buckets, reproducible synthetic false-positive/negative and sensor-abstention examples, original rule predicate checks and five-feature standardized-distance contributions. Results match full held-out metrics and group-level checks; safe write-once JSON/Markdown CLI, regression tests and guide. Model threshold remains fit-only, no causal/industrial risk/RUL claims.
 - MP-038 implemented: strict validation-only empirical target-FPR cutoff with score-tie-aware selection, original MP-035 trained model/threshold preserved, indexed source/feature/split checks, full MP-011 original-metric replay, bounded validation cutoff tradeoff curve, selected cutoff applied unchanged to untouched synthetic test for honest held-out comparison. Both model and rules retain common good-sensor denominators and abstentions. Offline write-once JSON/Markdown and regression tests; no guaranteed field alert rates, calibrated risk or RUL.
 - MP-039 implemented: metadata-only versioned RUL research protocol and auditor. Requires explicit externally evidenced functional failure endpoints or right-censoring reasons, strict observed UTC chronology, physically asset-disjoint whole-run splits, and independent source/rights/annotation review beyond self-declared metadata. Fictional fixture correctly blocked; structural audits produce no RUL estimates, no model-training authorization and no prognostic metrics. Documents candidate censor-aware concordance, IPCW Brier, calibration, leakage and independent evidence prerequisites; standard-library offline tests and write-once JSON/Markdown CLI.
-- A trained **synthetic-only** anomaly baseline exists; there is still no field-validated AI model, persisted database, external live ingestion adapter or real-hardware connection.
+- A trained **synthetic-only** anomaly baseline exists and **optional SQLite v2 synthetic telemetry/rule-alert persistence** is implemented; there is still no field-validated AI model, historical REST API, external live ingestion adapter or real-hardware connection.
+
+- MP-012 implemented: opt-in local SQLite v1→v2 schema migration, foreign keys, session-scoped deterministic replay across restarts/configuration/resets, transactional full-snapshot/per-motor telemetry plus good-sensor rule warning/critical alert records, pagination-ready bounded parameterized repository/controller reads and fail-closed storage error behavior. HTTP history API, trend charts and alert lifecycle remain MP-040/MP-013/MP-042. Added 19 standard-library offline integration tests and usage guide; no runtime dependencies, production alarms or field validation.
 
 ## Milestone 0 — Existing proof of concept
 
@@ -113,7 +115,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 | ID | Status | Priority | Task | Acceptance evidence |
 |---|---|---|---|---|
-| MP-012 | TODO | P1 | Persist telemetry and alerts in SQLite | Versioned migrations, restart and history integration tests |
+| MP-012 | DONE | P1 | Persist telemetry and alerts in SQLite | Versioned migrations, restart and history integration tests |
 | MP-013 | TODO | P1 | Trend charts, filtering and accessible UI | Motor/time selection, temperature and vibration trends; keyboard and responsive tests |
 | MP-014 | TODO | P2 | Optional SSE/WebSocket streaming | Live events and reconnect tested; polling fallback |
 | MP-040 | TODO | P1 | History and event REST endpoints | Paginated and filtered reads; documented errors and response schema |
