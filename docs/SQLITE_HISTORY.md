@@ -23,7 +23,7 @@ New files migrate 0→1→2. Valid v1 databases migrate to v2 transactionally. A
 
 **Each tick is a single transaction:** full snapshot, every asset event and any derived rule-alert events commit together. A failed SQL write rolls back that tick. Synchronous failures do not advance the in-memory simulator or swap configurations. The background worker pauses on storage failure, and the local status response shows storage=error. Correct the file or disk problem and restart; no silent telemetry loss is reported as success.
 
-Existing GET /api/snapshot stays read-only. Existing live snapshot/status/control/config API behavior remains compatible; enabling persistence adds storage and session_id to status. Synchronous SQLite write failures are reported by the server as HTTP 503. **History/event HTTP endpoints are not added here**—MP-040 is explicitly reserved for their paginated, validated REST contract.
+Existing GET /api/snapshot stays read-only. Existing live snapshot/status/control/config API behavior remains compatible; enabling persistence adds storage and session_id to status. Synchronous SQLite write failures are reported by the server as HTTP 503. **MP-040 implements the read-only history/event REST endpoints** on top of these controller methods, with bounded validated input. See [HISTORY_API.md](HISTORY_API.md).
 
 ## Querying local history
 
@@ -51,4 +51,4 @@ The offline MP-010 learned anomaly detector is **not silently wired to the live 
 
 Tests cover schema creation, v1→v2 migration, unsupported/foreign databases, lossless JSON readback, restart and configuration/reset session separation, alerts/sensor quality, source identity collision isolation, SQL transaction rollback, background fail-closed behavior, pagination and parameterized filtering, concurrency, HTTP integration, bad paths and no-file default.
 
-**Next:** MP-040 history/event REST endpoints; MP-013 accessible historical charts; MP-042 explicit rule-alert lifecycle. This milestone is persistence infrastructure for a reproducible educational simulator, **not evidence of industrial diagnostic accuracy**.
+**Next:** MP-013 accessible historical charts; MP-042 explicit rule-alert lifecycle. MP-040 REST endpoints are now implemented, described in [HISTORY_API.md](HISTORY_API.md). This milestone is persistence infrastructure for a reproducible educational simulator, **not evidence of industrial diagnostic accuracy**.

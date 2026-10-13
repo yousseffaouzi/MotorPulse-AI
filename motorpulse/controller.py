@@ -197,30 +197,37 @@ class SimulationController:
         return self._storage
 
     def history_snapshots(self, *, session_id: str | None = None,
-                          limit: int = 50, before_id: int | None = None) -> list[dict]:
+                          limit: int = 50, before_id: int | None = None,
+                          start_utc: str | None = None,
+                          end_utc: str | None = None) -> list[dict]:
         with self._condition:
             return self._history_store().snapshots(
-                session_id=session_id, limit=limit, before_id=before_id)
+                session_id=session_id, limit=limit, before_id=before_id,
+                start_utc=start_utc, end_utc=end_utc)
 
     def history_events(self, *, session_id: str | None = None,
                        asset_id: str | None = None, limit: int = 50,
-                       before_id: int | None = None) -> list[dict]:
+                       before_id: int | None = None, start_utc: str | None = None,
+                       end_utc: str | None = None) -> list[dict]:
         with self._condition:
             return self._history_store().events(
                 session_id=session_id, asset_id=asset_id, limit=limit,
-                before_id=before_id)
+                before_id=before_id, start_utc=start_utc, end_utc=end_utc)
 
     def history_alerts(self, *, session_id: str | None = None,
                        asset_id: str | None = None, limit: int = 50,
-                       before_id: int | None = None) -> list[dict]:
+                       before_id: int | None = None, start_utc: str | None = None,
+                       end_utc: str | None = None) -> list[dict]:
         with self._condition:
             return self._history_store().alerts(
                 session_id=session_id, asset_id=asset_id, limit=limit,
-                before_id=before_id)
+                before_id=before_id, start_utc=start_utc, end_utc=end_utc)
 
-    def history_sessions(self, *, limit: int = 50) -> list[dict]:
+    def history_sessions(self, *, limit: int = 50,
+                         before_id: int | None = None) -> list[dict]:
         with self._condition:
-            return self._history_store().sessions(limit=limit)
+            return self._history_store().sessions(
+                limit=limit, before_id=before_id)
 
     def close(self) -> None:
         with self._condition:

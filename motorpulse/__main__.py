@@ -9,6 +9,7 @@ from urllib.parse import urlsplit
 
 from .config_file import load_config_file
 from .controller import ControlConflict, SimulationController
+from .history_api import ROUTES, history_page, parse_query
 from .scenarios import AssetScenario, DEFAULT_ASSETS
 from .sim import DEFAULT_START_TIME_UTC, parse_start_time_utc
 
@@ -31,8 +32,28 @@ class Handler(SimpleHTTPRequestHandler):
         self.wfile.write(payload)
 
     def do_GET(self):
-        path = urlsplit(self.path).path
-        if path == "/api/snapshot":
+        target = urlsplit(self.path)
+        path = target.path
+        if path in ROUTES:
+            try:
+                resource = ROUTES[path]
+                params = parse_query(resource, target.query)
+                response = history_page(self.server.controller, resource, params)
+            except ValueError as exc:
+                self._json(400, {"error": str(exc), "code": "invalid_history_query"})
+            except ControlConflict:
+                self._json(409, {
+                    "error": "SQLite history is not enabled; restart with --database",
+                    "code": "history_unavailable",
+                })
+            except (sqlite3.Error, OSError):
+                self._json(503, {
+                    "error": "SQLite history temporarily unavailable",
+                    "code": "history_storage_error",
+                })
+            else:
+                self._json(200, response)
+        elif path == "/api/snapshot":
             self._json(200, self.server.controller.snapshot())
         elif path == "/api/status":
             self._json(200, self.server.controller.status())

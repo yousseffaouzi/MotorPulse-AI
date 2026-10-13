@@ -79,3 +79,15 @@ python -m motorpulse --paused --database ./motorpulse-local.sqlite3
 ```
 
 Memory-only mode is the default and creates no database. Each fresh process/reset/configuration begins a new independent persistence session; old SQLite history is preserved but the simulator does not resume a previously running tick. For the v1→v2 migration policy, data model, bounded Python queries and scientific limits, see [SQLITE_HISTORY.md](SQLITE_HISTORY.md). History REST endpoints are planned separately as MP-040.
+
+## MP-040 read-only localhost history API
+
+After starting MotorPulse with the optional MP-012 --database parameter, fetch bounded persisted synthetic history with:
+
+```bash
+curl 'http://127.0.0.1:8765/api/history/sessions?limit=10'
+curl 'http://127.0.0.1:8765/api/history/events?asset_id=MTR-01&limit=20'
+curl 'http://127.0.0.1:8765/api/history/alerts?limit=20'
+```
+
+See [HISTORY_API.md](HISTORY_API.md) for response schemas, validated UTC time filters, page cursors and 400/409/503 error codes. No database means history GET returns 409 rather than creating a file. All data is from the educational synthetic simulator.
