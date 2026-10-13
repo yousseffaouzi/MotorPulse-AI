@@ -58,7 +58,7 @@ class ResearchProtocolTests(unittest.TestCase):
         self.assertEqual(report["blocking_reasons"], [])
         self.assertFalse(report["allows_rul_model_training"])
         self.assertFalse(report["provides_rul_estimates"])
-        self.assertIn("not independently authenticated"," ".join(report["research_cautions"]))
+        self.assertIn("not_independently_authenticated"," ".join(report["research_cautions"]))
         self.assertIn("not computed",markdown(report).lower())
 
     def test_rights_and_labels_are_independently_gated(self):
@@ -196,7 +196,7 @@ class ResearchProtocolTests(unittest.TestCase):
         rendered=markdown(first)
         self.assertIn("model training authorized",rendered.lower())
         self.assertIn("censor",rendered.lower())
-        self.assertIn("no predictions",rendered.lower())
+        self.assertIn("rul predictions:** none",rendered.lower())
         self.assertNotIn("predicted_rul_seconds",json.dumps(first))
 
 
