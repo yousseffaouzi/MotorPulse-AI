@@ -10,7 +10,7 @@ From the repository root, using Python 3.11 or later and **no third-party packag
 python -m unittest discover -s tests -v
 ```
 
-The suite contains **347 standard-library unittest test cases** (64 through MP-021, 4 packaging smoke tests from MP-022, 13 spectral/rolling checks from MP-023, 9 JSON/CLI startup tests from MP-024, 11 sensor/operating tests from MP-025, 7 model-reference regression tests from MP-026, 12 export/manifest regression tests from MP-008, 10 offline source-card/provenance checks from MP-027, 15 offline local IMS-style parser tests from MP-009, 18 IMS report/normalization tests and 6 native-tone tests from MP-028, 18 exploratory report/CLI regression tests from MP-029, 16 whole-run/chronological split tests from MP-030, 16 dataset-card/provenance/CLI tests from MP-032, 19 trained-anomaly/sensor-gating/split-leakage tests from MP-010, 21 held-out detection/report tests from MP-011, 16 reproducible experiment/CLI tests from MP-033, 19 feature/temporal-leakage tests from MP-034, and 19 portable model-artifact/integrity/CLI tests from MP-035, and 8 robustness-stress/provenance/output tests from MP-036, and 13 comparison/explanation/integrity/CLI tests from MP-037, and 13 validation-calibration/ties/leakage/CLI tests from MP-038). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
+The suite contains **365 standard-library unittest test cases** (64 through MP-021, 4 packaging smoke tests from MP-022, 13 spectral/rolling checks from MP-023, 9 JSON/CLI startup tests from MP-024, 11 sensor/operating tests from MP-025, 7 model-reference regression tests from MP-026, 12 export/manifest regression tests from MP-008, 10 offline source-card/provenance checks from MP-027, 15 offline local IMS-style parser tests from MP-009, 18 IMS report/normalization tests and 6 native-tone tests from MP-028, 18 exploratory report/CLI regression tests from MP-029, 16 whole-run/chronological split tests from MP-030, 16 dataset-card/provenance/CLI tests from MP-032, 19 trained-anomaly/sensor-gating/split-leakage tests from MP-010, 21 held-out detection/report tests from MP-011, 16 reproducible experiment/CLI tests from MP-033, 19 feature/temporal-leakage tests from MP-034, and 19 portable model-artifact/integrity/CLI tests from MP-035, and 8 robustness-stress/provenance/output tests from MP-036, and 13 comparison/explanation/integrity/CLI tests from MP-037, and 13 validation-calibration/ties/leakage/CLI tests from MP-038, and 18 RUL evidence/censoring/asset-leakage/audit CLI tests from MP-039). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
 
 For MP-035 portable JSON model artifacts, strict save/load and source validation:
 
@@ -186,3 +186,11 @@ To limit GitHub Actions usage, `.github/workflows/test.yml` is configured for `p
 - No real devices, external databases, ML model training, deployment, authentication, pressure/load benchmarks, or high-volume multi-process races are covered.
 - The runtime v1 validator enforces important cross-field constraints but is not a complete JSON Schema implementation.
 - The simulator's thresholds and waveform assumptions are synthetic. Passing tests is not evidence of predictive fault diagnosis or safety certification.
+
+## MP-039: RUL research gate, not an RUL benchmark
+
+```bash
+python -m unittest discover -s tests -p 'test_rul_research.py' -v
+```
+
+The handwritten metadata fixture is **fictional and intentionally blocked**. Regression tests validate explicit observed failure versus censored follow-up, UTC chronology, physically disjoint asset splits, self-declared rights/label review safeguards, deterministic report fingerprints and no-overwrite CLI exports. The tool does not calculate an RUL or verify raw NASA IMS data. See [RUL_RESEARCH.md](RUL_RESEARCH.md).
