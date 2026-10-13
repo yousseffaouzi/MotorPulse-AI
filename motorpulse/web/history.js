@@ -197,7 +197,9 @@
     const request = ++token;
     let params;
     try {params = filters();} catch(error) {
-      setMessage(error.message,true);return false;
+      setBusy(false);
+      setMessage(error.message,true);
+      return false;
     }
     setBusy(true);
     setMessage('Loading bounded local history…',false);
@@ -210,7 +212,13 @@
       render(data.items, data.page);
       return true;
     } catch(error) {
-      if(request===token) setMessage('History error: ' + error.message,true);
+      if(request===token) {
+        currentPage=null;
+        for(const metric of metrics) draw(metric,[]);
+        buildTable([]);
+        pageLabel.textContent='';
+        setMessage('History error: ' + error.message,true);
+      }
       return false;
     } finally {
       if(request===token) setBusy(false);
