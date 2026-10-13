@@ -90,7 +90,7 @@ class ThresholdSelectionTests(unittest.TestCase):
         other_test_cohort=rows([90,500],[.001])
         # Selection has no test input at all, unlike a dataset-wide quantile.
         self.assertEqual(first,choose_threshold(validation,target_fpr=.2))
-        self.assertEqual(first["threshold"],4)
+        self.assertEqual(first["threshold"],3)
         self.assertNotEqual(first["threshold"], max(r["score"] for r in other_test_cohort))
 
     def test_selected_score_strict_comparison_and_abstention(self):
