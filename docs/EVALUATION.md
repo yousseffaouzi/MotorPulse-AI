@@ -114,3 +114,7 @@ For frozen-model, common-cohort comparisons across controlled synthetic speed/lo
 ## MP-037 — Same-window rule and model explanations
 
 The [MP-037 comparison guide](COMPARISON.md) describes event-by-event provenance, independently rechecked original rule reasons, five-feature arithmetic distance accounting, nine alert/disagreement outcome categories and bounded concrete synthetic false-positive examples. Every reported event belongs to a verified held-out MP-030 complete-run partition, and both methods abstain on suspect/missing sensor windows. Report metrics are independently checked against the original MP-011 results. No new model fitting or test-set threshold tuning occurs.
+
+## MP-038 — Validation-only operating-point calibration
+
+See [CALIBRATION.md](CALIBRATION.md) for a separate, immutable-model threshold-selection experiment using the **validation** source groups and an empirical synthetic false-positive-rate budget. The selected cutoff is applied unchanged to the untouched **test** partition only after validation selection. Both original and selected cutoff results are compared against unchanged MP-003 rules on identical good-sensor cohorts. Training-only MP-035 model parameters and original threshold are never replaced. No industrial FPR guarantees, failure probabilities or RUL are claimed.
