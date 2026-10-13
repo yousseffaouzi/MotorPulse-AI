@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from datetime import datetime
+from math import isfinite
 import logging
 from pathlib import Path
 import sqlite3
@@ -134,6 +135,52 @@ class SimulationController:
             self._snapshot = first
             self._condition.notify_all()
             return configuration_dict(assets)
+
+    def configure_runtime(self, payload: object) -> dict:
+        """Atomically choose seed, virtual tick spacing and real timer cadence.
+
+        A successful edit creates a paused tick-1 replay, including a new
+        SQLite session when persistence is enabled. No partial state commits.
+        """
+        if type(payload) is not dict or set(payload) != {
+            "seed", "step_seconds", "interval_seconds",
+        }:
+            raise ValueError("runtime settings require exactly seed, step_seconds and interval_seconds")
+        seed = payload["seed"]
+        if type(seed) is not int or not 0 <= seed <= 2_147_483_647:
+            raise ValueError("seed must be an integer from 0 to 2147483647")
+        interval = payload["interval_seconds"]
+        if type(interval) not in (int, float) or not isfinite(interval) or not 0.05 <= interval <= 3600:
+            raise ValueError("interval_seconds must be finite and between 0.05 and 3600")
+        step = payload["step_seconds"]
+        if type(step) not in (int, float) or not isfinite(step) or not 0.000001 <= step <= 86400:
+            raise ValueError("step_seconds must be finite and between 0.000001 and 86400")
+        with self._condition:
+            if self._closed:
+                raise ControlConflict("simulation has been closed")
+            self._require_storage_healthy()
+            replacement = MotorSimulator(
+                seed=seed, start_time_utc=self.start_time_utc,
+                step_seconds=step, assets=self._sim.assets,
+            )
+            first = replacement.step()
+            if self._storage is not None:
+                new_session = self._storage.start_session(
+                    first, seed=seed,
+                    start_time_utc=self.start_time_utc.isoformat(),
+                    step_seconds=replacement.step_seconds,
+                    configuration=configuration_dict(replacement.assets),
+                    reason="configure",
+                )
+                self._session_id = new_session
+            self.seed = seed
+            self.interval_seconds = float(interval)
+            self.step_seconds = replacement.step_seconds
+            self._sim = replacement
+            self._snapshot = first
+            self._running = False
+            self._condition.notify_all()
+            return self._status_locked()
 
     def _status_locked(self) -> dict:
         status = {
