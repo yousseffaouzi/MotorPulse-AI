@@ -211,6 +211,14 @@ python -m unittest discover -s tests -p 'test_history_api.py' -v
 
 21 new offline tests exercise four history endpoints, response schemas and headers, source/session/motor filtering, microsecond UTC boundaries, newest-first id pagination during concurrent insertions, exact page termination, invalid/malformed/duplicate query parameters, missing database 409, SQLite read failure 503 and restart-safe history. The existing simulator GET/snapshot behavior is unchanged. See [HISTORY_API.md](HISTORY_API.md).
 
+## MP-013: historical charts, filters and accessible table
+
+```bash
+python -m unittest discover -s tests -p 'test_history_dashboard.py' -v
+```
+
+16 offline unittest cases cover packaged SVG/chart-script assets, inclusive UTC browser controls, prior-session/motor source filtering and pagination, simulated missing/outlier vibration gaps (never interpolated), table quality labels, immutable history GET, disabled-database fallback, responsive labels and live reset integration. When Node.js is already present in the developer/CI environment, optional V8 tests execute the actual client chart code against a test DOM, verifying 1-microsecond time resolution and safe missing-value display. No Node or chart package is needed for the running application. See [HISTORICAL_DASHBOARD.md](HISTORICAL_DASHBOARD.md).
+
 ## MP-041: dashboard seed and virtual/real clock controls
 
 ```bash
