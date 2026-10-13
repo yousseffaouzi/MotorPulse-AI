@@ -63,6 +63,10 @@ Errors are JSON objects with error (human-readable) and code (stable machine ide
 
 Historical sessions are per-process startup, reset or configuration replacement: intentionally distinct UUIDs even when a simulation tick and original event ID repeat. A restart preserves old sessions but does **not** resume the prior simulator tick. Full histories are not retention-managed, backup-managed or encrypted by the app; protect the local SQLite file and use OS-level backups when needed. MP-013 will add accessible time/motor charts; MP-042 adds alert lifecycle, and MP-043 expands wider API input/error hardening.
 
+## MP-013 chart consumer
+
+The [historical dashboard](HISTORICAL_DASHBOARD.md) uses the read-only GET /api/history/sessions?limit=100 and filtered GET /api/history/events?session_id=...&asset_id=...&limit=... endpoints. Optional inclusive start_utc/end_utc filters preserve virtual microsecond timestamps and original sensor quality; chart page navigation passes `next_before_id` with unchanged filters. The browser's SVG chart never joins missing/suspect vibration points and provides an accessible raw numerical table. Historical GETs do not advance the simulator or claim real field calibration.
+
 ## Test and reproducibility
 
     python -m unittest discover -s tests -p 'test_history_api.py' -v

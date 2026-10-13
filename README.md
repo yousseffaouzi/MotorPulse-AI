@@ -401,7 +401,18 @@ python -m motorpulse --paused --database ./motorpulse-local.sqlite3
 The strict local API accepts exactly seed, step_seconds and interval_seconds, and reports 400/409/503 for invalid/busy-storage cases.
 See [docs/RUNTIME_CONTROLS.md](docs/RUNTIME_CONTROLS.md) for the full clock, validation, replay, persistence and accessibility contract.
 No hardware speed setpoint or field prognostics are supported.
-## Developer CI
+## Historical trend dashboard (MP-013)
+
+With optional MP-012 SQLite storage, the existing localhost dashboard now displays **recorded synthetic vibration RMS (g), temperature (°C) and RPM trends**. Select a past recording session, motor and inclusive virtual UTC range; browse older/newer bounded pages. An expandable accessible numerical table accompanies three responsive SVG charts. Missing/suspect vibration points create gaps rather than interpolated synthetic readings.
+
+```bash
+python -m motorpulse --paused --database ./motorpulse-local.sqlite3
+# Open http://127.0.0.1:8765/ and scroll to Recorded synthetic trends
+```
+
+History is disabled by default while the live simulator still works. The offline-bundled chart script uses no CDN or third-party dependency. See [docs/HISTORICAL_DASHBOARD.md](docs/HISTORICAL_DASHBOARD.md) for source, filtering, quality and accessibility limitations.
+
+
 
 To limit GitHub Actions usage, tests run automatically on pull requests targeting `main` (not separately for feature pushes or merge pushes); manual runs remain available. Run `python -m unittest discover -s tests -v` locally first.
 

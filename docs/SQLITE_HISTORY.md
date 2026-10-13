@@ -38,6 +38,10 @@ All return newest-first lists, with page sizes 1–500 and an exclusive ascendin
 
 The database must be a regular local file with an existing parent directory and no symlinks in its path. SQLite URI strings and :memory: are refused because this mode guarantees a durable file. Protect the file with operating-system permissions. No remote/cloud database, retention policy, application authentication, data-at-rest encryption or multi-process writer coordination is provided. The server still binds to 127.0.0.1.
 
+## MP-013 browser history visualization
+
+The [historical trend dashboard](HISTORICAL_DASHBOARD.md) now queries SQLite through the bounded, read-only MP-040 HTTP API, never through a browser-side database connection. It plots synthetic vibration RMS (g), temperature (°C) and RPM, and shows original sensor quality in an expandable table. Persistent sessions remain distinct across resets/restarts. Charts do not interpolate missing/outlier vibration measurements and do not imply hardware health validation.
+
 ## Meaning of persisted alerts
 
 Only the existing fixed-rule health warning/critical decisions with good sensor quality are stored as **synthetic rule alerts**. Missing/outlier sensor windows remain in telemetry as unavailable/suspect, never converted into trustworthy motor diagnoses. Every alert-producing tick produces a row even if an alert persists; acknowledgement, deduplication, transitions and lifecycle policy are separate **MP-042** work.
