@@ -91,3 +91,7 @@ curl 'http://127.0.0.1:8765/api/history/alerts?limit=20'
 ```
 
 See [HISTORY_API.md](HISTORY_API.md) for response schemas, validated UTC time filters, page cursors and 400/409/503 error codes. No database means history GET returns 409 rather than creating a file. All data is from the educational synthetic simulator.
+
+## MP-041 seed and independent simulator clock control
+
+The dashboard exposes deterministic seed and separate virtual step_seconds and real interval_seconds fields, plus synthetic speed/load variance and the existing fault scenario editor. Configure from the localhost UI or send strict JSON to PUT /api/runtime; successful changes pause/reset the simulator to tick 1. Optional --database creates a new persistent source session without erasing earlier observations. See [RUNTIME_CONTROLS.md](RUNTIME_CONTROLS.md) for allowed ranges, accessibility and precise virtual-versus-wall timing semantics.
