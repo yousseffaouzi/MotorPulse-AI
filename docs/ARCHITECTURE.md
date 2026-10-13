@@ -34,3 +34,7 @@ Demo bound to `127.0.0.1` only. Do not port-forward. Authentication, authorizati
 ## MP-040 read-only historical REST boundary
 
 [History API](HISTORY_API.md) provides four GET endpoints on the optional MP-012 SQLite history: sessions, snapshots, per-motor events and rule alerts. Requests enforce strict query allowlists, 1–100 result pages and resource-specific row-ID cursors, exact UTC acquisition timestamp filtering and source/motor filters. The adapter never invokes a simulator step, never updates the original model or rule decisions, and returns consistent 400/409/503 errors without exposing SQL/path details. No field sensors, cloud backend or remote access are supported.
+
+## MP-041 dashboard runtime control boundary
+
+The [runtime controls](RUNTIME_CONTROLS.md) use the existing localhost-only controller. PUT /api/runtime strictly validates a bounded deterministic seed and separate virtual microsecond step and real worker interval before replacing a paused tick-1 simulator. When SQLite is on, the new first tick is committed as a new distinct session before memory changes; failed writes preserve old runtime state. Status GET reports the active seed, virtual time step and real scheduling interval without advancing the generator. Existing scenario editor provides synthetic RPM variation, load, faults and severity, and the UI highlights that these are simulation inputs rather than physical motor controls. Historical charts and rule-alert lifecycle remain separate MP-013/MP-042 projects.
