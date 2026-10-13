@@ -50,3 +50,7 @@ Tests cover linear and exponential boundaries, fault onset and expiration, nonze
 - [NASA IMS Bearings](https://data.nasa.gov/dataset/ims-bearings)
 - [NASA PCoE bearing datasets](https://www.nasa.gov/intelligent-systems-division/discovery-and-systems-health/pcoe/pcoe-data-set-repository/)
 - El-Thalji and Jantunen (2015), *A summary of fault modelling and predictive health monitoring of rolling element bearings*, https://doi.org/10.1016/j.ymssp.2015.02.008
+
+## MP-039: failure time versus scripted fault progression
+
+Progression curve targets, end ticks and scripted synthetic onset are neither recorded physical failure events nor a valid RUL label. The separate [RUL research protocol](RUL_RESEARCH.md) describes why independent functional-failure evidence and censoring-aware follow-up must exist before any prognostic modeling. No mathematical conversion from simulation severity to remaining motor life is supported.

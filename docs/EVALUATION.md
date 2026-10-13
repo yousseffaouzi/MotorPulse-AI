@@ -118,3 +118,7 @@ The [MP-037 comparison guide](COMPARISON.md) describes event-by-event provenance
 ## MP-038 — Validation-only operating-point calibration
 
 See [CALIBRATION.md](CALIBRATION.md) for a separate, immutable-model threshold-selection experiment using the **validation** source groups and an empirical synthetic false-positive-rate budget. The selected cutoff is applied unchanged to the untouched **test** partition only after validation selection. Both original and selected cutoff results are compared against unchanged MP-003 rules on identical good-sensor cohorts. Training-only MP-035 model parameters and original threshold are never replaced. No industrial FPR guarantees, failure probabilities or RUL are claimed.
+
+## MP-039 — No Remaining Useful Life inference from detection metrics
+
+The [RUL research protocol](RUL_RESEARCH.md) separately defines terminal functional failure evidence, time origin, competing events and right-censoring before any future prognostic model. An alert-before-fault timestamp, programmed fault onset, synthetic severity ramp and simulator file end are not observed failure times. MP-011 detection delay, MP-037 explanations and MP-038 selected FPR are **not RUL**. The metadata auditor emits no predictions and requires independent review even when fields are complete. Proposed censor-aware concordance, IPCW Brier and calibration must be preregistered and validated before any later RUL work.

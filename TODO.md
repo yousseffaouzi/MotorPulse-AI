@@ -1,13 +1,13 @@
 # MotorPulse AI — Master TODO & Development Roadmap
 
-**Last updated:** 2026-10-11  
+**Last updated:** 2026-10-13  
 **Scope:** Open-source, software-first industrial motor condition monitoring and predictive-maintenance **simulation**. No hardware, PLC control, remote deployment, or operational maintenance decisions in this phase.
 
 ## v1 definition of done
 
 From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-motor simulator; configure healthy/fault/degradation scenarios; view live and historical time-stamped vibration, temperature and RPM features; export labelled synthetic data; ingest at least one properly documented public bearing dataset; evaluate leakage-resistant ML baselines against explainable threshold rules; and review results through a local dashboard. CI passes and a tagged demo release explains all limitations.
 
-**Scientific caveat:** Current warnings are rule-based, not trained failure predictions. Synthetic scores are not calibrated failure probabilities; RUL and real-world industrial performance are not validated.
+**Scientific caveat:** Current heuristic warnings and healthy-trained synthetic anomaly scores are not trained physical failure predictions or calibrated failure probabilities. RUL and real-world industrial performance are not validated.
 
 **Priority:** `P0` blocks core development; `P1` required for v1; `P2` enhancements; `P3` later scope.  
 **Status:** `DONE` verified in repository; `TODO` not yet implemented; `IN PROGRESS` being worked on; `ON HOLD` deferred.
@@ -44,6 +44,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-036 implemented: versioned synthetic robustness slices across configured speed/load, noise/drift, fault families, severity/progression/onset and observed sensor quality, with original MP-035 model/processor/threshold frozen and revalidated against split, dataset cards and MP-033 file index. Reports MP-011-equivalent eligible-window metrics and full-track synthetic delay, with honest undefined one-class metrics and no invented window-sliced episodes. Includes an eight-asset scenario example, offline tests and write-once CLI; no real data, causal/industrial generalization or RUL claims.
 - MP-037 implemented: frozen source-verified MP-011 rule-versus-ML same-event explanations, nine mutually exclusive outcome buckets, reproducible synthetic false-positive/negative and sensor-abstention examples, original rule predicate checks and five-feature standardized-distance contributions. Results match full held-out metrics and group-level checks; safe write-once JSON/Markdown CLI, regression tests and guide. Model threshold remains fit-only, no causal/industrial risk/RUL claims.
 - MP-038 implemented: strict validation-only empirical target-FPR cutoff with score-tie-aware selection, original MP-035 trained model/threshold preserved, indexed source/feature/split checks, full MP-011 original-metric replay, bounded validation cutoff tradeoff curve, selected cutoff applied unchanged to untouched synthetic test for honest held-out comparison. Both model and rules retain common good-sensor denominators and abstentions. Offline write-once JSON/Markdown and regression tests; no guaranteed field alert rates, calibrated risk or RUL.
+- MP-039 implemented: metadata-only versioned RUL research protocol and auditor. Requires explicit externally evidenced functional failure endpoints or right-censoring reasons, strict observed UTC chronology, physically asset-disjoint whole-run splits, and independent source/rights/annotation review beyond self-declared metadata. Fictional fixture correctly blocked; structural audits produce no RUL estimates, no model-training authorization and no prognostic metrics. Documents candidate censor-aware concordance, IPCW Brier, calibration, leakage and independent evidence prerequisites; standard-library offline tests and write-once JSON/Markdown CLI.
 - A trained **synthetic-only** anomaly baseline exists; there is still no field-validated AI model, persisted database, external live ingestion adapter or real-hardware connection.
 
 ## Milestone 0 — Existing proof of concept
@@ -104,7 +105,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-036 | DONE | P1 | Robustness across operating regimes | Evaluate by fault type, speed, load, noise and dataset; no cross-domain overclaims |
 | MP-037 | DONE | P1 | Side-by-side rules vs ML | Same input, separate outputs, explanations and false-positive examples |
 | MP-038 | DONE | P2 | Calibrate anomaly thresholds | Validation-only selection with false-alarm tradeoffs; untouched test split |
-| MP-039 | TODO | P2 | Consider RUL as separate research track | Define failure labels, censoring and metrics before any RUL claims |
+| MP-039 | DONE | P2 | Consider RUL as separate research track | Define failure labels, censoring and metrics before any RUL claims |
 
 **Exit criteria:** Reproducible rule-versus-ML benchmark with honest metrics and documented limitations.
 

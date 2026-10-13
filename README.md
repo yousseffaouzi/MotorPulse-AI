@@ -354,6 +354,16 @@ python -m motorpulse.calibration --experiment-dir /tmp/mp038-exp --target-fpr 0.
 
 The report contains a validation-only operating-point tradeoff curve, explicit allowed/achieved validation false-alarm counts, held-out synthetic test metrics, source/processor/model fingerprints and abstention counts. An empirical validation FPR **does not guarantee future or real-world alarm rates**, physical failure probability, diagnosis or RUL. See [docs/CALIBRATION.md](docs/CALIBRATION.md).
 
+## RUL research: failure evidence and censoring gate (MP-039)
+
+**RUL is not supported as a prediction.** MP-020 scheduled synthetic fault onset, anomaly scores and alert delays do not reveal machine end-of-life. MP-039 introduces a standalone, metadata-only research contract that checks terminal-event timestamps versus right-censoring, source and annotation review states, consistent UTC observation times, and physical-asset-disjoint train/validation/test groups. It explicitly blocks fictional synthetic labels and treats even apparently complete *self-reported* observational evidence as requiring independent external review. **It never fits a model, estimates remaining life, certifies a license or authorizes training.**
+
+```bash
+python -m motorpulse.rul_research --protocol docs/examples/rul-protocol-v1.json --out-json /tmp/mp039-audit.json --out-md /tmp/mp039-audit.md
+```
+
+The shipped example is **fabricated research-contract metadata** and intentionally yields `blocked`. See [docs/RUL_RESEARCH.md](docs/RUL_RESEARCH.md) for failure definitions, informative censoring, prospective IPCW/concordance metrics, field-evidence prerequisites and leakage controls.
+
 ## Developer CI
 
 To limit GitHub Actions usage, tests run automatically on pull requests targeting `main` (not separately for feature pushes or merge pushes); manual runs remain available. Run `python -m unittest discover -s tests -v` locally first.

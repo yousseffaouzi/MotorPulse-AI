@@ -43,6 +43,7 @@ motorpulse-model = "motorpulse.model_artifact:main"
 motorpulse-robustness = "motorpulse.robustness:main"
 motorpulse-compare = "motorpulse.comparison:main"
 motorpulse-calibrate = "motorpulse.calibration:main"
+motorpulse-rul-audit = "motorpulse.rul_research:main"
 
 [tool.setuptools]
 packages = ["motorpulse"]

@@ -1,0 +1,72 @@
+{
+  "rul_study_version": "1.0.0",
+  "study_id": "synthetic-contract-fixture-do-not-train",
+  "data_class": "synthetic_method_fixture",
+  "source": {
+    "dataset_id": "handwritten-rul-protocol-metadata-fixture",
+    "citation": "Fabricated labels and times for contract testing; not sampled from NASA IMS or any motor",
+    "raw_data_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "rights_review": "unverified",
+    "failure_annotations_review": "unverified"
+  },
+  "endpoint": {
+    "failure_event_definition": "Fictional terminal system stop used only for metadata-contract testing; NOT a MotorPulse MP-020 fault onset",
+    "failure_evidence_kind": "synthetic_method_fixture",
+    "clock": "external_observed_utc",
+    "time_origin": "first_observation_utc",
+    "unit": "seconds",
+    "censoring_assumption": "unknown_requires_review"
+  },
+  "split": {
+    "policy": "asset_disjoint_whole_trajectory",
+    "groups": {
+      "train": [
+        "fixture-run-A"
+      ],
+      "validation": [
+        "fixture-run-B"
+      ],
+      "test": [
+        "fixture-run-C"
+      ]
+    }
+  },
+  "trajectories": [
+    {
+      "trajectory_id": "fixture-trajectory-A",
+      "asset_id": "fake-asset-A",
+      "group_id": "fixture-run-A",
+      "first_observed_utc": "2026-01-01T00:00:00Z",
+      "last_observed_utc": "2026-01-01T01:00:00Z",
+      "status": "failure_observed",
+      "terminal_failure_utc": "2026-01-01T01:15:00Z",
+      "failure_evidence_ref": "fixture-only/fictional-terminal-stop",
+      "censoring_reason": null,
+      "record_count": 100
+    },
+    {
+      "trajectory_id": "fixture-trajectory-B",
+      "asset_id": "fake-asset-B",
+      "group_id": "fixture-run-B",
+      "first_observed_utc": "2026-01-02T00:00:00Z",
+      "last_observed_utc": "2026-01-02T02:00:00Z",
+      "status": "right_censored",
+      "terminal_failure_utc": null,
+      "failure_evidence_ref": null,
+      "censoring_reason": "sensor_loss",
+      "record_count": 90
+    },
+    {
+      "trajectory_id": "fixture-trajectory-C",
+      "asset_id": "fake-asset-C",
+      "group_id": "fixture-run-C",
+      "first_observed_utc": "2026-01-03T00:00:00Z",
+      "last_observed_utc": "2026-01-03T03:00:00Z",
+      "status": "right_censored",
+      "terminal_failure_utc": null,
+      "failure_evidence_ref": null,
+      "censoring_reason": "administrative_end",
+      "record_count": 125
+    }
+  ]
+}
