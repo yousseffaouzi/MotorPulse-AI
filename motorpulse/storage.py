@@ -7,6 +7,7 @@ deduplicating distinct recordings. This is not an industrial audit log or RUL.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import re
 import json
 from pathlib import Path
 import sqlite3
@@ -20,6 +21,40 @@ DATABASE_SCHEMA_VERSION = 2
 MAX_PAGE_SIZE = 500
 ALERT_STATES = frozenset(("warning", "critical"))
 SESSION_REASONS = frozenset(("startup", "reset", "configure"))
+UTC_FILTER = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:[.][0-9]{1,6})?(?:Z|[+]00:00)$")
+_EPOCH = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+
+def _utc_microseconds(value: str) -> int:
+    """Exact integer UTC ordering, including fractional simulator tick times."""
+    if type(value) is not str or UTC_FILTER.fullmatch(value) is None:
+        raise ValueError("timestamp must be RFC3339 UTC with seconds and Z or +00:00")
+    try:
+        moment = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("invalid UTC timestamp") from exc
+    delta = moment - _EPOCH
+    return ((delta.days * 86400 + delta.seconds) * 1000000
+            + delta.microseconds)
+
+
+def _time_bounds(start_utc: str | None, end_utc: str | None) -> tuple[int | None, int | None]:
+    start = _utc_microseconds(start_utc) if start_utc is not None else None
+    end = _utc_microseconds(end_utc) if end_utc is not None else None
+    if start is not None and end is not None and start > end:
+        raise ValueError("start_utc must not be later than end_utc")
+    return start, end
+
+
+def _append_time_filters(where: list[str], params: list, column: str,
+                         start_utc: str | None, end_utc: str | None) -> None:
+    start, end = _time_bounds(start_utc, end_utc)
+    if start is not None:
+        where.append(f"mp_utc_us({column})>=?")
+        params.append(start)
+    if end is not None:
+        where.append(f"mp_utc_us({column})<=?")
+        params.append(end)
 
 
 def _json(value: Any) -> str:
@@ -69,6 +104,7 @@ class SQLiteHistory:
         self._db = sqlite3.connect(str(self.path), isolation_level=None,
                                    check_same_thread=False, timeout=5.0)
         try:
+            self._db.create_function("mp_utc_us", 1, _utc_microseconds, deterministic=True)
             self._db.execute("PRAGMA foreign_keys=ON")
             self._db.execute("PRAGMA busy_timeout=5000")
             self._migrate()
@@ -242,23 +278,28 @@ class SQLiteHistory:
                 db.rollback()
                 raise
 
-    def sessions(self, *, limit: int = 50) -> list[dict]:
-        _page(limit, None)
+    def sessions(self, *, limit: int = 50,
+                 before_id: int | None = None) -> list[dict]:
+        _page(limit, before_id)
+        where = " WHERE rowid<?" if before_id is not None else ""
+        params = (before_id, limit) if before_id is not None else (limit,)
         with self._lock:
             self._ensure_open()
             rows = self._db.execute(
-                "SELECT session_id,created_at_utc,seed,start_time_utc,step_seconds,"
-                "configuration_json,reason FROM sessions ORDER BY rowid DESC LIMIT ?",
-                (limit,),
+                "SELECT rowid,session_id,created_at_utc,seed,start_time_utc,"
+                "step_seconds,configuration_json,reason FROM sessions" +
+                where + " ORDER BY rowid DESC LIMIT ?", params,
             ).fetchall()
         return [
-            dict(session_id=r[0], created_at_utc=r[1], seed=r[2], start_time_utc=r[3],
-                 step_seconds=r[4], configuration=json.loads(r[5]), reason=r[6])
+            dict(id=r[0], session_id=r[1], created_at_utc=r[2], seed=r[3],
+                 start_time_utc=r[4], step_seconds=r[5],
+                 configuration=json.loads(r[6]), reason=r[7])
             for r in rows
         ]
 
     def snapshots(self, *, session_id: str | None = None, limit: int = 50,
-                  before_id: int | None = None) -> list[dict]:
+                  before_id: int | None = None,
+                  start_utc: str | None = None, end_utc: str | None = None) -> list[dict]:
         _page(limit, before_id)
         _filter_text(session_id, "session_id")
         where = []
@@ -269,6 +310,7 @@ class SQLiteHistory:
         if before_id is not None:
             where.append("id<?")
             params.append(before_id)
+        _append_time_filters(where, params, "recorded_at_utc", start_utc, end_utc)
         condition = " WHERE " + " AND ".join(where) if where else ""
         with self._lock:
             self._ensure_open()
@@ -279,7 +321,8 @@ class SQLiteHistory:
         return [{"id":r[0], "session_id":r[1], "snapshot":json.loads(r[2])} for r in rows]
 
     def events(self, *, session_id: str | None = None, asset_id: str | None = None,
-               limit: int = 50, before_id: int | None = None) -> list[dict]:
+               limit: int = 50, before_id: int | None = None,
+               start_utc: str | None = None, end_utc: str | None = None) -> list[dict]:
         _page(limit, before_id)
         _filter_text(session_id, "session_id")
         _filter_text(asset_id, "asset_id")
@@ -292,6 +335,7 @@ class SQLiteHistory:
         if before_id is not None:
             where.append("id<?")
             params.append(before_id)
+        _append_time_filters(where, params, "timestamp_utc", start_utc, end_utc)
         condition = " WHERE "+" AND ".join(where) if where else ""
         with self._lock:
             self._ensure_open()
@@ -302,7 +346,8 @@ class SQLiteHistory:
         return [{"id":r[0], "session_id":r[1], "event":json.loads(r[2])} for r in rows]
 
     def alerts(self, *, session_id: str | None = None, asset_id: str | None = None,
-               limit: int = 50, before_id: int | None = None) -> list[dict]:
+               limit: int = 50, before_id: int | None = None,
+               start_utc: str | None = None, end_utc: str | None = None) -> list[dict]:
         _page(limit, before_id)
         _filter_text(session_id, "session_id")
         _filter_text(asset_id, "asset_id")
@@ -315,6 +360,7 @@ class SQLiteHistory:
         if before_id is not None:
             where.append("id<?")
             params.append(before_id)
+        _append_time_filters(where, params, "timestamp_utc", start_utc, end_utc)
         condition = " WHERE "+" AND ".join(where) if where else ""
         with self._lock:
             self._ensure_open()
