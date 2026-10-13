@@ -120,7 +120,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | ID | Status | Priority | Task | Acceptance evidence |
 |---|---|---|---|---|
 | MP-012 | DONE | P1 | Persist telemetry and alerts in SQLite | Versioned migrations, restart and history integration tests |
-| MP-013 | TODO | P1 | Trend charts, filtering and accessible UI | Motor/time selection, temperature and vibration trends; keyboard and responsive tests |
+| MP-013 | DONE | P1 | Trend charts, filtering and accessible UI | Motor/time selection, temperature and vibration trends; keyboard and responsive tests |
 | MP-014 | TODO | P2 | Optional SSE/WebSocket streaming | Live events and reconnect tested; polling fallback |
 | MP-040 | DONE | P1 | History and event REST endpoints | Paginated and filtered reads; documented errors and response schema |
 | MP-041 | DONE | P1 | Simulation controls in UI | Start/pause/reset, seed, scenario, severity, speed; explicit simulated time |
