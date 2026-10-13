@@ -111,3 +111,7 @@ MP-033 adds 16 automated tests covering valid/invalid configurations, source own
 ## MP-037 explanatory comparison reports
 
 After creating the versioned MP-033 experiment, you can produce a post-hoc side-by-side breakdown with the command in [COMPARISON.md](COMPARISON.md). It re-verifies the original MP-035 artifact and complete source index, then samples deterministic, clearly nonrepresentative explanatory examples from the frozen MP-011 held-out model and rules. No extra experiment setting or retraining is required.
+
+## MP-038: validation-only threshold calibration
+
+Use the existing complete MP-033 output directory with the offline `motorpulse-calibrate` command from [CALIBRATION.md](CALIBRATION.md) to select a separate target-FPR operating point from **validation only** and report its performance on the untouched held-out test. The MP-035 original model file, source index and train-only preprocessing stay immutable; original MP-011 rule/model benchmark files remain unchanged. Empirical simulated FPR has no industrial reliability guarantee.
