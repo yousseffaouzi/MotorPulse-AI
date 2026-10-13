@@ -39,6 +39,7 @@
     busy = active;
     apply.disabled = active;
     latest.disabled = active;
+    for (const field of [sessions, assets, startInput, endInput, limitInput]) field.disabled = active;
     older.disabled = active || !currentPage || !currentPage.has_more;
     newer.disabled = active || position === 0;
   }
@@ -278,6 +279,15 @@
     resetPage();
     await loadPage();
   });
+  for (const field of [startInput, endInput, limitInput]) {
+    field.addEventListener('input',()=>{
+      if(busy)return;
+      resetPage();
+      older.disabled = true;
+      newer.disabled = true;
+      setMessage('Time or page-size edits pending. Select Load trends to apply filters.',false);
+    });
+  }
   sessions.addEventListener('change',()=>{if(busy)return;loadAssetOptions();resetPage();void loadPage();});
   assets.addEventListener('change',()=>{if(busy)return;resetPage();void loadPage();});
   older.addEventListener('click',async()=>{
