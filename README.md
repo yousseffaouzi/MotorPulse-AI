@@ -123,6 +123,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/model_artifact.py` / `docs/MODEL_ARTIFACTS.md` — strict portable synthetic model JSON, source-linked save/load/verify CLI, safe compatibility checks and MP-033 artifact integration.
 - `motorpulse/robustness.py` / `docs/ROBUSTNESS.md` — source-verified held-out synthetic regime slices with frozen model/rule comparisons and abstention-aware reports.
 - `motorpulse/comparison.py` / `docs/COMPARISON.md` — explainable same-window MP-003 rules versus frozen MP-010 model with concrete synthetic false-positive and sensor-abstention examples.
+- `motorpulse/calibration.py` / `docs/CALIBRATION.md` — validation-only, tie-aware empirical false-alarm budget selection and separate untouched synthetic test audit.
 - `motorpulse/sim.py` — reproducible synthetic source and baseline classification.
 - `docs/SIGNALS.md` — sample-rate, Nyquist, harmonics, and modeling limitations.
 - `docs/SCENARIOS.md` — configuration API, fault types, severity and timing semantics.
@@ -341,6 +342,17 @@ python -m motorpulse.comparison --experiment-dir /tmp/mp037-experiment --partiti
 ```
 
 See [docs/COMPARISON.md](docs/COMPARISON.md). Results remain **synthetic-only** and are not industrial detection rates, maintenance advice, physical failure probabilities or RUL.
+
+## Validation-only anomaly threshold calibration (MP-038)
+
+The `motorpulse-calibrate` CLI chooses a **separate, validation-only decision threshold** for the frozen MP-010 synthetic anomaly score under a chosen *empirical validation false-positive-rate budget*. Original MP-035 model parameters, training-only threshold, processor and grouped split are immutable. Source and experiment file hashes are checked. **Test labels are first read after the threshold is chosen**; original and selected thresholds are compared on the same eligible sensor-good test windows, with original rules unchanged.
+
+```bash
+python -m motorpulse.experiment --config docs/examples/robustness-experiment-v1.json --out-dir /tmp/mp038-exp
+python -m motorpulse.calibration --experiment-dir /tmp/mp038-exp --target-fpr 0.05 --out-json /tmp/mp038-report.json --out-md /tmp/mp038-report.md
+```
+
+The report contains a validation-only operating-point tradeoff curve, explicit allowed/achieved validation false-alarm counts, held-out synthetic test metrics, source/processor/model fingerprints and abstention counts. An empirical validation FPR **does not guarantee future or real-world alarm rates**, physical failure probability, diagnosis or RUL. See [docs/CALIBRATION.md](docs/CALIBRATION.md).
 
 ## Developer CI
 
