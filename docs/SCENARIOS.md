@@ -45,3 +45,7 @@ MP-025 adds optional speed/load variability, noise, drift, missing vibration win
 For all fault scenarios, sine amplitude changes linearly between the healthy and fault assumptions as severity varies from 0 to 1. Noise comes from the same reproducible generator and all frequencies remain tied to RPM. These values are not physically calibrated; bearing 4.8x is invented, not calculated from bearing geometry. See [SIGNALS.md](SIGNALS.md).
 
 **Limitations:** Multiple clients share one local in-memory configuration. Nothing persists across process restarts. Physical fault *progression profiles* are now simulated, but validated damage physics, run-specific identifiers, event history and security for network deployment remain separate roadmap items.
+
+## MP-041 dashboard runtime and operating settings
+
+The browser now includes a separate [seed and dual-clock form](RUNTIME_CONTROLS.md), letting users select a deterministic random seed, virtual seconds between ticks and real worker update interval. This action pauses and resets to virtual tick 1, keeping configured scenarios and any stored previous SQLite sessions. Existing per-motor speed_variation_pct controls vary the approximately 1480-RPM **synthetic** base; they are not a hardware speed command. Virtual UTC timestamps are independent of wall-clock scheduling. Runtime values are checked by the local PUT /api/runtime endpoint and rejected atomically on invalid input.

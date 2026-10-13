@@ -112,14 +112,18 @@ class Handler(SimpleHTTPRequestHandler):
             self._json(200, result)
 
     def do_PUT(self):
-        if urlsplit(self.path).path != "/api/config":
+        path = urlsplit(self.path).path
+        if path not in ("/api/config", "/api/runtime"):
             self._json(404, {"error": "Unknown API endpoint"})
             return
         valid, body = self._read_json_body()
         if not valid:
             return
         try:
-            result = self.server.controller.configure(body)
+            if path == "/api/runtime":
+                result = self.server.controller.configure_runtime(body)
+            else:
+                result = self.server.controller.configure(body)
         except (ValueError, TypeError) as exc:
             self._json(400, {"error": str(exc)})
         except ControlConflict as exc:

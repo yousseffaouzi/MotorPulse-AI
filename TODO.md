@@ -51,6 +51,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - MP-040 implemented: opt-in MP-012 history exposed through localhost-only read-only versioned GET /api/history/{sessions,snapshots,events,alerts}, strict allowlisted and de-duplicated request query validation, bounded 1–100-page cursor pagination, UTC microsecond-accurate inclusive time ranges and session/asset filters. 400/409/503 machine-readable JSON errors, no new default database and no GET-driven simulation progression. Added 21 offline loopback HTTP/SQLite regression tests and full REST response/error documentation; MP-013 UI/MP-042 alert lifecycle remain separate.
 
+- MP-041 implemented: dashboard now edits deterministic random seed, independent virtual tick seconds and real worker scheduling interval, complementing existing Start/Pause/Step/Reset, scenario severity/progression, synthetic RPM/load variability and noise controls. New validated atomic PUT /api/runtime creates a paused tick-1 replay with new SQLite session if enabled; rejects bad values or persistence errors without partial runtime changes. Active virtual UTC, seed, wall cadence and session are labelled; accessible numeric inputs, responsive layout and status/error announcements. Added 13 unit/HTTP/SQLite/frontend contract tests and runtime guide. No field speed regulation, physical prognostics or waveform changes.
+
 ## Milestone 0 — Existing proof of concept
 
 | ID | Status | Priority | Task | Acceptance evidence |
@@ -121,7 +123,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-013 | TODO | P1 | Trend charts, filtering and accessible UI | Motor/time selection, temperature and vibration trends; keyboard and responsive tests |
 | MP-014 | TODO | P2 | Optional SSE/WebSocket streaming | Live events and reconnect tested; polling fallback |
 | MP-040 | DONE | P1 | History and event REST endpoints | Paginated and filtered reads; documented errors and response schema |
-| MP-041 | TODO | P1 | Simulation controls in UI | Start/pause/reset, seed, scenario, severity, speed; explicit simulated time |
+| MP-041 | DONE | P1 | Simulation controls in UI | Start/pause/reset, seed, scenario, severity, speed; explicit simulated time |
 | MP-042 | TODO | P1 | Explicit alert lifecycle | Transitions, deduplication, reasons, severity and persistence |
 | MP-043 | TODO | P1 | API request validation and errors | Bounds, content types, stable response codes and safe failure modes |
 | MP-044 | TODO | P2 | Export charts and reports | Download telemetry/evaluation reports labelled as simulation |

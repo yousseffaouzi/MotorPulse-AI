@@ -385,6 +385,22 @@ python -m motorpulse --paused --database ./motorpulse-local.sqlite3
 
 `GET /api/history/sessions`, `/snapshots`, `/events`, and `/alerts` return versioned result envelopes with stable `before_id` cursors. UTC start/end filters preserve even **microsecond-resolution virtual ticks**. Source events are synthetic-only and rule alerts are not field diagnoses. See [docs/HISTORY_API.md](docs/HISTORY_API.md) for precise filters, response shapes, error codes and examples; dashboard historical charts and alert lifecycle remain MP-013 and MP-042.
 
+## Dashboard simulation controls and clock settings (MP-041)
+
+The localhost dashboard supports **validated runtime seed and time controls**,
+alongside existing Start/Pause/Step/Reset, fault progression, severity, simulated RPM variability and load/noise controls.
+Users can edit the deterministic seed, **virtual seconds per tick** and distinct **real wall-clock update interval**.
+Applying runtime settings atomically resets the simulator to a paused tick 1. Optional SQLite persistence begins a new recording session while preserving old history.
+Active settings and simulated UTC are clearly labelled; numeric fields have accessible labels, boundaries and status messages.
+
+```bash
+python -m motorpulse --paused --database ./motorpulse-local.sqlite3
+# Edit settings in the dashboard or use PUT /api/runtime
+```
+
+The strict local API accepts exactly seed, step_seconds and interval_seconds, and reports 400/409/503 for invalid/busy-storage cases.
+See [docs/RUNTIME_CONTROLS.md](docs/RUNTIME_CONTROLS.md) for the full clock, validation, replay, persistence and accessibility contract.
+No hardware speed setpoint or field prognostics are supported.
 ## Developer CI
 
 To limit GitHub Actions usage, tests run automatically on pull requests targeting `main` (not separately for feature pushes or merge pushes); manual runs remain available. Run `python -m unittest discover -s tests -v` locally first.
