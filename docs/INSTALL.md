@@ -92,6 +92,10 @@ curl 'http://127.0.0.1:8765/api/history/alerts?limit=20'
 
 See [HISTORY_API.md](HISTORY_API.md) for response schemas, validated UTC time filters, page cursors and 400/409/503 error codes. No database means history GET returns 409 rather than creating a file. All data is from the educational synthetic simulator.
 
+## MP-013 historical synthetic motor charts
+
+Run `python -m motorpulse --paused --database ./motorpulse-local.sqlite3`, then open the local dashboard and scroll to **Recorded synthetic trends**. Select a previous recording session, motor, inclusive virtual UTC range, and paged 25–100 recorded events to see vibration RMS, temperature and RPM SVG charts with an accessible numerical table. Missing/suspect vibration points have gaps. The chart JavaScript is bundled in the Python package, with no external CDN, Node runtime or chart dependency. Without `--database`, live monitoring still works; the chart panel explains the missing history. See [HISTORICAL_DASHBOARD.md](HISTORICAL_DASHBOARD.md).
+
 ## MP-041 seed and independent simulator clock control
 
 The dashboard exposes deterministic seed and separate virtual step_seconds and real interval_seconds fields, plus synthetic speed/load variance and the existing fault scenario editor. Configure from the localhost UI or send strict JSON to PUT /api/runtime; successful changes pause/reset the simulator to tick 1. Optional --database creates a new persistent source session without erasing earlier observations. See [RUNTIME_CONTROLS.md](RUNTIME_CONTROLS.md) for allowed ranges, accessibility and precise virtual-versus-wall timing semantics.
