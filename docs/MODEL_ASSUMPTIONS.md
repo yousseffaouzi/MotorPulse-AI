@@ -189,3 +189,7 @@ Each Step advances one virtual tick only while paused. Repeat the same setup and
 - [NASA Open Data — IMS Bearings](https://data.nasa.gov/dataset/ims-bearings): public dataset listing; **verify source terms before redistribution**.
 
 These references justify background methods and future validation priorities, **not** our invented motor-fault amplitudes, bearing order, health thresholds, or temperature effects.
+
+## MP-039: RUL research is not a model feature
+
+The independent [RUL research protocol](RUL_RESEARCH.md) defines an external failure endpoint and explicit right-censored observation windows as **future requirements**. No physical terminal failure is simulated by the MP-020 fault-onset/severity controls. Existing anomaly scores, alarms, detection delays and degradation ramps must not be used as fabricated RUL labels, and no future failure/event timestamp can enter training features. A metadata-complete external source does not become authenticated evidence without independent label, source and rights review. The MP-039 audit produces **zero prognostic estimates**.
