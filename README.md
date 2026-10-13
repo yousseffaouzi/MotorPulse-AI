@@ -374,6 +374,17 @@ python -m motorpulse --paused --database ./motorpulse-local.sqlite3
 
 The existing live API remains backward compatible. When persistence is enabled, `/api/status` additionally reports the session ID and storage health; historical data is queryable through bounded, parameterized Python storage/controller methods. **HTTP history endpoints are MP-040, trend charts MP-013, and alert lifecycle deduplication MP-042.** Stored alarms are only synthetic rule evaluations, not physical fault diagnoses. See [docs/SQLITE_HISTORY.md](docs/SQLITE_HISTORY.md).
 
+## SQLite history and event REST endpoints (MP-040)
+
+With MP-012 SQLite persistence enabled, MotorPulse now exposes **read-only**, localhost-only historical queries for sessions, snapshots, individual motor telemetry and simulated rule alerts, with bounded paging and optional sensor/asset/UTC time filters. Invalid queries, disabled storage and unavailable database reads have explicit documented JSON errors. A history GET never advances the simulator.
+
+```bash
+python -m motorpulse --paused --database ./motorpulse-local.sqlite3
+# then visit http://127.0.0.1:8765/api/history/events?asset_id=MTR-01&limit=20
+```
+
+`GET /api/history/sessions`, `/snapshots`, `/events`, and `/alerts` return versioned result envelopes with stable `before_id` cursors. UTC start/end filters preserve even **microsecond-resolution virtual ticks**. Source events are synthetic-only and rule alerts are not field diagnoses. See [docs/HISTORY_API.md](docs/HISTORY_API.md) for precise filters, response shapes, error codes and examples; dashboard historical charts and alert lifecycle remain MP-013 and MP-042.
+
 ## Developer CI
 
 To limit GitHub Actions usage, tests run automatically on pull requests targeting `main` (not separately for feature pushes or merge pushes); manual runs remain available. Run `python -m unittest discover -s tests -v` locally first.
