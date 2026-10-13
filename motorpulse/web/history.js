@@ -153,8 +153,8 @@
     flush();
     for(const path of lines) svg.appendChild(path);
     const begin=chronological[0].timestamp_utc, end=chronological[chronological.length-1].timestamp_utc;
-    svg.appendChild(node('text',{x:left,y:190,fill:'#bdd1e5','font-size':11},begin.slice(5,19)+' UTC'));
-    svg.appendChild(node('text',{x:right,y:190,fill:'#bdd1e5','font-size':11,'text-anchor':'end'},end.slice(5,19)+' UTC'));
+    svg.appendChild(node('text',{x:left,y:190,fill:'#bdd1e5','font-size':11},begin.slice(0,19)+' UTC'));
+    svg.appendChild(node('text',{x:right,y:190,fill:'#bdd1e5','font-size':11,'text-anchor':'end'},end.slice(0,19)+' UTC'));
     summary.textContent = available.length + ' of ' + values.length + ' plotted · ' +
       ignored + ' unavailable/excluded · min ' + vmin.toFixed(metric.digits) + ' ' + metric.unit +
       ' · max ' + vmax.toFixed(metric.digits) + ' ' + metric.unit;
