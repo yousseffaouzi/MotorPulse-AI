@@ -211,6 +211,14 @@ python -m unittest discover -s tests -p 'test_history_api.py' -v
 
 21 new offline tests exercise four history endpoints, response schemas and headers, source/session/motor filtering, microsecond UTC boundaries, newest-first id pagination during concurrent insertions, exact page termination, invalid/malformed/duplicate query parameters, missing database 409, SQLite read failure 503 and restart-safe history. The existing simulator GET/snapshot behavior is unchanged. See [HISTORY_API.md](HISTORY_API.md).
 
+## MP-042: synthetic rule incident lifecycle and review
+
+```bash
+python -m unittest discover -s tests -p 'test_incidents.py' -v
+```
+
+24 tests check deduplicated incidents, severity/reason changes, normal recovery versus missing/outlier interruptions, session isolation, schema v2-to-v3 backfill, persistent once-only local review with separate wall UTC, transactional SQLite failure rollback, validated/paginated localhost REST and dashboard packaging/accessibility. Existing migration tests now expect v3. See [ALERT_LIFECYCLE.md](ALERT_LIFECYCLE.md).
+
 ## MP-013: historical charts, filters and accessible table
 
 ```bash
