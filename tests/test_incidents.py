@@ -87,7 +87,6 @@ class IncidentStorageTests(unittest.TestCase):
             second=sim.step()
             second["assets"][0]["reasons"]=["different illustrative threshold"]
             store.record(session,second)
-            store.record if False else None
             incident=store.incidents()[0]
             self.assertEqual(incident["alert_count"],2)
             self.assertEqual(incident["reasons"],["different illustrative threshold"])
@@ -431,7 +430,6 @@ class IncidentDashboardContracts(unittest.TestCase):
         self.assertIn("/api/history/transitions?",script)
         self.assertIn("/api/incidents/acknowledge",script)
         self.assertIn("incident_id:incident.id,actor:label",script)
-        self.assertIn("td.textContent",script) if False else None
         self.assertIn("cell.textContent=String(value)",script)
         self.assertIn("node.textContent=name",script)
         self.assertNotIn(".innerHTML",script)
