@@ -126,7 +126,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-014 | TODO | P2 | Optional SSE/WebSocket streaming | Live events and reconnect tested; polling fallback |
 | MP-040 | DONE | P1 | History and event REST endpoints | Paginated and filtered reads; documented errors and response schema |
 | MP-041 | DONE | P1 | Simulation controls in UI | Start/pause/reset, seed, scenario, severity, speed; explicit simulated time |
-| MP-042 | TODO | P1 | Explicit alert lifecycle | Transitions, deduplication, reasons, severity and persistence |
+| MP-042 | DONE | P1 | Explicit alert lifecycle | Transitions, deduplication, reasons, severity and persistence |
 | MP-043 | TODO | P1 | API request validation and errors | Bounds, content types, stable response codes and safe failure modes |
 | MP-044 | TODO | P2 | Export charts and reports | Download telemetry/evaluation reports labelled as simulation |
 
