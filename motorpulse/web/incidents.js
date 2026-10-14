@@ -100,7 +100,7 @@
       }
       tbody.replaceChildren(fragment);
       status(data.items.length+' distinct synthetic incidents in this page'+
-        (data.page.has_more+' ' === 'true ' ? '; more available via REST API.' : '.')+
+        (data.page.has_more ? '; more available via REST API.' : '.')+
         ' An active incident means unresolved within its recording session.');
     }catch(error){
       if(request!==sequence)return;
