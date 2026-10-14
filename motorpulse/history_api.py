@@ -19,6 +19,8 @@ ROUTES = {
     "/api/history/snapshots": "snapshots",
     "/api/history/events": "events",
     "/api/history/alerts": "alerts",
+    "/api/history/incidents": "incidents",
+    "/api/history/transitions": "transitions",
 }
 COMMON = frozenset(("limit", "before_id"))
 ALLOW = {
@@ -26,6 +28,8 @@ ALLOW = {
     "snapshots": COMMON | {"session_id", "start_utc", "end_utc"},
     "events": COMMON | {"session_id", "asset_id", "start_utc", "end_utc"},
     "alerts": COMMON | {"session_id", "asset_id", "start_utc", "end_utc"},
+    "incidents": COMMON | {"session_id", "asset_id", "state"},
+    "transitions": COMMON | {"session_id", "asset_id", "incident_id"},
 }
 _HEX = frozenset("0123456789ABCDEFabcdef")
 _DIGITS = re.compile(r"[1-9][0-9]*\Z")
@@ -75,6 +79,12 @@ def parse_query(resource: str, raw_query: str) -> dict:
         if key in raw:
             _filter_text(raw[key], key)
             params[key] = raw[key]
+    if "state" in raw:
+        if raw["state"] not in ("active", "resolved", "interrupted"):
+            raise ValueError("state must be active, resolved or interrupted")
+        params["state"] = raw["state"]
+    if "incident_id" in raw:
+        params["incident_id"] = _unsigned(raw["incident_id"], "incident_id", 2**63-1)
     start, end = raw.get("start_utc"), raw.get("end_utc")
     _time_bounds(start, end)
     if start is not None:
@@ -96,8 +106,12 @@ def history_page(controller, resource: str, params: dict) -> dict:
         rows = controller.history_snapshots(**{**params, "limit": limit + 1})
     elif resource == "events":
         rows = controller.history_events(**{**params, "limit": limit + 1})
-    else:
+    elif resource == "alerts":
         rows = controller.history_alerts(**{**params, "limit": limit + 1})
+    elif resource == "incidents":
+        rows = controller.history_incidents(**{**params, "limit": limit + 1})
+    else:
+        rows = controller.history_transitions(**{**params, "limit": limit + 1})
     has_more = len(rows) > limit
     selected = rows[:limit]
     return {
