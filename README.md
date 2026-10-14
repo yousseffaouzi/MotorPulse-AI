@@ -416,6 +416,16 @@ History is disabled by default while the live simulator still works. The offline
 
 To limit GitHub Actions usage, tests run automatically on pull requests targeting `main` (not separately for feature pushes or merge pushes); manual runs remain available. Run `python -m unittest discover -s tests -v` locally first.
 
+## Persistent synthetic rule incidents and review (MP-042)
+
+Optional local SQLite history now groups consecutive **synthetic rule warning/critical ticks** into deduplicated per-motor/per-session incidents while preserving every original raw alert and telemetry event. Incidents track severity/reason changes, good-sensor resolution and an **interrupted** state for missing/suspect vibration. SQLite v3 migrates earlier recordings transactionally.
+
+The historical dashboard shows a **Synthetic rule incidents** table, recent changes and a deliberate once-only reviewer label. Review is unauthenticated, recorded with separate real UTC time and **does not imply physical maintenance or safety**. Local endpoints include GET /api/history/incidents, GET /api/history/transitions and POST /api/incidents/acknowledge. See [docs/ALERT_LIFECYCLE.md](docs/ALERT_LIFECYCLE.md).
+
+```bash
+python -m motorpulse --paused --database ./motorpulse-local.sqlite3
+```
+
 ## Planned engineering work
 1. Add configurable fault fixtures and labelled synthetic datasets.
 2. Import publicly available NASA IMS bearing data *after confirming its reuse terms*; do not commit third-party data dumps.
