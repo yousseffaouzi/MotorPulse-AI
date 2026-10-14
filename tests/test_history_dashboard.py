@@ -85,7 +85,7 @@ class HistoryMarkupTests(unittest.TestCase):
 
     def test_responsive_layout_and_offline_packaged_script_tag(self):
         self.assertEqual([p["src"] for p in self.dom.scripts if "src" in p],
-                         ["/history.js"])
+                         ["/history.js", "/incidents.js"])
         self.assertTrue(any(p.get("defer") is None for p in self.dom.scripts if "src" in p))
         self.assertIn("@media(max-width:650px)",self.html)
         self.assertIn("minmax(min(100%,320px),1fr)",self.html)
