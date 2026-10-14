@@ -75,7 +75,11 @@ class HistoryMarkupTests(unittest.TestCase):
         self.assertEqual(self.dom.aria["history-message"]["role"], "status")
         self.assertEqual(self.dom.aria["history-message"]["aria-live"], "polite")
         self.assertEqual(self.dom.aria["history-page"]["aria-live"], "polite")
-        self.assertEqual(len([p for tag,p in self.dom.tags
+        # Only the expandable numeric readings table has six columns.
+        # MP-042 adds a separate incident review table with its own headings.
+        readings = Tags()
+        readings.feed(self.html.split('id="history-data-details"', 1)[1])
+        self.assertEqual(len([p for tag,p in readings.tags
                               if tag == "th" and p.get("scope") == "col"]), 6)
         self.assertIn("history-table", self.dom.ids)
         self.assertTrue(any(tag == "details" for tag,_ in self.dom.tags))
