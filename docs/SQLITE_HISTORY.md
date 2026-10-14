@@ -42,6 +42,10 @@ The database must be a regular local file with an existing parent directory and 
 
 The [historical trend dashboard](HISTORICAL_DASHBOARD.md) now queries SQLite through the bounded, read-only MP-040 HTTP API, never through a browser-side database connection. It plots synthetic vibration RMS (g), temperature (°C) and RPM, and shows original sensor quality in an expandable table. Persistent sessions remain distinct across resets/restarts. Charts do not interpolate missing/outlier vibration measurements and do not imply hardware health validation.
 
+## MP-042 incident schema v3
+
+SQLite v3 transactionally adds deduplicated synthetic incidents and append-only transitions, preserving every original event-per-tick v2 rule alert and telemetry row. V2 recordings are reconstructed in original event order; later rule decisions update per-session/per-asset incident severity, reasons and count within the same full-tick transaction. Good-sensor normal resolves; missing/outlier sensors **interrupt**, never imply recovery. Separate once-only local review actor/wall UTC annotations are unauthenticated and not actual repair evidence. See [ALERT_LIFECYCLE.md](ALERT_LIFECYCLE.md) for API, migrations and safety.
+
 ## Meaning of persisted alerts
 
 Only the existing fixed-rule health warning/critical decisions with good sensor quality are stored as **synthetic rule alerts**. Missing/outlier sensor windows remain in telemetry as unavailable/suspect, never converted into trustworthy motor diagnoses. Every alert-producing tick produces a row even if an alert persists; acknowledgement, deduplication, transitions and lifecycle policy are separate **MP-042** work.
