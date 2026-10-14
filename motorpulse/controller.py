@@ -276,6 +276,29 @@ class SimulationController:
             return self._history_store().sessions(
                 limit=limit, before_id=before_id)
 
+    def history_incidents(self, *, session_id: str | None = None,
+                          asset_id: str | None = None, state: str | None = None,
+                          limit: int = 50, before_id: int | None = None) -> list[dict]:
+        with self._condition:
+            return self._history_store().incidents(
+                session_id=session_id, asset_id=asset_id, state=state,
+                limit=limit, before_id=before_id)
+
+    def history_transitions(self, *, incident_id: int | None = None,
+                            session_id: str | None = None,
+                            asset_id: str | None = None,
+                            limit: int = 50, before_id: int | None = None) -> list[dict]:
+        with self._condition:
+            return self._history_store().transitions(
+                incident_id=incident_id, session_id=session_id, asset_id=asset_id,
+                limit=limit, before_id=before_id)
+
+    def acknowledge_incident(self, incident_id: int, actor: str) -> dict:
+        with self._condition:
+            if self._closed:
+                raise ControlConflict("simulation has been closed")
+            return self._history_store().acknowledge_incident(incident_id, actor)
+
     def close(self) -> None:
         with self._condition:
             self._closed = True
