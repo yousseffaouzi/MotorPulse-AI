@@ -55,6 +55,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - MP-013 implemented: three offline-bundled responsive SVG historical charts for synthetic vibration RMS, temperature and motor RPM using the MP-040 read-only SQLite history API. Accessible session/motor selectors, explicit inclusive virtual UTC bounds, cursor-paged 25/50/100 event pages, quality-gated vibration gaps with no interpolation, and expandable numeric source table. Handles disabled persistence without breaking live controls; manual step and reset/configure events sync charts/session options. Added 16 packaging/HTTP/UI/optional V8 render checks and documented the latest-100-session chooser limit. No measured physical degradation or RUL claims.
 
+- MP-042 implemented: versioned SQLite v3 migration/backfill, per-session/per-asset deduplicated synthetic rule incidents with opened/escalated/deescalated/reasons_changed/resolved/interrupted states and once-only, unauthenticated review labels using distinct wall UTC. Raw telemetry/alert events remain intact, and incident transitions commit atomically with full ticks. Added bounded incidents/transitions REST endpoints, validated POST review and an accessible dashboard incident panel, with 24 new offline lifecycle/HTTP/migration/UI tests. No real machinery alarms, authenticated maintenance signoff, or RUL claims.
+
 ## Milestone 0 — Existing proof of concept
 
 | ID | Status | Priority | Task | Acceptance evidence |
