@@ -36,7 +36,7 @@ class SQLiteHistoryTests(unittest.TestCase):
             self.assertEqual(history._db.execute("PRAGMA foreign_keys").fetchone()[0], 1)
             self.assertEqual({r[0] for r in history._db.execute(
                 "SELECT name FROM sqlite_master WHERE type='table'")},
-                {"sessions", "snapshots", "telemetry", "rule_alerts", "sqlite_sequence"})
+                {"sessions", "snapshots", "telemetry", "rule_alerts", "incidents", "incident_transitions", "sqlite_sequence"})
             self.assertTrue(any("session" in r[1] for r in history._db.execute(
                 "PRAGMA index_list(telemetry)")))
         self.assertTrue(self.db.is_file())
@@ -247,18 +247,20 @@ class SQLiteHistoryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"unrecognized"):
             SQLiteHistory(self.db)
 
-    def test_upgrade_v1_to_v2_keeps_historical_telemetry(self):
+    def test_upgrade_v1_to_v3_keeps_historical_telemetry(self):
         with SimulationController(autostart=False,database_path=self.db) as ctl:
             original=ctl.snapshot()
             current_id=ctl.status()["session_id"]
         with sqlite3.connect(self.db) as db:
+            db.execute("DROP TABLE incident_transitions")
+            db.execute("DROP TABLE incidents")
             db.execute("DROP TABLE rule_alerts")
             for name in ("idx_snapshots_session","idx_telemetry_session_asset",
                          "idx_alerts_session_asset"):
                 db.execute(f"DROP INDEX IF EXISTS {name}")
             db.execute("PRAGMA user_version=1")
         with SQLiteHistory(self.db) as restored:
-            self.assertEqual(restored._db.execute("PRAGMA user_version").fetchone()[0],2)
+            self.assertEqual(restored._db.execute("PRAGMA user_version").fetchone()[0],3)
             self.assertEqual(restored.snapshots(session_id=current_id)[0]["snapshot"],
                              original)
             self.assertEqual(len(restored.events(session_id=current_id)),len(original["assets"]))

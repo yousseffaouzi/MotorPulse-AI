@@ -63,6 +63,10 @@ Errors are JSON objects with error (human-readable) and code (stable machine ide
 
 Historical sessions are per-process startup, reset or configuration replacement: intentionally distinct UUIDs even when a simulation tick and original event ID repeat. A restart preserves old sessions but does **not** resume the prior simulator tick. Full histories are not retention-managed, backup-managed or encrypted by the app; protect the local SQLite file and use OS-level backups when needed. MP-013 will add accessible time/motor charts; MP-042 adds alert lifecycle, and MP-043 expands wider API input/error hardening.
 
+## MP-042 incidents and transition history
+
+The original /api/history/alerts remains one **raw synthetic rule event per qualifying tick**. The new [incident lifecycle](ALERT_LIFECYCLE.md) exposes bounded, newest-first GET /api/history/incidents (session_id, asset_id, state=active/resolved/interrupted) and GET /api/history/transitions (incident_id, session_id, asset_id), both with the standard 1–100 limit and before_id cursor. POST /api/incidents/acknowledge accepts exactly incident_id and an unauthenticated reviewer label, storing a separate real wall-clock UTC action. A review is **not physical maintenance approval**. The input/error codes and state machine are documented in ALERT_LIFECYCLE.md.
+
 ## MP-013 chart consumer
 
 The [historical dashboard](HISTORICAL_DASHBOARD.md) uses the read-only GET /api/history/sessions?limit=100 and filtered GET /api/history/events?session_id=...&asset_id=...&limit=... endpoints. Optional inclusive start_utc/end_utc filters preserve virtual microsecond timestamps and original sensor quality; chart page navigation passes `next_before_id` with unchanged filters. The browser's SVG chart never joins missing/suspect vibration points and provides an accessible raw numerical table. Historical GETs do not advance the simulator or claim real field calibration.

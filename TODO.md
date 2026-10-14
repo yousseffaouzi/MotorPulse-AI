@@ -1,6 +1,6 @@
 # MotorPulse AI — Master TODO & Development Roadmap
 
-**Last updated:** 2026-10-13  
+**Last updated:** 2026-10-14  
 **Scope:** Open-source, software-first industrial motor condition monitoring and predictive-maintenance **simulation**. No hardware, PLC control, remote deployment, or operational maintenance decisions in this phase.
 
 ## v1 definition of done
@@ -54,6 +54,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-041 implemented: dashboard now edits deterministic random seed, independent virtual tick seconds and real worker scheduling interval, complementing existing Start/Pause/Step/Reset, scenario severity/progression, synthetic RPM/load variability and noise controls. New validated atomic PUT /api/runtime creates a paused tick-1 replay with new SQLite session if enabled; rejects bad values or persistence errors without partial runtime changes. Active virtual UTC, seed, wall cadence and session are labelled; accessible numeric inputs, responsive layout and status/error announcements. Added 13 unit/HTTP/SQLite/frontend contract tests and runtime guide. No field speed regulation, physical prognostics or waveform changes.
 
 - MP-013 implemented: three offline-bundled responsive SVG historical charts for synthetic vibration RMS, temperature and motor RPM using the MP-040 read-only SQLite history API. Accessible session/motor selectors, explicit inclusive virtual UTC bounds, cursor-paged 25/50/100 event pages, quality-gated vibration gaps with no interpolation, and expandable numeric source table. Handles disabled persistence without breaking live controls; manual step and reset/configure events sync charts/session options. Added 16 packaging/HTTP/UI/optional V8 render checks and documented the latest-100-session chooser limit. No measured physical degradation or RUL claims.
+
+- MP-042 implemented: versioned SQLite v3 migration/backfill, per-session/per-asset deduplicated synthetic rule incidents with opened/escalated/deescalated/reasons_changed/resolved/interrupted states and once-only, unauthenticated review labels using distinct wall UTC. Raw telemetry/alert events remain intact, and incident transitions commit atomically with full ticks. Added bounded incidents/transitions REST endpoints, validated POST review and an accessible dashboard incident panel, with 24 new offline lifecycle/HTTP/migration/UI tests. No real machinery alarms, authenticated maintenance signoff, or RUL claims.
 
 ## Milestone 0 — Existing proof of concept
 
@@ -126,7 +128,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-014 | TODO | P2 | Optional SSE/WebSocket streaming | Live events and reconnect tested; polling fallback |
 | MP-040 | DONE | P1 | History and event REST endpoints | Paginated and filtered reads; documented errors and response schema |
 | MP-041 | DONE | P1 | Simulation controls in UI | Start/pause/reset, seed, scenario, severity, speed; explicit simulated time |
-| MP-042 | TODO | P1 | Explicit alert lifecycle | Transitions, deduplication, reasons, severity and persistence |
+| MP-042 | DONE | P1 | Explicit alert lifecycle | Transitions, deduplication, reasons, severity and persistence |
 | MP-043 | TODO | P1 | API request validation and errors | Bounds, content types, stable response codes and safe failure modes |
 | MP-044 | TODO | P2 | Export charts and reports | Download telemetry/evaluation reports labelled as simulation |
 

@@ -50,4 +50,4 @@ packages = ["motorpulse"]
 include-package-data = true
 
 [tool.setuptools.package-data]
-motorpulse = ["web/index.html", "web/history.js", "cards/*.json"]
+motorpulse = ["web/index.html", "web/history.js", "web/incidents.js", "cards/*.json"]

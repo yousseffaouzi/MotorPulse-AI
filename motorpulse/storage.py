@@ -16,8 +16,10 @@ from typing import Any
 from uuid import uuid4
 
 from .schema import validate_snapshot
+from .incidents import (INCIDENT_SELECT, STATES, acknowledge, backfill, create_tables,
+                        reduce_event, row_to_incident)
 
-DATABASE_SCHEMA_VERSION = 2
+DATABASE_SCHEMA_VERSION = 3
 MAX_PAGE_SIZE = 500
 ALERT_STATES = frozenset(("warning", "critical"))
 SESSION_REASONS = frozenset(("startup", "reset", "configure"))
@@ -185,6 +187,11 @@ class SQLiteHistory:
                     db.execute("CREATE INDEX idx_telemetry_session_asset ON telemetry(session_id,asset_id,id)")
                     db.execute("CREATE INDEX idx_alerts_session_asset ON rule_alerts(session_id,asset_id,id)")
                     db.execute("PRAGMA user_version=2")
+                    version = 2
+                if version == 2:
+                    create_tables(db)
+                    backfill(db)
+                    db.execute("PRAGMA user_version=3")
                 foreign_keys = db.execute("PRAGMA foreign_key_check").fetchall()
                 if foreign_keys:
                     raise ValueError("SQLite history has invalid foreign-key references")
@@ -235,6 +242,7 @@ class SQLiteHistory:
                      snapshot["tick"], event["timestamp_utc"], event["health"],
                      _json(event["reasons"])),
                 )
+            reduce_event(db, session_id, snapshot["tick"], event)
 
     def start_session(self, snapshot: dict, *, seed: int, start_time_utc: str,
                       step_seconds: float, configuration: dict, reason: str) -> str:
@@ -375,6 +383,79 @@ class SQLiteHistory:
                  reasons=json.loads(r[7]), source="synthetic_rule")
             for r in rows
         ]
+
+    def incidents(self, *, session_id: str | None = None, asset_id: str | None = None,
+                  state: str | None = None, limit: int = 50,
+                  before_id: int | None = None) -> list[dict]:
+        _page(limit, before_id)
+        _filter_text(session_id, "session_id")
+        _filter_text(asset_id, "asset_id")
+        if state is not None and state not in STATES:
+            raise ValueError("state must be active, resolved or interrupted")
+        where, params = [], []
+        for key, value in (("session_id", session_id), ("asset_id", asset_id),
+                           ("state", state)):
+            if value is not None:
+                where.append(key+"=?")
+                params.append(value)
+        if before_id is not None:
+            where.append("id<?")
+            params.append(before_id)
+        condition = " WHERE " + " AND ".join(where) if where else ""
+        with self._lock:
+            self._ensure_open()
+            rows = self._db.execute(
+                INCIDENT_SELECT + condition + " ORDER BY id DESC LIMIT ?",
+                (*params, limit),
+            ).fetchall()
+        return [row_to_incident(r) for r in rows]
+
+    def transitions(self, *, incident_id: int | None = None,
+                    session_id: str | None = None, asset_id: str | None = None,
+                    limit: int = 50, before_id: int | None = None) -> list[dict]:
+        _page(limit, before_id)
+        _filter_text(session_id, "session_id")
+        _filter_text(asset_id, "asset_id")
+        if incident_id is not None and (
+                type(incident_id) is not int or not 1 <= incident_id <= 2**63-1):
+            raise ValueError("incident_id must be a positive SQLite 64-bit integer")
+        where, params = [], []
+        for key, value in (("incident_id", incident_id), ("session_id", session_id),
+                           ("asset_id", asset_id)):
+            if value is not None:
+                where.append(key+"=?")
+                params.append(value)
+        if before_id is not None:
+            where.append("id<?")
+            params.append(before_id)
+        condition = " WHERE "+" AND ".join(where) if where else ""
+        with self._lock:
+            self._ensure_open()
+            rows = self._db.execute("""
+                SELECT id,incident_id,session_id,asset_id,kind,tick,timestamp_utc,
+                       from_severity,to_severity,reasons_json,event_id,actor,acted_at_utc
+                FROM incident_transitions
+            """ + condition + " ORDER BY id DESC LIMIT ?",(*params,limit)).fetchall()
+        return [
+            dict(id=r[0],incident_id=r[1],session_id=r[2],asset_id=r[3],
+                 kind=r[4],tick=r[5],timestamp_utc=r[6],from_severity=r[7],
+                 to_severity=r[8],reasons=json.loads(r[9]),event_id=r[10],
+                 actor=r[11],acted_at_utc=r[12],source="synthetic_rule")
+            for r in rows
+        ]
+
+    def acknowledge_incident(self, incident_id: int, actor: str) -> dict:
+        with self._lock:
+            self._ensure_open()
+            db = self._db
+            db.execute("BEGIN IMMEDIATE")
+            try:
+                result = acknowledge(db,incident_id,actor)
+                db.commit()
+            except BaseException:
+                db.rollback()
+                raise
+            return result
 
     def close(self) -> None:
         with self._lock:
