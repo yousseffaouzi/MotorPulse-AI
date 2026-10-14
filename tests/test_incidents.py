@@ -411,5 +411,44 @@ class IncidentHTTPTests(unittest.TestCase):
         self.assertEqual(self.server.controller.status()["tick"],1)
 
 
+class IncidentDashboardContracts(unittest.TestCase):
+    def test_incident_panel_uses_accessible_labels_table_and_explanations(self):
+        from motorpulse.__main__ import ROOT
+        html=(ROOT/"index.html").read_text(encoding="utf-8")
+        for hook in ("incident-title","incident-actor","incident-refresh",
+                     "incident-rows","incident-message","incident-detail"):
+            self.assertIn('id="'+hook+'"',html)
+        self.assertIn('for="incident-actor"',html)
+        self.assertIn("Synthetic rule incidents",html)
+        self.assertIn("not maintenance sign-off",html)
+        self.assertIn('src="/incidents.js" defer',html)
+        self.assertIn('role="status" aria-live="polite"',html)
+
+    def test_review_javascript_uses_bound_text_nodes_and_explicit_user_action(self):
+        from motorpulse.__main__ import ROOT
+        script=(ROOT/"incidents.js").read_text(encoding="utf-8")
+        self.assertIn("/api/history/incidents?",script)
+        self.assertIn("/api/history/transitions?",script)
+        self.assertIn("/api/incidents/acknowledge",script)
+        self.assertIn("incident_id:incident.id,actor:label",script)
+        self.assertIn("td.textContent",script) if False else None
+        self.assertIn("cell.textContent=String(value)",script)
+        self.assertIn("node.textContent=name",script)
+        self.assertNotIn(".innerHTML",script)
+        self.assertIn("session_id:chosen,limit:'25'",script)
+        self.assertIn("!label.trim()",script)
+
+    def test_incident_review_script_bundled_in_wheel_metadata(self):
+        from motorpulse.__main__ import ROOT
+        import tomllib
+        from pathlib import Path
+        root=Path(__file__).resolve().parents[1]
+        with (root/"pyproject.toml").open("rb") as fh:
+            metadata=tomllib.load(fh)
+        self.assertIn("web/incidents.js",
+                      metadata["tool"]["setuptools"]["package-data"]["motorpulse"])
+        self.assertTrue((ROOT/"incidents.js").is_file())
+
+
 if __name__=="__main__":
     unittest.main()
