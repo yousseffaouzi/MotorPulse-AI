@@ -14,12 +14,12 @@ This is deliberate: deterministic seed/time/event-ID replay is unchanged, and a 
 
 ## Versioned schema
 
-The SQLite file uses PRAGMA user_version=2:
+The SQLite file now uses PRAGMA user_version=3 (MP-042). Earlier schema layouts were:
 
 - **v1:** sessions (random ID, seed, virtual UTC start, step interval, scenario JSON and reason); snapshots (session, tick, timestamp and full telemetry-schema JSON); telemetry (per-asset complete event JSON, health, sensor quality, source IDs, timestamps, linked to snapshot/session).
 - **v2:** rule_alerts (only warning or critical rule decisions on good sensors, linked to the original telemetry row, including rule reasons), plus indexed history reads.
 
-New files migrate 0→1→2. Valid v1 databases migrate to v2 transactionally. All persisted v1 telemetry remains accessible. Unknown populated unversioned SQLite databases and versions newer than 2 are refused. Schema includes foreign keys and unique session/tick/event constraints. Back up locally before any future schema migration.
+New files migrate 0→1→2→3. Valid v1/v2 databases migrate to v3 transactionally, including historical synthetic incident reconstruction. All persisted v1 telemetry remains accessible. Unknown populated unversioned SQLite databases and versions newer than 3 are refused. Schema includes foreign keys and unique session/tick/event constraints. Back up locally before any future schema migration.
 
 **Each tick is a single transaction:** full snapshot, every asset event and any derived rule-alert events commit together. A failed SQL write rolls back that tick. Synchronous failures do not advance the in-memory simulator or swap configurations. The background worker pauses on storage failure, and the local status response shows storage=error. Correct the file or disk problem and restart; no silent telemetry loss is reported as success.
 
@@ -59,4 +59,4 @@ The offline MP-010 learned anomaly detector is **not silently wired to the live 
 
 Tests cover schema creation, v1→v2 migration, unsupported/foreign databases, lossless JSON readback, restart and configuration/reset session separation, alerts/sensor quality, source identity collision isolation, SQL transaction rollback, background fail-closed behavior, pagination and parameterized filtering, concurrency, HTTP integration, bad paths and no-file default.
 
-**Next:** MP-013 accessible historical charts; MP-042 explicit rule-alert lifecycle. MP-040 REST endpoints are now implemented, described in [HISTORY_API.md](HISTORY_API.md). This milestone is persistence infrastructure for a reproducible educational simulator, **not evidence of industrial diagnostic accuracy**.
+**Implemented:** MP-013 accessible historical charts and MP-042 explicit synthetic rule-alert lifecycle. MP-040 REST endpoints are now implemented, described in [HISTORY_API.md](HISTORY_API.md). This milestone is persistence infrastructure for a reproducible educational simulator, **not evidence of industrial diagnostic accuracy**.
