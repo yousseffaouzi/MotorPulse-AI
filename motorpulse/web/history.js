@@ -210,6 +210,7 @@
       if (request!==token) return false;
       if (!data || !Array.isArray(data.items) || data.items.length>MAX_POINTS || !data.page) throw Error('Unexpected history response format');
       render(data.items, data.page);
+      if(window.MotorPulseIncidents)void window.MotorPulseIncidents.refresh();
       return true;
     } catch(error) {
       if(request===token) {
