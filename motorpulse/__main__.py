@@ -10,6 +10,7 @@ from urllib.parse import urlsplit
 from .config_file import load_config_file
 from .controller import ControlConflict, SimulationController
 from .history_api import ROUTES, history_page, parse_query
+from .incidents import IncidentConflict, IncidentNotFound
 from .scenarios import AssetScenario, DEFAULT_ASSETS
 from .sim import DEFAULT_START_TIME_UTC, parse_start_time_utc
 
@@ -90,10 +91,35 @@ class Handler(SimpleHTTPRequestHandler):
             return False, None
 
     def do_POST(self):
-        if urlsplit(self.path).path != "/api/control":
+        path = urlsplit(self.path).path
+        if path not in ("/api/control", "/api/incidents/acknowledge"):
             self._json(404, {"error": "Unknown API endpoint"})
             return
         valid, body = self._read_json_body()
+        if path == "/api/incidents/acknowledge":
+            if not valid:
+                return
+            if type(body) is not dict or set(body) != {"incident_id", "actor"}:
+                self._json(400, {"error": "Requires incident_id and actor", "code": "invalid_acknowledgement"})
+                return
+            try:
+                incident = self.server.controller.acknowledge_incident(
+                    body["incident_id"], body["actor"])
+            except ValueError as exc:
+                self._json(400, {"error": str(exc), "code": "invalid_acknowledgement"})
+            except IncidentNotFound:
+                self._json(404, {"error": "Incident not found", "code": "incident_not_found"})
+            except IncidentConflict:
+                self._json(409, {"error": "Already acknowledged", "code": "incident_already_acknowledged"})
+            except ControlConflict:
+                self._json(409, {"error": "SQLite history is not enabled", "code": "history_unavailable"})
+            except (sqlite3.Error, OSError):
+                self._json(503, {"error": "SQLite persistence unavailable", "code": "history_storage_error"})
+            else:
+                self._json(200, {"source": "synthetic_rule", "incident": incident})
+            return
+        if not valid:
+            return
         if not valid:
             return
         if (not isinstance(body, dict) or set(body) != {"action"}
