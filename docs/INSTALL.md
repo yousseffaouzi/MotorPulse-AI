@@ -92,6 +92,10 @@ curl 'http://127.0.0.1:8765/api/history/alerts?limit=20'
 
 See [HISTORY_API.md](HISTORY_API.md) for response schemas, validated UTC time filters, page cursors and 400/409/503 error codes. No database means history GET returns 409 rather than creating a file. All data is from the educational synthetic simulator.
 
+## MP-042 synthetic incident review
+
+With `--database`, the historical dashboard also lists deduplicated fictional rule incidents and their changes. Choose a session, review reasons, or explicitly mark an incident reviewed with a local, **unauthenticated** label. SQLite v3 backfills legacy v2 telemetry while preserving original raw alerts; make a database backup before migration. See [ALERT_LIFECYCLE.md](ALERT_LIFECYCLE.md) for API and limitations. This is not a physical maintenance sign-off.
+
 ## MP-013 historical synthetic motor charts
 
 Run `python -m motorpulse --paused --database ./motorpulse-local.sqlite3`, then open the local dashboard and scroll to **Recorded synthetic trends**. Select a previous recording session, motor, inclusive virtual UTC range, and paged 25–100 recorded events to see vibration RMS, temperature and RPM SVG charts with an accessible numerical table. Missing/suspect vibration points have gaps. The chart JavaScript is bundled in the Python package, with no external CDN, Node runtime or chart dependency. Without `--database`, live monitoring still works; the chart panel explains the missing history. See [HISTORICAL_DASHBOARD.md](HISTORICAL_DASHBOARD.md).
