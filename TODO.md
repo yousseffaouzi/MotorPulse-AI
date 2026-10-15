@@ -1,6 +1,6 @@
 # MotorPulse AI — Master TODO & Development Roadmap
 
-**Last updated:** 2026-10-14  
+**Last updated:** 2026-10-15  
 **Scope:** Open-source, software-first industrial motor condition monitoring and predictive-maintenance **simulation**. No hardware, PLC control, remote deployment, or operational maintenance decisions in this phase.
 
 ## v1 definition of done
@@ -56,6 +56,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-013 implemented: three offline-bundled responsive SVG historical charts for synthetic vibration RMS, temperature and motor RPM using the MP-040 read-only SQLite history API. Accessible session/motor selectors, explicit inclusive virtual UTC bounds, cursor-paged 25/50/100 event pages, quality-gated vibration gaps with no interpolation, and expandable numeric source table. Handles disabled persistence without breaking live controls; manual step and reset/configure events sync charts/session options. Added 16 packaging/HTTP/UI/optional V8 render checks and documented the latest-100-session chooser limit. No measured physical degradation or RUL claims.
 
 - MP-042 implemented: versioned SQLite v3 migration/backfill, per-session/per-asset deduplicated synthetic rule incidents with opened/escalated/deescalated/reasons_changed/resolved/interrupted states and once-only, unauthenticated review labels using distinct wall UTC. Raw telemetry/alert events remain intact, and incident transitions commit atomically with full ticks. Added bounded incidents/transitions REST endpoints, validated POST review and an accessible dashboard incident panel, with 24 new offline lifecycle/HTTP/migration/UI tests. No real machinery alarms, authenticated maintenance signoff, or RUL claims.
+
+- MP-043 implemented: strict localhost API request parsing now rejects duplicate JSON object keys, non-standard JSON constants and excessive nesting; safely bounds pathological `Content-Length` values before integer conversion; gives generic API 400/404/409/503 and request-framing errors stable machine-readable codes; and returns consistent JSON semantics for unsupported API methods while preserving static-file behavior and established history/incident codes. Six regression tests cover non-mutation, rollback-safe persistence failures and path redaction; the full Python 3.12 CI suite passes **464 tests**. No authentication, public-network exposure or physical equipment control was added.
 
 ## Milestone 0 — Existing proof of concept
 
@@ -129,7 +131,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-040 | DONE | P1 | History and event REST endpoints | Paginated and filtered reads; documented errors and response schema |
 | MP-041 | DONE | P1 | Simulation controls in UI | Start/pause/reset, seed, scenario, severity, speed; explicit simulated time |
 | MP-042 | DONE | P1 | Explicit alert lifecycle | Transitions, deduplication, reasons, severity and persistence |
-| MP-043 | TODO | P1 | API request validation and errors | Bounds, content types, stable response codes and safe failure modes |
+| MP-043 | DONE | P1 | API request validation and errors | Bounds, content types, stable response codes and safe failure modes |
 | MP-044 | TODO | P2 | Export charts and reports | Download telemetry/evaluation reports labelled as simulation |
 
 **Exit criteria:** A user can control a run, see history and compare model outputs without editing source code.
