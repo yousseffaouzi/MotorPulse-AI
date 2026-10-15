@@ -1,0 +1,66 @@
+name: MP-015 docs finalizer
+
+on:
+  push:
+    branches: [docs/mp-015-demo-benchmark]
+    paths:
+      - .github/workflows/mp015-docs-finalize.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: docs/mp-015-demo-benchmark
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Record verified MP-015 evidence
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          testing = Path('docs/TESTING.md')
+          text = testing.read_text(encoding='utf-8')
+          old = 'The suite contains **482 standard-library unittest test cases**'
+          new = 'The suite contains **486 standard-library unittest test cases**'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected one TESTING count anchor, got {text.count(old)}')
+          text = text.replace(old, new, 1)
+          old = '5 documentation-contract tests from MP-047, 5 model-card documentation tests from MP-048, and 6 local-first security tests from MP-049).'
+          new = '5 documentation-contract tests from MP-047, 5 model-card documentation tests from MP-048, 6 local-first security tests from MP-049, and 4 dated benchmark/demo tests from MP-015).'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected one TESTING inventory anchor, got {text.count(old)}')
+          text = text.replace(old, new, 1)
+          anchor = 'Implementation evidence: GitHub Actions run `38820601629` passed all six quality jobs. The complete suite ran **482/482** on Python 3.11, 3.12 and 3.13; changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green.\n'
+          section = '''\n## MP-015: dated synthetic benchmark and demo media\n\n`scripts/generate_benchmark_report.py` runs fixed `docs/examples/experiment-v1.json` through the existing MP-033 experiment pipeline, then derives `docs/BENCHMARK.md` and the self-contained `docs/demo/benchmark-summary.svg` from the resulting validation/test metrics and provenance. The report records the 2026-10-15 date, exact reproduction commands, whole-run train/validation/test groups, model-vs-rule held-out metrics, abstentions, episode delays and SHA-256 provenance, with explicit synthetic-only / not-field-performance / no-failure-probability/RUL limits.\n\nFour tests in `tests/test_benchmark_report.py` pin README/report/media navigation, safety wording and self-contained SVG behavior. Python 3.13 additionally regenerates both committed artifacts from the fixed config into temporary paths and requires byte-for-byte equality; 3.11/3.12 validate the static contracts and skip only that Python-3.13 byte-snapshot assertion.\n\nImplementation evidence: GitHub Actions run `38821977822` passed all six quality jobs. The suite ran **486 tests** on every supported Python; 3.13 returned OK with all four MP-015 tests executed, while 3.11/3.12 returned OK with the single Python-3.13 byte-snapshot assertion skipped by design. Changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green.\n'''
+          if text.count(anchor) != 1:
+              raise SystemExit(f'expected one MP-049 evidence anchor, got {text.count(anchor)}')
+          text = text.replace(anchor, anchor + section, 1)
+          testing.write_text(text, encoding='utf-8')
+
+          todo = Path('TODO.md')
+          text = todo.read_text(encoding='utf-8')
+          anchor = '- MP-049 implemented: enforced loopback-only server construction, exact local Host-header validation, pre-bind port validation with safe failed-construction cleanup, and startup-config rejection of symlinked files/parents. Six security regressions also preserve no bind-address CLI escape hatch and no hardware/PLC control actions; `docs/SECURITY.md` documents the unauthenticated local threat boundary and no industrial safety guarantee. GitHub Actions run `38820601629` passed **482/482** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility; no public-network, authentication, hardware or remote-control capability was added.\n'
+          bullet = '\n- MP-015 implemented: added a dated 2026-10-15 synthetic-only benchmark generated from the fixed MP-033 experiment config, with reproducible commands, held-out model-vs-rule metrics/provenance, and linked repo-local self-contained SVG demo media. Four tests pin the report/media contracts and Python 3.13 byte-regenerates both artifacts. GitHub Actions run `38821977822` ran 486 tests across Python 3.11/3.12/3.13 (the single byte-snapshot assertion is skipped by design on 3.11/3.12) plus lint/format, dependency policy and fresh-clone reproducibility; the linked demo media is a generated SVG summary, not a hosted video, and metrics are not field performance.\n'
+          if text.count(anchor) != 1:
+              raise SystemExit(f'expected one MP-049 TODO anchor, got {text.count(anchor)}')
+          text = text.replace(anchor, anchor + bullet, 1)
+          old = '| MP-015 | TODO | P2 | Demo video and benchmark report | Dated metrics, reproducible commands and linked demo media |'
+          new = '| MP-015 | DONE | P2 | Demo video and benchmark report | Dated metrics, reproducible commands and linked demo media |'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected one MP-015 row anchor, got {text.count(old)}')
+          text = text.replace(old, new, 1)
+          todo.write_text(text, encoding='utf-8')
+          PY
+          rm .github/workflows/mp015-docs-finalize.yml
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add TODO.md docs/TESTING.md .github/workflows/mp015-docs-finalize.yml
+          git commit -m 'docs(mp-015): record benchmark acceptance evidence'
+          git push origin HEAD:docs/mp-015-demo-benchmark
