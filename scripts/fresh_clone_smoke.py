@@ -25,7 +25,9 @@ REPOSITORY = Path(__file__).resolve().parents[1]
 SERVER_URL = "http://127.0.0.1:8765"
 
 
-def _run(command: list[str], *, cwd: Path, env: dict[str, str], timeout: int = 120) -> str:
+def _run(
+    command: list[str], *, cwd: Path, env: dict[str, str], timeout: int = 120
+) -> str:
     result = subprocess.run(
         command,
         cwd=cwd,
@@ -65,7 +67,9 @@ def _wait_for_local_server(process: subprocess.Popen[str]) -> None:
     last_error: Exception | None = None
     while time.monotonic() < deadline:
         if process.poll() is not None:
-            raise RuntimeError(f"local server exited early with code {process.returncode}")
+            raise RuntimeError(
+                f"local server exited early with code {process.returncode}"
+            )
         try:
             with urlopen(SERVER_URL + "/api/health", timeout=1) as response:
                 payload = json.load(response)
@@ -73,7 +77,9 @@ def _wait_for_local_server(process: subprocess.Popen[str]) -> None:
                 with urlopen(SERVER_URL + "/", timeout=1) as response:
                     dashboard = response.read().decode("utf-8")
                 if response.status != 200 or "MotorPulse AI" not in dashboard:
-                    raise RuntimeError("installed server did not serve the packaged dashboard")
+                    raise RuntimeError(
+                        "installed server did not serve the packaged dashboard"
+                    )
                 return
         except (OSError, URLError, TimeoutError, json.JSONDecodeError) as exc:
             last_error = exc
@@ -98,7 +104,9 @@ def _validate_export(folder: Path) -> Path:
 def main() -> int:
     repository = REPOSITORY.resolve()
     if not (repository / "pyproject.toml").is_file():
-        raise RuntimeError("fresh-clone smoke test must run from a MotorPulse-AI checkout")
+        raise RuntimeError(
+            "fresh-clone smoke test must run from a MotorPulse-AI checkout"
+        )
 
     with TemporaryDirectory(prefix="motorpulse-mp046-") as temporary:
         root = Path(temporary).resolve()
@@ -106,7 +114,9 @@ def main() -> int:
         work = root / "work"
         work.mkdir()
         if repository == work or repository in work.parents:
-            raise RuntimeError("acceptance commands must run outside the source checkout")
+            raise RuntimeError(
+                "acceptance commands must run outside the source checkout"
+            )
 
         venv.EnvBuilder(with_pip=True, clear=True).create(environment)
         python, scripts = _venv_paths(environment)
@@ -115,7 +125,15 @@ def main() -> int:
         clean_env["PYTHONNOUSERSITE"] = "1"
 
         _run(
-            [str(python), "-m", "pip", "install", "--disable-pip-version-check", "-e", "."],
+            [
+                str(python),
+                "-m",
+                "pip",
+                "install",
+                "--disable-pip-version-check",
+                "-e",
+                ".",
+            ],
             cwd=repository,
             env=clean_env,
         )
@@ -140,7 +158,9 @@ def main() -> int:
             except Exception as exc:
                 log.flush()
                 details = server_log.read_text(encoding="utf-8", errors="replace")
-                raise RuntimeError(f"installed local server smoke failed: {exc}\n{details}") from exc
+                raise RuntimeError(
+                    f"installed local server smoke failed: {exc}\n{details}"
+                ) from exc
             finally:
                 if process.poll() is None:
                     process.terminate()
@@ -229,15 +249,26 @@ def main() -> int:
             env=clean_env,
         )
 
-        if not all(path.is_file() and path.stat().st_size > 0 for path in (split, model, report, markdown)):
-            raise RuntimeError("held-out evaluation pipeline did not create all documented artifacts")
+        if not all(
+            path.is_file() and path.stat().st_size > 0
+            for path in (split, model, report, markdown)
+        ):
+            raise RuntimeError(
+                "held-out evaluation pipeline did not create all documented artifacts"
+            )
         evaluation = json.loads(report.read_text(encoding="utf-8"))
         if evaluation.get("partition") != "test":
-            raise RuntimeError("fresh-clone evaluation did not use the held-out test partition")
-        if not evaluation.get("evaluation_sha256") or not evaluation.get("trained_model_sha256"):
+            raise RuntimeError(
+                "fresh-clone evaluation did not use the held-out test partition"
+            )
+        if not evaluation.get("evaluation_sha256") or not evaluation.get(
+            "trained_model_sha256"
+        ):
             raise RuntimeError("fresh-clone evaluation is missing provenance hashes")
         if "synthetic" not in markdown.read_text(encoding="utf-8").lower():
-            raise RuntimeError("evaluation summary is missing its synthetic-data limitation")
+            raise RuntimeError(
+                "evaluation summary is missing its synthetic-data limitation"
+            )
         print("MP-046 held-out evaluation: ok")
 
     print("MP-046 fresh-clone reproducibility: PASS")
