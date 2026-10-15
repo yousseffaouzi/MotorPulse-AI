@@ -1,19 +1,81 @@
-name: Python tests
-# Minimize GitHub Actions usage: checks run for PRs only; no feature-push and merge duplicates.
+name: Quality gates
+# PR-only/manual checks: no duplicate feature-push or merge-push runs.
 on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: read
+
 concurrency:
-  group: motorpulse-tests-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: motorpulse-quality-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
 jobs:
-  test:
+  tests:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run unit, API, and integration tests
+        env:
+          PYTHONWARNINGS: error::SyntaxWarning
+        run: python -m unittest discover -s tests -v
+
+  lint-format:
+    name: Lint and format changed Python
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
         with:
-          python-version: '3.12'
-      - name: Run unit tests
-        run: python -m unittest discover -s tests -v
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Install pinned quality tool
+        run: python -m pip install --disable-pip-version-check ruff==0.17.0
+      - name: Ruff correctness lint and format check
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if [ -n "${BASE_SHA:-}" ] && [ -n "${HEAD_SHA:-}" ]; then
+            base="$BASE_SHA"
+            head="$HEAD_SHA"
+          else
+            git fetch --no-tags origin main
+            base="$(git merge-base origin/main HEAD)"
+            head="HEAD"
+          fi
+          mapfile -t files < <(
+            git diff --name-only --diff-filter=ACMRT "$base" "$head" -- \
+              'motorpulse/*.py' 'tests/*.py'
+          )
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No changed Python files require lint/format checks."
+            exit 0
+          fi
+          printf 'Checking %s\n' "${files[@]}"
+          ruff check --select E4,E7,E9,F "${files[@]}"
+          ruff format --check "${files[@]}"
+
+  dependency-policy:
+    name: Dependency policy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Enforce reviewed dependency policy
+        run: python -m unittest discover -s tests -p 'test_dependency_policy.py' -v
