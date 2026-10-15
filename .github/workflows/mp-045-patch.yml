@@ -22,7 +22,7 @@ jobs:
 
           expected = {
               "motorpulse/calibration.py": 4,
-              "motorpulse/comparison.py": 6,
+              "motorpulse/comparison.py": 8,
               "motorpulse/evaluation.py": 4,
               "motorpulse/rul_research.py": 2,
           }
