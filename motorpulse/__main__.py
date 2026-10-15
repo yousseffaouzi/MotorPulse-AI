@@ -18,11 +18,24 @@ ROOT = Path(__file__).resolve().parent / "web"
 MAX_CONTROL_BODY_BYTES = 16384
 
 
+def _strict_json_object(pairs: list[tuple[str, object]]) -> dict:
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON object key")
+        result[key] = value
+    return result
+
+
+def _reject_json_constant(value: str) -> None:
+    raise ValueError(f"non-standard JSON constant: {value}")
+
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
 
-    def _json(self, status: int, data: dict) -> None:
+    def _json(self, status: int, data: dict, *, head_only: bool = False) -> None:
         payload = json.dumps(data, allow_nan=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -30,7 +43,14 @@ class Handler(SimpleHTTPRequestHandler):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
-        self.wfile.write(payload)
+        if not head_only:
+            self.wfile.write(payload)
+
+    def _unknown_api(self, *, head_only: bool = False) -> None:
+        self._json(404, {
+            "error": "Unknown API endpoint",
+            "code": "unknown_api_endpoint",
+        }, head_only=head_only)
 
     def do_GET(self):
         target = urlsplit(self.path)
@@ -63,7 +83,7 @@ class Handler(SimpleHTTPRequestHandler):
         elif path == "/api/health":
             self._json(200, {"status": "ok", "source": "simulation"})
         elif path.startswith("/api/"):
-            self._json(404, {"error": "Unknown API endpoint"})
+            self._unknown_api()
         else:
             super().do_GET()
 
@@ -72,28 +92,52 @@ class Handler(SimpleHTTPRequestHandler):
         # this local development server does not permit such preflights.
         content_type = self.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
         if content_type != "application/json":
-            self._json(415, {"error": "Content-Type must be application/json"})
+            self._json(415, {
+                "error": "Content-Type must be application/json",
+                "code": "unsupported_media_type",
+            })
             return False, None
         length_text = self.headers.get("Content-Length", "")
         if not length_text.isascii() or not length_text.isdecimal():
             self.close_connection = True
-            self._json(411, {"error": "Content-Length is required"})
+            self._json(411, {
+                "error": "Content-Length is required",
+                "code": "length_required",
+            })
             return False, None
-        length = int(length_text)
-        if not 0 < length <= MAX_CONTROL_BODY_BYTES:
+        normalized_length = length_text.lstrip("0") or "0"
+        max_length_text = str(MAX_CONTROL_BODY_BYTES)
+        if (len(normalized_length) > len(max_length_text)
+                or (len(normalized_length) == len(max_length_text)
+                    and normalized_length > max_length_text)):
             self.close_connection = True
-            self._json(413, {"error": "Invalid JSON request size"})
+            self._json(413, {
+                "error": "Invalid JSON request size",
+                "code": "invalid_request_size",
+            })
+            return False, None
+        length = int(normalized_length)
+        if length <= 0:
+            self.close_connection = True
+            self._json(413, {
+                "error": "Invalid JSON request size",
+                "code": "invalid_request_size",
+            })
             return False, None
         try:
-            return True, json.loads(self.rfile.read(length).decode("utf-8"))
-        except (ValueError, UnicodeError):
-            self._json(400, {"error": "Invalid JSON"})
+            return True, json.loads(
+                self.rfile.read(length).decode("utf-8"),
+                object_pairs_hook=_strict_json_object,
+                parse_constant=_reject_json_constant,
+            )
+        except (ValueError, UnicodeError, RecursionError):
+            self._json(400, {"error": "Invalid JSON", "code": "invalid_json"})
             return False, None
 
     def do_POST(self):
         path = urlsplit(self.path).path
         if path not in ("/api/control", "/api/incidents/acknowledge"):
-            self._json(404, {"error": "Unknown API endpoint"})
+            self._unknown_api()
             return
         valid, body = self._read_json_body()
         if path == "/api/incidents/acknowledge":
@@ -120,27 +164,31 @@ class Handler(SimpleHTTPRequestHandler):
             return
         if not valid:
             return
-        if not valid:
-            return
         if (not isinstance(body, dict) or set(body) != {"action"}
                 or not isinstance(body["action"], str)):
-            self._json(400, {"error": 'Body must be {"action":"start|pause|step|reset"}'})
+            self._json(400, {
+                "error": 'Body must be {"action":"start|pause|step|reset"}',
+                "code": "invalid_control_request",
+            })
             return
         try:
             result = self.server.controller.control(body["action"])
         except ValueError as exc:
-            self._json(400, {"error": str(exc)})
+            self._json(400, {"error": str(exc), "code": "invalid_control_request"})
         except ControlConflict as exc:
-            self._json(409, {"error": str(exc)})
-        except (sqlite3.Error, OSError) as exc:
-            self._json(503, {"error": "SQLite persistence unavailable"})
+            self._json(409, {"error": str(exc), "code": "control_conflict"})
+        except (sqlite3.Error, OSError):
+            self._json(503, {
+                "error": "SQLite persistence unavailable",
+                "code": "persistence_unavailable",
+            })
         else:
             self._json(200, result)
 
     def do_PUT(self):
         path = urlsplit(self.path).path
         if path not in ("/api/config", "/api/runtime"):
-            self._json(404, {"error": "Unknown API endpoint"})
+            self._unknown_api()
             return
         valid, body = self._read_json_body()
         if not valid:
@@ -151,13 +199,38 @@ class Handler(SimpleHTTPRequestHandler):
             else:
                 result = self.server.controller.configure(body)
         except (ValueError, TypeError) as exc:
-            self._json(400, {"error": str(exc)})
+            code = "invalid_runtime_settings" if path == "/api/runtime" else "invalid_configuration"
+            self._json(400, {"error": str(exc), "code": code})
         except ControlConflict as exc:
-            self._json(409, {"error": str(exc)})
-        except (sqlite3.Error, OSError) as exc:
-            self._json(503, {"error": "SQLite persistence unavailable"})
+            self._json(409, {"error": str(exc), "code": "control_conflict"})
+        except (sqlite3.Error, OSError):
+            self._json(503, {
+                "error": "SQLite persistence unavailable",
+                "code": "persistence_unavailable",
+            })
         else:
             self._json(200, result)
+
+    def do_HEAD(self):
+        if urlsplit(self.path).path.startswith("/api/"):
+            self._unknown_api(head_only=True)
+        else:
+            super().do_HEAD()
+
+    def _unsupported_method(self) -> None:
+        if urlsplit(self.path).path.startswith("/api/"):
+            self._unknown_api()
+        else:
+            self.send_error(501, "Unsupported method")
+
+    def do_DELETE(self):
+        self._unsupported_method()
+
+    def do_PATCH(self):
+        self._unsupported_method()
+
+    def do_OPTIONS(self):
+        self._unsupported_method()
 
 
 class MotorPulseServer(ThreadingHTTPServer):
