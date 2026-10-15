@@ -10,7 +10,7 @@ From the repository root, using Python 3.11 or later and **no third-party packag
 python -m unittest discover -s tests -v
 ```
 
-The suite contains **458 standard-library unittest test cases** (64 through MP-021, 4 packaging smoke tests from MP-022, 13 spectral/rolling checks from MP-023, 9 JSON/CLI startup tests from MP-024, 11 sensor/operating tests from MP-025, 7 model-reference regression tests from MP-026, 12 export/manifest regression tests from MP-008, 10 offline source-card/provenance checks from MP-027, 15 offline local IMS-style parser tests from MP-009, 18 IMS report/normalization tests and 6 native-tone tests from MP-028, 18 exploratory report/CLI regression tests from MP-029, 16 whole-run/chronological split tests from MP-030, 16 dataset-card/provenance/CLI tests from MP-032, 19 trained-anomaly/sensor-gating/split-leakage tests from MP-010, 21 held-out detection/report tests from MP-011, 16 reproducible experiment/CLI tests from MP-033, 19 feature/temporal-leakage tests from MP-034, and 19 portable model-artifact/integrity/CLI tests from MP-035, and 8 robustness-stress/provenance/output tests from MP-036, and 13 comparison/explanation/integrity/CLI tests from MP-037, and 13 validation-calibration/ties/leakage/CLI tests from MP-038, and 18 RUL evidence/censoring/asset-leakage/audit CLI tests from MP-039, and 19 SQLite session/migration/restart/atomicity/HTTP tests from MP-012, and 21 historical REST/UTC/pagination/error tests from MP-040, and 13 runtime seed/dual-clock/UI atomicity tests from MP-041, and 16 history chart/SQLite/frontend rendering tests from MP-013, and 24 synthetic incident lifecycle/migration/review/UI tests from MP-042). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
+The suite contains **464 standard-library unittest test cases** (64 through MP-021, 4 packaging smoke tests from MP-022, 13 spectral/rolling checks from MP-023, 9 JSON/CLI startup tests from MP-024, 11 sensor/operating tests from MP-025, 7 model-reference regression tests from MP-026, 12 export/manifest regression tests from MP-008, 10 offline source-card/provenance checks from MP-027, 15 offline local IMS-style parser tests from MP-009, 18 IMS report/normalization tests and 6 native-tone tests from MP-028, 18 exploratory report/CLI regression tests from MP-029, 16 whole-run/chronological split tests from MP-030, 16 dataset-card/provenance/CLI tests from MP-032, 19 trained-anomaly/sensor-gating/split-leakage tests from MP-010, 21 held-out detection/report tests from MP-011, 16 reproducible experiment/CLI tests from MP-033, 19 feature/temporal-leakage tests from MP-034, and 19 portable model-artifact/integrity/CLI tests from MP-035, and 8 robustness-stress/provenance/output tests from MP-036, and 13 comparison/explanation/integrity/CLI tests from MP-037, and 13 validation-calibration/ties/leakage/CLI tests from MP-038, and 18 RUL evidence/censoring/asset-leakage/audit CLI tests from MP-039, and 19 SQLite session/migration/restart/atomicity/HTTP tests from MP-012, and 21 historical REST/UTC/pagination/error tests from MP-040, and 13 runtime seed/dual-clock/UI atomicity tests from MP-041, and 16 history chart/SQLite/frontend rendering tests from MP-013, 24 synthetic incident lifecycle/migration/review/UI tests from MP-042, and 6 API validation/error/rollback tests from MP-043). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. The complete 464-test suite passed in GitHub Actions on Python 3.12 for MP-043. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
 
 For MP-035 portable JSON model artifacts, strict save/load and source validation:
 
@@ -149,9 +149,10 @@ For focused API regression tests:
 
 ```bash
 python -m unittest discover -s tests -p 'test_contracts.py' -v
+python -m unittest discover -s tests -p 'test_api_validation.py' -v
 ```
 
-These integration tests bind an ephemeral `127.0.0.1` port and automatically shut down the server and simulation worker. They do not require the interactive dashboard to be running.
+These integration tests bind an ephemeral `127.0.0.1` port and automatically shut down the server and simulation worker. MP-043 coverage additionally rejects duplicate JSON keys, non-standard numeric constants, excessive nesting and pathological Content-Length values; checks stable machine-readable API errors and unsupported-method handling; and verifies bad requests or persistence failures do not advance live state. They do not require the interactive dashboard to be running.
 
 ## Coverage by contract
 
@@ -160,21 +161,23 @@ These integration tests bind an ephemeral `127.0.0.1` port and automatically shu
 | Telemetry v1 | Required JSON fields, optional scenario/ramp metadata, canonical units, UTC timestamp, compatibility of older fixture | `test_schema.py`, `test_contracts.py` |
 | Simulation | Deterministic seed, signals, scenario onset/ramp/expiration, virtual-clock replay | `test_sim.py`, `test_clock.py`, `test_signals.py`, `test_scenarios.py`, `test_progression.py`, `test_contracts.py` |
 | API read | Health, status, config, snapshots, JSON headers and no-state-change on repeated GETs | `test_controller.py`, `test_contracts.py` |
-| API controls | Pause/start/step/reset, conflict when stepping while running, multiple concurrent requests | `test_controller.py`, `test_contracts.py` |
-| Request validation | Malformed/invalid JSON, wrong Content-Type, missing/invalid/oversized Content-Length, unknown API paths and wrong route/method combinations | `test_scenarios.py`, `test_controller.py`, `test_contracts.py` |
-| Atomic configuration | Invalid profiles leave snapshot unchanged; accepted profile replay identical after reset | `test_scenarios.py`, `test_progression.py`, `test_contracts.py` |
+| API controls | Pause/start/step/reset, conflict when stepping while running, multiple concurrent requests | `test_controller.py`, `test_contracts.py`, `test_api_validation.py` |
+| Request validation | Malformed/invalid JSON, duplicate keys, non-standard constants, nesting/body bounds, wrong Content-Type, missing/invalid/oversized Content-Length, stable error codes, unknown API paths and wrong/unsupported methods | `test_scenarios.py`, `test_controller.py`, `test_contracts.py`, `test_api_validation.py` |
+| Atomic configuration | Invalid profiles leave snapshot unchanged; accepted profile replay identical after reset | `test_scenarios.py`, `test_progression.py`, `test_contracts.py`, `test_api_validation.py` |
 | Browser smoke | Root page served with basic control elements, scenario and progression editor hooks | `test_contracts.py` |
 
 ### Expected response behavior (current local demo)
 
 - `GET /api/health`, `GET /api/status`, `GET /api/snapshot`, `GET /api/config`: `200` with JSON. Only explicit control actions advance simulation ticks.
-- `POST /api/control`: `200` for accepted start/pause/step/reset; `409` when stepping while running; `400` for invalid action/request.
-- `PUT /api/config`: `200` for valid replacements and atomic paused reset; `400` for invalid configs.
-- JSON request bodies have a **16384-byte maximum**; `415` for unsupported Content-Type, `411` for missing/malformed Content-Length, `413` for empty/oversized JSON body.
-- Unknown `/api/` paths, and POST/PUT on the wrong endpoint, currently return `404` JSON errors.
+- `POST /api/control`: `200` for accepted start/pause/step/reset; `409` with `control_conflict` when stepping while running; `400` with `invalid_control_request` for invalid action/request.
+- `PUT /api/config`: `200` for valid replacements and atomic paused reset; `400` with `invalid_configuration` for invalid configs.
+- `PUT /api/runtime`: `200` for valid atomic runtime edits; `400` with `invalid_runtime_settings` for invalid settings.
+- JSON request bodies have a **16384-byte maximum**; `415` with `unsupported_media_type` for unsupported Content-Type, `411` with `length_required` for missing/malformed Content-Length, `413` with `invalid_request_size` for empty/oversized JSON body, and `400` with `invalid_json` for malformed, duplicate-key, non-standard-number or excessively nested JSON.
+- Unknown `/api/` paths and unsupported API route/method combinations return `404` with `unknown_api_endpoint`; API `HEAD` retains HEAD semantics with JSON headers and no body.
+- Generic SQLite write failures return `503` with `persistence_unavailable` without exposing local filesystem paths; established history and incident lifecycle error codes remain unchanged.
 - JSON responses include `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`.
 
-These are regression assertions about the **current demo**, not an internet-facing API SLA. Local HTTP implementations may evolve as explicit error-handling and security milestones proceed (MP-043 / MP-049).
+These are regression assertions about the **current local-only demo**, not an internet-facing API SLA. Broader secure-default review remains MP-049.
 
 ## CI-minimization policy
 
@@ -218,6 +221,14 @@ python -m unittest discover -s tests -p 'test_incidents.py' -v
 ```
 
 24 tests check deduplicated incidents, severity/reason changes, normal recovery versus missing/outlier interruptions, session isolation, schema v2-to-v3 backfill, persistent once-only local review with separate wall UTC, transactional SQLite failure rollback, validated/paginated localhost REST and dashboard packaging/accessibility. Existing migration tests now expect v3. See [ALERT_LIFECYCLE.md](ALERT_LIFECYCLE.md).
+
+## MP-043: API request validation and safe failure semantics
+
+```bash
+python -m unittest discover -s tests -p 'test_api_validation.py' -v
+```
+
+Six loopback tests cover strict JSON parsing, bounded body framing, stable machine-readable error codes, unsupported API methods and rollback/non-mutation under invalid input or SQLite write failure. They preserve the localhost-only architecture and do not add authentication, public binding, remote control or physical-device access.
 
 ## MP-013: historical charts, filters and accessible table
 
