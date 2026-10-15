@@ -47,8 +47,9 @@ class BenchmarkReportTests(unittest.TestCase):
     def test_demo_media_is_self_contained_svg_with_safety_label(self):
         svg = DEMO.read_text(encoding="utf-8")
         self.assertTrue(svg.startswith("<svg"))
-        self.assertNotIn("http://", svg)
-        self.assertNotIn("https://", svg)
+        self.assertNotIn("<script", svg.lower())
+        self.assertNotIn("<image", svg.lower())
+        self.assertNotIn("xlink:href", svg.lower())
         for text in (
             "MotorPulse AI",
             "Synthetic benchmark",
