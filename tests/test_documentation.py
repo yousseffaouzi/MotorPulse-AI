@@ -1,4 +1,7 @@
-"""MP-047 documentation contracts for the public contributor surface."""
+"""MP-047 documentation contracts for the public contributor surface.
+
+These tests pin implemented entry points and safety boundaries, not prose style.
+"""
 
 from __future__ import annotations
 
