@@ -1,0 +1,44 @@
+name: MP-045 bounded source patch
+
+on:
+  push:
+    branches: [chore/mp-045-quality-gates]
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: chore/mp-045-quality-gates
+      - name: Apply exact invalid-escape fixes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          expected = {
+              "motorpulse/calibration.py": 4,
+              "motorpulse/comparison.py": 6,
+              "motorpulse/evaluation.py": 4,
+              "motorpulse/rul_research.py": 2,
+          }
+          needle = chr(92) + "`"
+          for filename, count in expected.items():
+              path = Path(filename)
+              text = path.read_text(encoding="utf-8")
+              actual = text.count(needle)
+              if actual != count:
+                  raise SystemExit(f"{filename}: expected {count} escaped backticks, found {actual}")
+              path.write_text(text.replace(needle, "`"), encoding="utf-8")
+          PY
+          git diff --check
+          git diff --exit-code --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add motorpulse/calibration.py motorpulse/comparison.py motorpulse/evaluation.py motorpulse/rul_research.py
+          git commit -m "fix(mp-045): eliminate supported-Python syntax warnings"
+          git push origin HEAD:chore/mp-045-quality-gates
