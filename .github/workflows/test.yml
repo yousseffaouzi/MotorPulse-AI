@@ -59,7 +59,7 @@ jobs:
           fi
           mapfile -t files < <(
             git diff --name-only --diff-filter=ACMRT "$base" "$head" -- \
-              'motorpulse/*.py' 'tests/*.py'
+              'motorpulse/*.py' 'tests/*.py' 'scripts/*.py'
           )
           if [ "${#files[@]}" -eq 0 ]; then
             echo "No changed Python files require lint/format checks."
@@ -79,3 +79,14 @@ jobs:
           python-version: '3.13'
       - name: Enforce reviewed dependency policy
         run: python -m unittest discover -s tests -p 'test_dependency_policy.py' -v
+
+  fresh-clone:
+    name: Fresh-clone reproducibility
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Install, run, export, and evaluate from clean checkout
+        run: python scripts/fresh_clone_smoke.py
