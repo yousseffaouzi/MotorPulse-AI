@@ -9,6 +9,9 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 CARD_PATH = ROOT / "docs" / "MODEL_CARDS.md"
 
+# These assertions pin published claims to implemented baseline contracts; they do
+# not turn synthetic regression evidence into real-machine validation.
+
 
 class ModelCardDocumentationTests(unittest.TestCase):
     def test_canonical_model_card_document_exists(self):
