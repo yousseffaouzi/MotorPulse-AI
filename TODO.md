@@ -61,6 +61,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - MP-045 implemented: PR/manual quality gates now run the full **466-test** standard-library suite across Python 3.11/3.12/3.13 with `SyntaxWarning` promoted to an error. Pinned Ruff 0.17.0 checks correctness rules `E4`/`E7`/`E9`/`F` plus formatter compliance on changed Python, and a fail-closed dependency policy preserves zero runtime/optional dependencies plus the reviewed build requirements. GitHub's Dependency Review action was evaluated but is unavailable while the repository Dependency graph is disabled. GitHub Actions run `38772141714` passed all matrix, lint/format and dependency-policy gates.
 
+- MP-046 implemented: a dedicated clean-checkout Python 3.13 acceptance job creates an isolated temporary virtual environment, installs with the documented editable path, runs the installed loopback app from outside the checkout, exports three deterministic synthetic runs, builds the whole-run split, trains the healthy-only baseline and evaluates the held-out test partition. `PYTHONPATH` and user-site leakage are disabled; no IMS/external dataset or hardware is used. GitHub Actions run `38773979137` passed the fresh-clone job plus the 466-test 3.11/3.12/3.13 matrix, lint/format and dependency policy.
+
 ## Milestone 0 — Existing proof of concept
 
 | ID | Status | Priority | Task | Acceptance evidence |
@@ -144,7 +146,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 |---|---|---|---|---|
 | MP-015 | TODO | P2 | Demo video and benchmark report | Dated metrics, reproducible commands and linked demo media |
 | MP-045 | DONE | P1 | Expanded quality gates | Lint/format, dependency reviews, API and integration tests, supported Python matrix |
-| MP-046 | TODO | P1 | Fresh-clone reproducibility test | Install, run, export and evaluate from written instructions |
+| MP-046 | DONE | P1 | Fresh-clone reproducibility test | Install, run, export and evaluate from written instructions |
 | MP-047 | TODO | P1 | API/configuration/architecture documentation | Updated diagrams, schemas, CLI tutorial and troubleshooting |
 | MP-048 | TODO | P1 | Model cards and failure modes | Source dataset, intended use, validation and limitations for each baseline |
 | MP-049 | TODO | P1 | Secure local-first defaults | Localhost-only; validate file paths/inputs; no unsafe controls or industrial guarantees |

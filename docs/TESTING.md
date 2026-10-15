@@ -20,6 +20,14 @@ The PR/manual workflow runs the complete standard-library `unittest` suite on Py
 
 Implementation evidence: GitHub Actions run `38772141714` — 466/466 tests passed on Python 3.11, 3.12 and 3.13; changed-code lint/format and dependency-policy jobs also passed.
 
+## MP-046: fresh-clone reproducibility
+
+`scripts/fresh_clone_smoke.py` is a standard-library acceptance harness for the written contributor path. A dedicated Python 3.13 CI job starts from the clean Actions checkout, creates a new temporary virtual environment, installs the checkout in editable mode, removes `PYTHONPATH`, disables user-site imports, and executes installed commands from outside the source tree. It verifies both module/console entry points, a real paused loopback server (`/api/health` plus packaged dashboard), three deterministic synthetic JSONL exports, the whole-run split, healthy-only anomaly training, and held-out `test` evaluation with provenance hashes and synthetic-only Markdown wording.
+
+This job is intentionally separate from the 3.11/3.12/3.13 unit-test matrix: the matrix certifies supported Python behavior, while the fresh-clone job proves the documented install/run/export/evaluate workflow without tripling packaging work. It uses no IMS archive, external dataset, sensor, cloud service, or physical equipment.
+
+Implementation evidence: GitHub Actions run `38773979137` passed all six jobs. The fresh-clone log reported `MP-046 install: ok`, `local server: ok`, `synthetic export: ok`, `held-out evaluation: ok`, and `MP-046 fresh-clone reproducibility: PASS`; the unchanged 466-test suite also passed on Python 3.11, 3.12 and 3.13, with lint/format and dependency policy green.
+
 For MP-035 portable JSON model artifacts, strict save/load and source validation:
 
 ```bash
