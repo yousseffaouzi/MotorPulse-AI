@@ -16,11 +16,4 @@ jobs:
         with:
           python-version: '3.12'
       - name: Run unit tests
-        run: python -m unittest discover -s tests -v 2>&1 | tee unittest.log; test ${PIPESTATUS[0]} -eq 0
-      - name: Upload diagnostic test log
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: unittest-log
-          path: unittest.log
-          retention-days: 1
+        run: python -m unittest discover -s tests -v
