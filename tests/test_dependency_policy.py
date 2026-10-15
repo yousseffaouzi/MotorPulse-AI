@@ -1,4 +1,5 @@
 """MP-045: fail-closed dependency policy for the local-first package."""
+
 from __future__ import annotations
 
 from pathlib import Path

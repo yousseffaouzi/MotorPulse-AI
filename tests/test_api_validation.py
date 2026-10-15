@@ -1,4 +1,5 @@
 """MP-043: request validation, stable errors and safe failure semantics."""
+
 from __future__ import annotations
 
 from http.client import HTTPConnection
@@ -45,10 +46,15 @@ class ApiValidationHardeningTests(unittest.TestCase):
 
     def json_request(self, method, path, body):
         raw = json.dumps(body, separators=(",", ":")).encode("utf-8")
-        return self.raw_request(method, path, raw, {
-            "Content-Type": "application/json",
-            "Content-Length": str(len(raw)),
-        })
+        return self.raw_request(
+            method,
+            path,
+            raw,
+            {
+                "Content-Type": "application/json",
+                "Content-Length": str(len(raw)),
+            },
+        )
 
     def assert_json_error(self, result, status, code):
         actual, raw, headers = result
@@ -69,63 +75,111 @@ class ApiValidationHardeningTests(unittest.TestCase):
             b'{"action":-Infinity}',
         ):
             with self.subTest(raw=raw):
-                result = self.raw_request("POST", "/api/control", raw, {
-                    "Content-Type": "application/json",
-                    "Content-Length": str(len(raw)),
-                })
+                result = self.raw_request(
+                    "POST",
+                    "/api/control",
+                    raw,
+                    {
+                        "Content-Type": "application/json",
+                        "Content-Length": str(len(raw)),
+                    },
+                )
                 self.assert_json_error(result, 400, "invalid_json")
                 self.assertEqual(self.server.controller.snapshot(), baseline)
 
     def test_excessive_json_nesting_fails_closed_as_invalid_json(self):
         baseline = self.server.controller.snapshot()
         raw = b"[" * 1100 + b"0" + b"]" * 1100
-        result = self.raw_request("POST", "/api/control", raw, {
-            "Content-Type": "application/json",
-            "Content-Length": str(len(raw)),
-        })
+        result = self.raw_request(
+            "POST",
+            "/api/control",
+            raw,
+            {
+                "Content-Type": "application/json",
+                "Content-Length": str(len(raw)),
+            },
+        )
         self.assert_json_error(result, 400, "invalid_json")
         self.assertEqual(self.server.controller.snapshot(), baseline)
 
-    def test_pathological_content_length_is_bounded_without_integer_conversion_error(self):
+    def test_pathological_content_length_is_bounded_without_integer_conversion_error(
+        self,
+    ):
         baseline = self.server.controller.snapshot()
-        result = self.raw_request("POST", "/api/control", headers={
-            "Content-Type": "application/json",
-            "Content-Length": "9" * 5000,
-        })
+        result = self.raw_request(
+            "POST",
+            "/api/control",
+            headers={
+                "Content-Type": "application/json",
+                "Content-Length": "9" * 5000,
+            },
+        )
         self.assert_json_error(result, 413, "invalid_request_size")
         self.assertEqual(self.server.controller.snapshot(), baseline)
 
     def test_common_request_and_route_errors_have_stable_machine_codes(self):
         self.assert_json_error(
-            self.raw_request("POST", "/api/control", b"{}", {
-                "Content-Type": "text/plain", "Content-Length": "2",
-            }), 415, "unsupported_media_type")
+            self.raw_request(
+                "POST",
+                "/api/control",
+                b"{}",
+                {
+                    "Content-Type": "text/plain",
+                    "Content-Length": "2",
+                },
+            ),
+            415,
+            "unsupported_media_type",
+        )
         self.assert_json_error(
-            self.raw_request("POST", "/api/control", headers={
-                "Content-Type": "application/json",
-            }), 411, "length_required")
+            self.raw_request(
+                "POST",
+                "/api/control",
+                headers={
+                    "Content-Type": "application/json",
+                },
+            ),
+            411,
+            "length_required",
+        )
         self.assert_json_error(
-            self.raw_request("POST", "/api/control", headers={
-                "Content-Type": "application/json", "Content-Length": "0",
-            }), 413, "invalid_request_size")
+            self.raw_request(
+                "POST",
+                "/api/control",
+                headers={
+                    "Content-Type": "application/json",
+                    "Content-Length": "0",
+                },
+            ),
+            413,
+            "invalid_request_size",
+        )
         self.assert_json_error(
             self.json_request("POST", "/api/control", {}),
-            400, "invalid_control_request")
+            400,
+            "invalid_control_request",
+        )
         self.assert_json_error(
             self.json_request("PUT", "/api/config", {"assets": []}),
-            400, "invalid_configuration")
+            400,
+            "invalid_configuration",
+        )
         self.assert_json_error(
             self.json_request("PUT", "/api/runtime", {"seed": 1}),
-            400, "invalid_runtime_settings")
+            400,
+            "invalid_runtime_settings",
+        )
         self.assert_json_error(
-            self.raw_request("GET", "/api/not-found"),
-            404, "unknown_api_endpoint")
+            self.raw_request("GET", "/api/not-found"), 404, "unknown_api_endpoint"
+        )
 
         self.json_request("POST", "/api/control", {"action": "start"})
         try:
             self.assert_json_error(
                 self.json_request("POST", "/api/control", {"action": "step"}),
-                409, "control_conflict")
+                409,
+                "control_conflict",
+            )
         finally:
             self.json_request("POST", "/api/control", {"action": "pause"})
 
@@ -133,8 +187,8 @@ class ApiValidationHardeningTests(unittest.TestCase):
         for method in ("DELETE", "PATCH", "OPTIONS"):
             with self.subTest(method=method):
                 self.assert_json_error(
-                    self.raw_request(method, "/api/status"),
-                    404, "unknown_api_endpoint")
+                    self.raw_request(method, "/api/status"), 404, "unknown_api_endpoint"
+                )
 
         status, raw, headers = self.raw_request("HEAD", "/api/status")
         self.assertEqual(status, 404)
@@ -145,7 +199,8 @@ class ApiValidationHardeningTests(unittest.TestCase):
     def test_persistence_failure_returns_stable_503_without_state_advance(self):
         with TemporaryDirectory() as temp:
             server = MotorPulseServer(
-                ("127.0.0.1", 0), autostart=False,
+                ("127.0.0.1", 0),
+                autostart=False,
                 database_path=Path(temp) / "history.sqlite3",
             )
             thread = Thread(target=server.serve_forever, daemon=True)
