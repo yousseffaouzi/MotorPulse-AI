@@ -1,0 +1,86 @@
+name: MP-046 docs finalizer
+
+on:
+  push:
+    branches: [test/mp-046-fresh-clone]
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: test/mp-046-fresh-clone
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Record verified MP-046 evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+
+          install = Path('docs/INSTALL.md')
+          text = install.read_text()
+          anchor = ('Run `python -m motorpulse` or `motorpulse-ai`, then open '
+                    '`http://127.0.0.1:8765`. Use Ctrl+C to stop. The HTTP server '
+                    'remains bound to **127.0.0.1**, not `0.0.0.0`. **Do not '
+                    'port-forward the app or connect real equipment.**\n')
+          section = '''\n## MP-046 automated fresh-clone acceptance\n\nThe PR/manual quality workflow includes a dedicated **Fresh-clone reproducibility** job on Python 3.13. From a clean GitHub Actions checkout it runs `python scripts/fresh_clone_smoke.py`. The script creates a separate temporary virtual environment, performs the documented `python -m pip install -e .`, removes `PYTHONPATH`, disables user-site imports, and then runs the installed application and data commands from a temporary working directory outside the checkout.\n\nTo run the same acceptance path yourself from a clean clone:\n\n```bash\npython scripts/fresh_clone_smoke.py\n```\n\nThe check starts the installed app paused on `127.0.0.1:8765`, verifies `/api/health` and the packaged dashboard, stops it, exports three synthetic JSONL runs with seeds 11/22/33 and 30 ticks, creates the documented whole-run split, trains the healthy-only anomaly baseline, and evaluates the held-out `test` partition. It verifies output/provenance hashes and the synthetic-only limitation. It never downloads IMS or another external dataset, contacts non-loopback services at runtime, or connects physical equipment. Build isolation may still need access to the build-time setuptools/wheel requirements declared in `pyproject.toml`.\n'''
+          if text.count(anchor) != 1 or '## MP-046 automated fresh-clone acceptance' in text:
+              raise SystemExit('unexpected INSTALL anchor/state')
+          install.write_text(text.replace(anchor, anchor + section, 1))
+
+          testing = Path('docs/TESTING.md')
+          text = testing.read_text()
+          anchor = ('Implementation evidence: GitHub Actions run `38772141714` — '
+                    '466/466 tests passed on Python 3.11, 3.12 and 3.13; '
+                    'changed-code lint/format and dependency-policy jobs also passed.\n')
+          section = '''\n## MP-046: fresh-clone reproducibility\n\n`scripts/fresh_clone_smoke.py` is a standard-library acceptance harness for the written contributor path. A dedicated Python 3.13 CI job starts from the clean Actions checkout, creates a new temporary virtual environment, installs the checkout in editable mode, removes `PYTHONPATH`, disables user-site imports, and executes installed commands from outside the source tree. It verifies both module/console entry points, a real paused loopback server (`/api/health` plus packaged dashboard), three deterministic synthetic JSONL exports, the whole-run split, healthy-only anomaly training, and held-out `test` evaluation with provenance hashes and synthetic-only Markdown wording.\n\nThis job is intentionally separate from the 3.11/3.12/3.13 unit-test matrix: the matrix certifies supported Python behavior, while the fresh-clone job proves the documented install/run/export/evaluate workflow without tripling packaging work. It uses no IMS archive, external dataset, sensor, cloud service, or physical equipment.\n\nImplementation evidence: GitHub Actions run `38773979137` passed all six jobs. The fresh-clone log reported `MP-046 install: ok`, `local server: ok`, `synthetic export: ok`, `held-out evaluation: ok`, and `MP-046 fresh-clone reproducibility: PASS`; the unchanged 466-test suite also passed on Python 3.11, 3.12 and 3.13, with lint/format and dependency policy green.\n'''
+          if text.count(anchor) != 1 or '## MP-046: fresh-clone reproducibility' in text:
+              raise SystemExit('unexpected TESTING anchor/state')
+          testing.write_text(text.replace(anchor, anchor + section, 1))
+
+          todo = Path('TODO.md')
+          text = todo.read_text()
+          anchor = ('- MP-045 implemented: PR/manual quality gates now run the full '
+                    '**466-test** standard-library suite across Python 3.11/3.12/3.13 '
+                    'with `SyntaxWarning` promoted to an error. Pinned Ruff 0.17.0 '
+                    'checks correctness rules `E4`/`E7`/`E9`/`F` plus formatter '
+                    'compliance on changed Python, and a fail-closed dependency policy '
+                    'preserves zero runtime/optional dependencies plus the reviewed build '
+                    'requirements. GitHub\'s Dependency Review action was evaluated but is '
+                    'unavailable while the repository Dependency graph is disabled. GitHub '
+                    'Actions run `38772141714` passed all matrix, lint/format and '
+                    'dependency-policy gates.\n')
+          bullet = ('\n- MP-046 implemented: a dedicated clean-checkout Python 3.13 acceptance job '
+                    'creates an isolated temporary virtual environment, installs with the '
+                    'documented editable path, runs the installed loopback app from outside '
+                    'the checkout, exports three deterministic synthetic runs, builds the '
+                    'whole-run split, trains the healthy-only baseline and evaluates the '
+                    'held-out test partition. `PYTHONPATH` and user-site leakage are '
+                    'disabled; no IMS/external dataset or hardware is used. GitHub Actions '
+                    'run `38773979137` passed the fresh-clone job plus the 466-test '
+                    '3.11/3.12/3.13 matrix, lint/format and dependency policy.\n')
+          if text.count(anchor) != 1 or '- MP-046 implemented:' in text:
+              raise SystemExit('unexpected TODO baseline anchor/state')
+          text = text.replace(anchor, anchor + bullet, 1)
+
+          old_row = '| MP-046 | TODO | P1 | Fresh-clone reproducibility test | Install, run, export and evaluate from written instructions |'
+          new_row = '| MP-046 | DONE | P1 | Fresh-clone reproducibility test | Install, run, export and evaluate from written instructions |'
+          if text.count(old_row) != 1:
+              raise SystemExit('unexpected MP-046 tracker row')
+          todo.write_text(text.replace(old_row, new_row, 1))
+          PY
+          git diff --check
+          rm .github/workflows/mp046-docs-finalize.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/INSTALL.md docs/TESTING.md TODO.md .github/workflows/mp046-docs-finalize.yml
+          git diff --cached --check
+          git commit -m 'docs(mp-046): record fresh-clone evidence'
+          git push
