@@ -87,8 +87,11 @@ def _validate_export(folder: Path) -> Path:
     if not manifest.is_file() or not events.is_file() or events.stat().st_size == 0:
         raise RuntimeError(f"synthetic export is incomplete: {folder.name}")
     payload = json.loads(manifest.read_text(encoding="utf-8"))
-    if payload.get("source") != "synthetic":
-        raise RuntimeError(f"unexpected export source in {manifest}")
+    if (
+        payload.get("dataset_type") != "synthetic_motor_feature_events"
+        or payload.get("synthetic_only") is not True
+    ):
+        raise RuntimeError(f"unexpected export provenance in {manifest}")
     return manifest
 
 
