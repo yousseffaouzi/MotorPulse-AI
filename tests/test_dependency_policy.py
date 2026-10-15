@@ -1,4 +1,8 @@
-"""MP-045: fail-closed dependency policy for the local-first package."""
+"""MP-045: fail-closed dependency policy for the local-first package.
+
+This executable policy remains available when GitHub Dependency Review cannot run
+because the repository Dependency graph is disabled.
+"""
 
 from __future__ import annotations
 
