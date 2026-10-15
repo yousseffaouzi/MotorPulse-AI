@@ -65,6 +65,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - MP-047 implemented: added a consolidated localhost API reference, end-to-end CLI tutorial covering every installed console command, dedicated troubleshooting guide, refreshed online/offline architecture diagrams, and clarified local-file versus HTTP/runtime configuration boundaries. Five documentation-contract tests pin README navigation, routes/limits, CLI coverage, diagrams and failure surfaces. GitHub Actions run `38775790658` passed **471/471** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility; no runtime behavior or hardware/public-network capability was added.
 
+- MP-048 implemented: added canonical model cards for the fixed illustrative rules and the healthy-trained synthetic anomaly detector, including source data, intended use, exact input/output contracts, held-out validation evidence, failure modes and prohibited claims. Five documentation-contract tests pin rule thresholds/sensor abstentions, the five-feature healthy-only whole-run anomaly method and training-only 99th-percentile cutoff, and the explicit no-RUL-model boundary. GitHub Actions run `38819182967` passed **476/476** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility; no model behavior or industrial claims changed.
+
 ## Milestone 0 — Existing proof of concept
 
 | ID | Status | Priority | Task | Acceptance evidence |
@@ -150,7 +152,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-045 | DONE | P1 | Expanded quality gates | Lint/format, dependency reviews, API and integration tests, supported Python matrix |
 | MP-046 | DONE | P1 | Fresh-clone reproducibility test | Install, run, export and evaluate from written instructions |
 | MP-047 | DONE | P1 | API/configuration/architecture documentation | Updated diagrams, schemas, CLI tutorial and troubleshooting |
-| MP-048 | TODO | P1 | Model cards and failure modes | Source dataset, intended use, validation and limitations for each baseline |
+| MP-048 | DONE | P1 | Model cards and failure modes | Source dataset, intended use, validation and limitations for each baseline |
 | MP-049 | TODO | P1 | Secure local-first defaults | Localhost-only; validate file paths/inputs; no unsafe controls or industrial guarantees |
 | MP-050 | TODO | P2 | Community and issue templates | Issue/PR templates, contributor instructions and beginner tasks |
 | MP-051 | TODO | P2 | Tag a usable release | SemVer, CHANGELOG, reproducible demo and honest release caveats |
