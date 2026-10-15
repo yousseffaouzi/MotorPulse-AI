@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Generate the dated MP-015 synthetic benchmark Markdown and SVG demo card.
 
 The generator runs the existing MP-033 experiment CLI with a fixed local config,
@@ -9,13 +8,13 @@ standard library and creates new outputs exclusively; it never downloads data.
 from __future__ import annotations
 
 import argparse
-from datetime import date
-from html import escape
 import json
 import os
-from pathlib import Path
 import subprocess
 import sys
+from datetime import date
+from html import escape
+from pathlib import Path
 from tempfile import TemporaryDirectory
 
 
@@ -132,9 +131,11 @@ def _partition_section(title: str, report: dict) -> list[str]:
         f"- Whole-run evaluated groups: `{', '.join(report['evaluated_groups'])}`",
         f"- Eligible good-sensor windows: {cohort['eligible_both_methods']} / {cohort['total_windows']}",
         f"- Sensor abstentions: `{json.dumps(cohort['abstentions'], sort_keys=True)}`",
-        f"- Synthetic fault episodes: {episodes['total']} total; model detected "
-        f"{episodes['detected']}, missed {episodes['missed']}; mean delay "
-        f"{_format(episodes['mean_delay_seconds'])} simulated seconds",
+        (
+            f"- Synthetic fault episodes: {episodes['total']} total; model detected "
+            f"{episodes['detected']}, missed {episodes['missed']}; mean delay "
+            f"{_format(episodes['mean_delay_seconds'])} simulated seconds"
+        ),
         "",
         *_metric_table(report),
         "",
