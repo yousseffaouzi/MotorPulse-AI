@@ -47,8 +47,8 @@ class ModelCardDocumentationTests(unittest.TestCase):
             "`rms_g >= 0.20`",
             "`rms_g >= 0.55`",
             "`temperature_c >= 92.0`",
-            "sensor_quality=\"missing\"",
-            "sensor_quality=\"outlier\"",
+            'sensor_quality="missing"',
+            'sensor_quality="outlier"',
             "not trained",
         ):
             with self.subTest(contract=contract):
@@ -65,7 +65,7 @@ class ModelCardDocumentationTests(unittest.TestCase):
             "`rpm`",
             "whole_run_grouped",
             "healthy",
-            "sensor_quality=\"good\"",
+            'sensor_quality="good"',
             "99th percentile",
             "`score > threshold`",
             "MP-011",
