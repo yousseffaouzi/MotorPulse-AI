@@ -152,7 +152,9 @@ class SecurityBoundaryTests(unittest.TestCase):
         ):
             with self.subTest(term=term):
                 self.assertIn(term, lower)
-        self.assertIn("docs/SECURITY.md", (ROOT / "README.md").read_text(encoding="utf-8"))
+        self.assertIn(
+            "docs/SECURITY.md", (ROOT / "README.md").read_text(encoding="utf-8")
+        )
 
 
 if __name__ == "__main__":
