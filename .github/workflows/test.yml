@@ -45,12 +45,13 @@ jobs:
       - name: Ruff format check
         run: ruff format --check motorpulse tests
 
-  dependency-review:
-    name: Dependency review
-    if: github.event_name == 'pull_request'
+  dependency-policy:
+    name: Dependency policy
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/dependency-review-action@v5
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Enforce reviewed dependency policy
+        run: python -m unittest discover -s tests -p 'test_dependency_policy.py' -v
