@@ -59,6 +59,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - MP-043 implemented: strict localhost API request parsing now rejects duplicate JSON object keys, non-standard JSON constants and excessive nesting; safely bounds pathological `Content-Length` values before integer conversion; gives generic API 400/404/409/503 and request-framing errors stable machine-readable codes; and returns consistent JSON semantics for unsupported API methods while preserving static-file behavior and established history/incident codes. Six regression tests cover non-mutation, rollback-safe persistence failures and path redaction; the full Python 3.12 CI suite passes **464 tests**. No authentication, public-network exposure or physical equipment control was added.
 
+- MP-045 implemented: PR/manual quality gates now run the full **466-test** standard-library suite across Python 3.11/3.12/3.13 with `SyntaxWarning` promoted to an error. Pinned Ruff 0.17.0 checks correctness rules `E4`/`E7`/`E9`/`F` plus formatter compliance on changed Python, and a fail-closed dependency policy preserves zero runtime/optional dependencies plus the reviewed build requirements. GitHub's Dependency Review action was evaluated but is unavailable while the repository Dependency graph is disabled. GitHub Actions run `38772141714` passed all matrix, lint/format and dependency-policy gates.
+
 ## Milestone 0 — Existing proof of concept
 
 | ID | Status | Priority | Task | Acceptance evidence |
@@ -141,7 +143,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | ID | Status | Priority | Task | Acceptance evidence |
 |---|---|---|---|---|
 | MP-015 | TODO | P2 | Demo video and benchmark report | Dated metrics, reproducible commands and linked demo media |
-| MP-045 | TODO | P1 | Expanded quality gates | Lint/format, dependency reviews, API and integration tests, supported Python matrix |
+| MP-045 | DONE | P1 | Expanded quality gates | Lint/format, dependency reviews, API and integration tests, supported Python matrix |
 | MP-046 | TODO | P1 | Fresh-clone reproducibility test | Install, run, export and evaluate from written instructions |
 | MP-047 | TODO | P1 | API/configuration/architecture documentation | Updated diagrams, schemas, CLI tutorial and troubleshooting |
 | MP-048 | TODO | P1 | Model cards and failure modes | Source dataset, intended use, validation and limitations for each baseline |
