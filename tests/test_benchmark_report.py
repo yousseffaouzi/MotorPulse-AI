@@ -14,6 +14,9 @@ DEMO = ROOT / "docs" / "demo" / "benchmark-summary.svg"
 GENERATOR = ROOT / "scripts" / "generate_benchmark_report.py"
 BENCHMARK_DATE = "2026-10-15"
 
+# The committed snapshot is generated on Python 3.13 only. All supported
+# runtimes still validate its static claims; 3.13 additionally proves exact bytes.
+
 
 class BenchmarkReportTests(unittest.TestCase):
     def test_report_generator_and_demo_media_are_linked(self):
