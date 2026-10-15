@@ -1,0 +1,74 @@
+name: MP-048 docs finalizer
+
+on:
+  push:
+    branches: [docs/mp-048-model-cards]
+    paths:
+      - .github/workflows/mp048-docs-finalize.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: docs/mp-048-model-cards
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Record verified MP-048 evidence
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          testing = Path('docs/TESTING.md')
+          text = testing.read_text(encoding='utf-8')
+          old = 'The suite contains **471 standard-library unittest test cases**'
+          new = 'The suite contains **476 standard-library unittest test cases**'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected one TESTING count anchor, got {text.count(old)}')
+          text = text.replace(old, new, 1)
+          old = '2 dependency-policy tests from MP-045, and 5 documentation-contract tests from MP-047).'
+          new = '2 dependency-policy tests from MP-045, 5 documentation-contract tests from MP-047, and 5 model-card documentation tests from MP-048).'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected one TESTING inventory anchor, got {text.count(old)}')
+          text = text.replace(old, new, 1)
+          anchor = 'Implementation evidence: GitHub Actions run `38775790658` passed all six quality jobs. The complete suite ran **471/471** on Python 3.11, 3.12 and 3.13; changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green.\n'
+          section = '''\n## MP-048: baseline model cards and failure modes\n\nFive standard-library contracts in `tests/test_model_cards.py` pin the canonical `docs/MODEL_CARDS.md` surface. The document has separate cards for the fixed illustrative rule baseline and the healthy-trained synthetic anomaly baseline; each records source data, intended use, inputs/outputs, validation evidence, failure modes, limitations and prohibited claims. Exact rule thresholds, sensor-quality abstentions, the five-feature anomaly contract, whole-run healthy-only training, the training-only 99th-percentile threshold and strict `score > threshold` decision are tied to implemented behavior.\n\nThe cards explicitly distinguish reproducibility/integrity evidence from physical validity and state that MotorPulse AI has **no RUL model**: MP-039 is metadata-only research/audit methodology and produces no predictions. No runtime model behavior, real-data redistribution, hardware access or industrial claims were added.\n\nImplementation evidence: GitHub Actions run `38819182967` passed all six quality jobs. The complete suite ran **476/476** on Python 3.11, 3.12 and 3.13; changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green.\n'''
+          if text.count(anchor) != 1:
+              raise SystemExit(f'expected one MP-047 evidence anchor, got {text.count(anchor)}')
+          text = text.replace(anchor, anchor + section, 1)
+          testing.write_text(text, encoding='utf-8')
+
+          todo = Path('TODO.md')
+          text = todo.read_text(encoding='utf-8')
+          anchor = '- MP-047 implemented: added a consolidated localhost API reference, end-to-end CLI tutorial covering every installed console command, dedicated troubleshooting guide, refreshed online/offline architecture diagrams, and clarified local-file versus HTTP/runtime configuration boundaries. Five documentation-contract tests pin README navigation, routes/limits, CLI coverage, diagrams and failure surfaces. GitHub Actions run `38775790658` passed **471/471** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility; no runtime behavior or hardware/public-network capability was added.\n'
+          bullet = '\n- MP-048 implemented: added canonical model cards for the fixed illustrative rules and the healthy-trained synthetic anomaly detector, including source data, intended use, exact input/output contracts, held-out validation evidence, failure modes and prohibited claims. Five documentation-contract tests pin rule thresholds/sensor abstentions, the five-feature healthy-only whole-run anomaly method and training-only 99th-percentile cutoff, and the explicit no-RUL-model boundary. GitHub Actions run `38819182967` passed **476/476** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility; no model behavior or industrial claims changed.\n'
+          if text.count(anchor) != 1:
+              raise SystemExit(f'expected one MP-047 TODO anchor, got {text.count(anchor)}')
+          text = text.replace(anchor, anchor + bullet, 1)
+          old = '| MP-048 | TODO | P1 | Model cards and failure modes | Source dataset, intended use, validation and limitations for each baseline |'
+          new = '| MP-048 | DONE | P1 | Model cards and failure modes | Source dataset, intended use, validation and limitations for each baseline |'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected one MP-048 row anchor, got {text.count(old)}')
+          text = text.replace(old, new, 1)
+          todo.write_text(text, encoding='utf-8')
+
+          readme = Path('README.md')
+          text = readme.read_text(encoding='utf-8')
+          old = 'Contributor references: [localhost API](docs/API.md), [CLI tutorial](docs/CLI.md), [troubleshooting](docs/TROUBLESHOOTING.md), [architecture](docs/ARCHITECTURE.md), and [configuration](docs/CONFIG_FILE.md).'
+          new = 'Contributor references: [localhost API](docs/API.md), [CLI tutorial](docs/CLI.md), [troubleshooting](docs/TROUBLESHOOTING.md), [architecture](docs/ARCHITECTURE.md), [configuration](docs/CONFIG_FILE.md), and [baseline model cards](docs/MODEL_CARDS.md).'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected one README navigation anchor, got {text.count(old)}')
+          readme.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+          rm .github/workflows/mp048-docs-finalize.yml
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md TODO.md docs/TESTING.md .github/workflows/mp048-docs-finalize.yml
+          git commit -m 'docs(mp-048): record model-card acceptance evidence'
+          git push origin HEAD:docs/mp-048-model-cards
