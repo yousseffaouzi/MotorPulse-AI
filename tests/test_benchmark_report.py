@@ -16,6 +16,7 @@ BENCHMARK_DATE = "2026-10-15"
 
 # The committed snapshot is generated on Python 3.13 only. All supported
 # runtimes still validate its static claims; 3.13 additionally proves exact bytes.
+# The generated demo is an SVG summary artifact, not a claim that a hosted video exists.
 
 
 class BenchmarkReportTests(unittest.TestCase):
