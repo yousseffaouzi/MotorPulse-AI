@@ -276,7 +276,7 @@ class Handler(SimpleHTTPRequestHandler):
             self._json(
                 400,
                 {
-                    "error": '{"action":"start|pause|step|reset"} is required',
+                    "error": 'Body must be {"action":"start|pause|step|reset"}',
                     "code": "invalid_control_request",
                 },
             )
