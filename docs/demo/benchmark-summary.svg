@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="500" viewBox="0 0 760 500" role="img" aria-labelledby="title desc">
+<title id="title">MotorPulse AI synthetic benchmark summary</title>
+<desc id="desc">Held-out test metrics for the synthetic anomaly model and illustrative rules. Not field performance.</desc>
+<rect width="760" height="500" fill="#ffffff"/>
+<rect x="28" y="28" width="704" height="444" rx="16" fill="#f6f7f9" stroke="#20242a"/>
+<text x="70" y="82" font-size="30" font-weight="700">MotorPulse AI</text>
+<text x="70" y="116" font-size="20">Synthetic benchmark · 2026-10-15</text>
+<text x="70" y="154" font-size="18" font-weight="700">Held-out test</text>
+<text x="70" y="180" font-size="16">Eligible windows: 68 / 72</text>
+<text x="360" y="180" font-size="18" font-weight="700" text-anchor="middle">Model</text>
+<text x="590" y="180" font-size="18" font-weight="700" text-anchor="middle">Rules</text>
+<text x="70" y="220" font-size="20">Precision</text>
+<text x="360" y="220" font-size="20" text-anchor="middle">1</text>
+<text x="590" y="220" font-size="20" text-anchor="middle">1</text>
+<text x="70" y="268" font-size="20">Recall</text>
+<text x="360" y="268" font-size="20" text-anchor="middle">1</text>
+<text x="590" y="268" font-size="20" text-anchor="middle">0.777778</text>
+<text x="70" y="316" font-size="20">F1</text>
+<text x="360" y="316" font-size="20" text-anchor="middle">1</text>
+<text x="590" y="316" font-size="20" text-anchor="middle">0.875</text>
+<text x="70" y="364" font-size="20">FPR</text>
+<text x="360" y="364" font-size="20" text-anchor="middle">0</text>
+<text x="590" y="364" font-size="20" text-anchor="middle">0</text>
+<line x1="70" y1="420" x2="690" y2="420" stroke="#20242a"/>
+<text x="70" y="452" font-size="16" font-weight="700">Not field performance · synthetic-only · no failure probability or RUL</text>
+</svg>

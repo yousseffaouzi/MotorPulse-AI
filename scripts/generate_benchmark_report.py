@@ -17,7 +17,6 @@ from html import escape
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CONFIG = ROOT / "docs" / "examples" / "experiment-v1.json"
 
@@ -39,7 +38,9 @@ def _validated_date(value: str) -> str:
 
 def _ensure_new_output(path: Path) -> None:
     if not path.parent.is_dir() or path.parent.is_symlink():
-        raise ValueError(f"output parent must exist and not be a symlink: {path.parent}")
+        raise ValueError(
+            f"output parent must exist and not be a symlink: {path.parent}"
+        )
     if path.exists() or path.is_symlink():
         raise ValueError(f"output already exists: {path}")
 
@@ -52,7 +53,9 @@ def _run_experiment(config: Path) -> tuple[dict, dict, dict, dict]:
         experiment = root / "experiment"
         env = dict(os.environ)
         previous = env.get("PYTHONPATH")
-        env["PYTHONPATH"] = str(ROOT) if not previous else str(ROOT) + os.pathsep + previous
+        env["PYTHONPATH"] = (
+            str(ROOT) if not previous else str(ROOT) + os.pathsep + previous
+        )
         command = [
             sys.executable,
             "-m",
@@ -240,7 +243,11 @@ def _svg(benchmark_date: str, test: dict) -> str:
         ("Precision", _format(model["precision"]), _format(rules["precision"])),
         ("Recall", _format(model["recall"]), _format(rules["recall"])),
         ("F1", _format(model["f1"]), _format(rules["f1"])),
-        ("FPR", _format(model["false_positive_rate"]), _format(rules["false_positive_rate"])),
+        (
+            "FPR",
+            _format(model["false_positive_rate"]),
+            _format(rules["false_positive_rate"]),
+        ),
     ]
     text_rows = []
     y = 220
@@ -269,7 +276,7 @@ def _svg(benchmark_date: str, test: dict) -> str:
             *text_rows,
             '<line x1="70" y1="420" x2="690" y2="420" stroke="#20242a"/>',
             '<text x="70" y="452" font-size="16" font-weight="700">Not field performance · synthetic-only · no failure probability or RUL</text>',
-            '</svg>',
+            "</svg>",
             "",
         ]
     )
@@ -311,10 +318,7 @@ def main() -> None:
             raise
     except (OSError, ValueError, RuntimeError, KeyError, TypeError) as exc:
         parser.error(str(exc))
-    print(
-        "Generated synthetic-only MP-015 benchmark: "
-        f"{args.markdown} and {args.svg}"
-    )
+    print(f"Generated synthetic-only MP-015 benchmark: {args.markdown} and {args.svg}")
 
 
 if __name__ == "__main__":

@@ -8,7 +8,6 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-
 ROOT = Path(__file__).resolve().parents[1]
 REPORT = ROOT / "docs" / "BENCHMARK.md"
 DEMO = ROOT / "docs" / "demo" / "benchmark-summary.svg"
@@ -63,7 +62,9 @@ class BenchmarkReportTests(unittest.TestCase):
 
     def test_python_313_regeneration_matches_committed_artifacts(self):
         if sys.version_info[:2] != (3, 13):
-            self.skipTest("committed MP-015 snapshot is generated and verified on Python 3.13")
+            self.skipTest(
+                "committed MP-015 snapshot is generated and verified on Python 3.13"
+            )
         with TemporaryDirectory() as temp:
             root = Path(temp)
             markdown = root / "BENCHMARK.md"
