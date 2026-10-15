@@ -10,7 +10,47 @@ From the repository root, using Python 3.11 or later and **no third-party packag
 python -m unittest discover -s tests -v
 ```
 
-The suite contains **458 standard-library unittest test cases** (64 through MP-021, 4 packaging smoke tests from MP-022, 13 spectral/rolling checks from MP-023, 9 JSON/CLI startup tests from MP-024, 11 sensor/operating tests from MP-025, 7 model-reference regression tests from MP-026, 12 export/manifest regression tests from MP-008, 10 offline source-card/provenance checks from MP-027, 15 offline local IMS-style parser tests from MP-009, 18 IMS report/normalization tests and 6 native-tone tests from MP-028, 18 exploratory report/CLI regression tests from MP-029, 16 whole-run/chronological split tests from MP-030, 16 dataset-card/provenance/CLI tests from MP-032, 19 trained-anomaly/sensor-gating/split-leakage tests from MP-010, 21 held-out detection/report tests from MP-011, 16 reproducible experiment/CLI tests from MP-033, 19 feature/temporal-leakage tests from MP-034, and 19 portable model-artifact/integrity/CLI tests from MP-035, and 8 robustness-stress/provenance/output tests from MP-036, and 13 comparison/explanation/integrity/CLI tests from MP-037, and 13 validation-calibration/ties/leakage/CLI tests from MP-038, and 18 RUL evidence/censoring/asset-leakage/audit CLI tests from MP-039, and 19 SQLite session/migration/restart/atomicity/HTTP tests from MP-012, and 21 historical REST/UTC/pagination/error tests from MP-040, and 13 runtime seed/dual-clock/UI atomicity tests from MP-041, and 16 history chart/SQLite/frontend rendering tests from MP-013, and 24 synthetic incident lifecycle/migration/review/UI tests from MP-042). MP-021 was exercised locally with Python 3.13; the GitHub Actions workflow can be run manually or on PRs against `main` with Python 3.12. Other versions are not yet verified in this milestone. No test connects to real sensors or external services.
+The suite contains **482 standard-library unittest test cases** (64 through MP-021, 4 packaging smoke tests from MP-022, 13 spectral/rolling checks from MP-023, 9 JSON/CLI startup tests from MP-024, 11 sensor/operating tests from MP-025, 7 model-reference regression tests from MP-026, 12 export/manifest regression tests from MP-008, 10 offline source-card/provenance checks from MP-027, 15 offline local IMS-style parser tests from MP-009, 18 IMS report/normalization tests and 6 native-tone tests from MP-028, 18 exploratory report/CLI regression tests from MP-029, 16 whole-run/chronological split tests from MP-030, 16 dataset-card/provenance/CLI tests from MP-032, 19 trained-anomaly/sensor-gating/split-leakage tests from MP-010, 21 held-out detection/report tests from MP-011, 16 reproducible experiment/CLI tests from MP-033, 19 feature/temporal-leakage tests from MP-034, and 19 portable model-artifact/integrity/CLI tests from MP-035, and 8 robustness-stress/provenance/output tests from MP-036, and 13 comparison/explanation/integrity/CLI tests from MP-037, and 13 validation-calibration/ties/leakage/CLI tests from MP-038, and 18 RUL evidence/censoring/asset-leakage/audit CLI tests from MP-039, and 19 SQLite session/migration/restart/atomicity/HTTP tests from MP-012, and 21 historical REST/UTC/pagination/error tests from MP-040, and 13 runtime seed/dual-clock/UI atomicity tests from MP-041, and 16 history chart/SQLite/frontend rendering tests from MP-013, 24 synthetic incident lifecycle/migration/review/UI tests from MP-042, 6 API validation/error/rollback tests from MP-043, 2 dependency-policy tests from MP-045, 5 documentation-contract tests from MP-047, 5 model-card documentation tests from MP-048, and 6 local-first security tests from MP-049). MP-021 was exercised locally with Python 3.13. The GitHub Actions quality workflow runs manually or on PRs against `main` and executes the complete suite on Python 3.11, 3.12 and 3.13 with `SyntaxWarning` promoted to an error. MP-045 implementation run `38772141714` passed all 466 tests on every supported matrix version, plus the changed-code lint/format and dependency-policy jobs. No test connects to real sensors, physical equipment or external services.
+
+## MP-045: expanded quality gates
+
+The PR/manual workflow runs the complete standard-library `unittest` suite on Python 3.11, 3.12 and 3.13 with `SyntaxWarning` promoted to an error. A pinned Ruff 0.17.0 gate checks correctness rules `E4`, `E7`, `E9` and `F` plus formatter compliance for Python files changed relative to the PR base (or the `main` merge base for manual runs). This is an incremental gate; it does not claim that unchanged legacy code is clean under every Ruff rule.
+
+`tests/test_dependency_policy.py` provides a fail-closed dependency review for this zero-runtime-dependency project: runtime and optional dependencies must remain empty, and build-system requirements must exactly match the reviewed allowlist. GitHub's Dependency Review action was evaluated first, but CI proved it is unavailable while the repository Dependency graph is disabled; the workflow therefore enforces the project-native policy instead of silently skipping dependency review.
+
+Implementation evidence: GitHub Actions run `38772141714` — 466/466 tests passed on Python 3.11, 3.12 and 3.13; changed-code lint/format and dependency-policy jobs also passed.
+
+## MP-046: fresh-clone reproducibility
+
+`scripts/fresh_clone_smoke.py` is a standard-library acceptance harness for the written contributor path. A dedicated Python 3.13 CI job starts from the clean Actions checkout, creates a new temporary virtual environment, installs the checkout in editable mode, removes `PYTHONPATH`, disables user-site imports, and executes installed commands from outside the source tree. It verifies both module/console entry points, a real paused loopback server (`/api/health` plus packaged dashboard), three deterministic synthetic JSONL exports, the whole-run split, healthy-only anomaly training, and held-out `test` evaluation with provenance hashes and synthetic-only Markdown wording.
+
+This job is intentionally separate from the 3.11/3.12/3.13 unit-test matrix: the matrix certifies supported Python behavior, while the fresh-clone job proves the documented install/run/export/evaluate workflow without tripling packaging work. It uses no IMS archive, external dataset, sensor, cloud service, or physical equipment.
+
+Implementation evidence: GitHub Actions run `38773979137` passed all six jobs. The fresh-clone log reported `MP-046 install: ok`, `local server: ok`, `synthetic export: ok`, `held-out evaluation: ok`, and `MP-046 fresh-clone reproducibility: PASS`; the unchanged 466-test suite also passed on Python 3.11, 3.12 and 3.13, with lint/format and dependency policy green.
+
+## MP-047: API, configuration and architecture documentation
+
+Five standard-library documentation-contract tests in `tests/test_documentation.py` keep the contributor documentation tied to the implemented public surface. They verify README navigation, the complete localhost route table and MP-043 request limits, coverage of every installed console script, current online/offline architecture diagrams and safety boundaries, and the distinct startup-file versus HTTP configuration/error surfaces.
+
+The consolidated entry points are `docs/API.md`, `docs/CLI.md`, `docs/TROUBLESHOOTING.md`, the refreshed `docs/ARCHITECTURE.md`, and the refreshed `docs/CONFIG_FILE.md`. Specialist guides remain the detailed source for telemetry, scenarios, history, incidents, research splits/models and local-only IMS handling. These docs make no field-validation, public-deployment, physical-control or RUL claims.
+
+Implementation evidence: GitHub Actions run `38775790658` passed all six quality jobs. The complete suite ran **471/471** on Python 3.11, 3.12 and 3.13; changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green.
+
+## MP-048: baseline model cards and failure modes
+
+Five standard-library contracts in `tests/test_model_cards.py` pin the canonical `docs/MODEL_CARDS.md` surface. The document has separate cards for the fixed illustrative rule baseline and the healthy-trained synthetic anomaly baseline; each records source data, intended use, inputs/outputs, validation evidence, failure modes, limitations and prohibited claims. Exact rule thresholds, sensor-quality abstentions, the five-feature anomaly contract, whole-run healthy-only training, the training-only 99th-percentile threshold and strict `score > threshold` decision are tied to implemented behavior.
+
+The cards explicitly distinguish reproducibility/integrity evidence from physical validity and state that MotorPulse AI has **no RUL model**: MP-039 is metadata-only research/audit methodology and produces no predictions. No runtime model behavior, real-data redistribution, hardware access or industrial claims were added.
+
+Implementation evidence: GitHub Actions run `38819182967` passed all six quality jobs. The complete suite ran **476/476** on Python 3.11, 3.12 and 3.13; changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green.
+
+## MP-049: secure local-first defaults
+
+Six standard-library regressions in `tests/test_security.py` pin the local-only security boundary. `MotorPulseServer` now refuses non-loopback bind addresses before socket creation and validates ports before superclass initialization; HTTP requests require exactly one local `Host` header (`127.0.0.1` or `localhost`, optionally with a valid port). Startup scenario files reject symlinked files and symlinked parent components, matching the project's existing local-path hardening.
+
+The CLI still exposes no bind-address override, unknown hardware/PLC-style control actions remain invalid synthetic control requests, and `docs/SECURITY.md` documents the unauthenticated loopback threat model, 16,384-byte HTTP JSON limit, 65,536-byte startup-config limit, symlink rules, no PLC/remote control, and no industrial safety guarantee. These are local research-tool safeguards, not authorization for network exposure.
+
+Implementation evidence: GitHub Actions run `38820601629` passed all six quality jobs. The complete suite ran **482/482** on Python 3.11, 3.12 and 3.13; changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green.
 
 For MP-035 portable JSON model artifacts, strict save/load and source validation:
 
@@ -149,9 +189,10 @@ For focused API regression tests:
 
 ```bash
 python -m unittest discover -s tests -p 'test_contracts.py' -v
+python -m unittest discover -s tests -p 'test_api_validation.py' -v
 ```
 
-These integration tests bind an ephemeral `127.0.0.1` port and automatically shut down the server and simulation worker. They do not require the interactive dashboard to be running.
+These integration tests bind an ephemeral `127.0.0.1` port and automatically shut down the server and simulation worker. MP-043 coverage additionally rejects duplicate JSON keys, non-standard numeric constants, excessive nesting and pathological Content-Length values; checks stable machine-readable API errors and unsupported-method handling; and verifies bad requests or persistence failures do not advance live state. They do not require the interactive dashboard to be running.
 
 ## Coverage by contract
 
@@ -160,21 +201,23 @@ These integration tests bind an ephemeral `127.0.0.1` port and automatically shu
 | Telemetry v1 | Required JSON fields, optional scenario/ramp metadata, canonical units, UTC timestamp, compatibility of older fixture | `test_schema.py`, `test_contracts.py` |
 | Simulation | Deterministic seed, signals, scenario onset/ramp/expiration, virtual-clock replay | `test_sim.py`, `test_clock.py`, `test_signals.py`, `test_scenarios.py`, `test_progression.py`, `test_contracts.py` |
 | API read | Health, status, config, snapshots, JSON headers and no-state-change on repeated GETs | `test_controller.py`, `test_contracts.py` |
-| API controls | Pause/start/step/reset, conflict when stepping while running, multiple concurrent requests | `test_controller.py`, `test_contracts.py` |
-| Request validation | Malformed/invalid JSON, wrong Content-Type, missing/invalid/oversized Content-Length, unknown API paths and wrong route/method combinations | `test_scenarios.py`, `test_controller.py`, `test_contracts.py` |
-| Atomic configuration | Invalid profiles leave snapshot unchanged; accepted profile replay identical after reset | `test_scenarios.py`, `test_progression.py`, `test_contracts.py` |
+| API controls | Pause/start/step/reset, conflict when stepping while running, multiple concurrent requests | `test_controller.py`, `test_contracts.py`, `test_api_validation.py` |
+| Request validation | Malformed/invalid JSON, duplicate keys, non-standard constants, nesting/body bounds, wrong Content-Type, missing/invalid/oversized Content-Length, stable error codes, unknown API paths and wrong/unsupported methods | `test_scenarios.py`, `test_controller.py`, `test_contracts.py`, `test_api_validation.py` |
+| Atomic configuration | Invalid profiles leave snapshot unchanged; accepted profile replay identical after reset | `test_scenarios.py`, `test_progression.py`, `test_contracts.py`, `test_api_validation.py` |
 | Browser smoke | Root page served with basic control elements, scenario and progression editor hooks | `test_contracts.py` |
 
 ### Expected response behavior (current local demo)
 
 - `GET /api/health`, `GET /api/status`, `GET /api/snapshot`, `GET /api/config`: `200` with JSON. Only explicit control actions advance simulation ticks.
-- `POST /api/control`: `200` for accepted start/pause/step/reset; `409` when stepping while running; `400` for invalid action/request.
-- `PUT /api/config`: `200` for valid replacements and atomic paused reset; `400` for invalid configs.
-- JSON request bodies have a **16384-byte maximum**; `415` for unsupported Content-Type, `411` for missing/malformed Content-Length, `413` for empty/oversized JSON body.
-- Unknown `/api/` paths, and POST/PUT on the wrong endpoint, currently return `404` JSON errors.
+- `POST /api/control`: `200` for accepted start/pause/step/reset; `409` with `control_conflict` when stepping while running; `400` with `invalid_control_request` for invalid action/request.
+- `PUT /api/config`: `200` for valid replacements and atomic paused reset; `400` with `invalid_configuration` for invalid configs.
+- `PUT /api/runtime`: `200` for valid atomic runtime edits; `400` with `invalid_runtime_settings` for invalid settings.
+- JSON request bodies have a **16384-byte maximum**; `415` with `unsupported_media_type` for unsupported Content-Type, `411` with `length_required` for missing/malformed Content-Length, `413` with `invalid_request_size` for empty/oversized JSON body, and `400` with `invalid_json` for malformed, duplicate-key, non-standard-number or excessively nested JSON.
+- Unknown `/api/` paths and unsupported API route/method combinations return `404` with `unknown_api_endpoint`; API `HEAD` retains HEAD semantics with JSON headers and no body.
+- Generic SQLite write failures return `503` with `persistence_unavailable` without exposing local filesystem paths; established history and incident lifecycle error codes remain unchanged.
 - JSON responses include `Cache-Control: no-store` and `X-Content-Type-Options: nosniff`.
 
-These are regression assertions about the **current demo**, not an internet-facing API SLA. Local HTTP implementations may evolve as explicit error-handling and security milestones proceed (MP-043 / MP-049).
+These are regression assertions about the **current local-only demo**, not an internet-facing API SLA. Broader secure-default review remains MP-049.
 
 ## CI-minimization policy
 
@@ -218,6 +261,14 @@ python -m unittest discover -s tests -p 'test_incidents.py' -v
 ```
 
 24 tests check deduplicated incidents, severity/reason changes, normal recovery versus missing/outlier interruptions, session isolation, schema v2-to-v3 backfill, persistent once-only local review with separate wall UTC, transactional SQLite failure rollback, validated/paginated localhost REST and dashboard packaging/accessibility. Existing migration tests now expect v3. See [ALERT_LIFECYCLE.md](ALERT_LIFECYCLE.md).
+
+## MP-043: API request validation and safe failure semantics
+
+```bash
+python -m unittest discover -s tests -p 'test_api_validation.py' -v
+```
+
+Six loopback tests cover strict JSON parsing, bounded body framing, stable machine-readable error codes, unsupported API methods and rollback/non-mutation under invalid input or SQLite write failure. They preserve the localhost-only architecture and do not add authentication, public binding, remote control or physical-device access.
 
 ## MP-013: historical charts, filters and accessible table
 
