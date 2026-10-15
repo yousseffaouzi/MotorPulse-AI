@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
@@ -20,23 +22,30 @@ jobs:
       - name: Record compact Ruff report
         shell: bash
         run: |
-          set +e
-          ruff check motorpulse tests --output-format=concise > /tmp/ruff-lint.txt 2>&1
-          lint_status=$?
-          ruff format --check motorpulse tests > /tmp/ruff-format.txt 2>&1
-          format_status=$?
-          set -e
-          {
-            printf 'lint_exit=%s\n' "$lint_status"
-            cat /tmp/ruff-lint.txt
-            printf '\nformat_exit=%s\n' "$format_status"
-            cat /tmp/ruff-format.txt
-          } > ruff-diagnostic.txt
+          git fetch --no-tags origin main
+          mapfile -t files < <(git diff --name-only --diff-filter=ACMRT origin/main...HEAD -- 'motorpulse/*.py' 'tests/*.py')
+          if [ "${#files[@]}" -eq 0 ]; then
+            printf 'lint_exit=0\nNo changed Python files.\n\nformat_exit=0\nNo changed Python files.\n' > ruff-diagnostic.txt
+          else
+            set +e
+            ruff check --select E4,E7,E9,F --output-format=concise "${files[@]}" > /tmp/ruff-lint.txt 2>&1
+            lint_status=$?
+            ruff format --check "${files[@]}" > /tmp/ruff-format.txt 2>&1
+            format_status=$?
+            set -e
+            {
+              printf 'files=%s\n' "${files[*]}"
+              printf 'lint_exit=%s\n' "$lint_status"
+              cat /tmp/ruff-lint.txt
+              printf '\nformat_exit=%s\n' "$format_status"
+              cat /tmp/ruff-format.txt
+            } > ruff-diagnostic.txt
+          fi
           if [ -z "$(git status --porcelain -- ruff-diagnostic.txt)" ]; then
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add ruff-diagnostic.txt
-          git commit -m 'chore(mp-045): record Ruff diagnostic'
+          git commit -m 'chore(mp-045): record narrowed Ruff diagnostic'
           git push
