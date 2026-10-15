@@ -31,25 +31,26 @@ class DocumentationContractTests(unittest.TestCase):
 
     def test_api_reference_lists_current_http_surface_and_limits(self):
         api = _read(DOCS / "API.md")
-        for contract in (
-            "GET /api/health",
-            "GET /api/snapshot",
-            "GET /api/status",
-            "GET /api/config",
-            "PUT /api/config",
-            "PUT /api/runtime",
-            "POST /api/control",
-            "GET /api/history/sessions",
-            "GET /api/history/snapshots",
-            "GET /api/history/events",
-            "GET /api/history/alerts",
-            "GET /api/history/incidents",
-            "GET /api/history/transitions",
-            "POST /api/incidents/acknowledge",
-            "16384",
-            "64",
-            "unknown_api_endpoint",
-        ):
+        routes = (
+            ("GET", "/api/health"),
+            ("GET", "/api/snapshot"),
+            ("GET", "/api/status"),
+            ("GET", "/api/config"),
+            ("PUT", "/api/config"),
+            ("PUT", "/api/runtime"),
+            ("POST", "/api/control"),
+            ("GET", "/api/history/sessions"),
+            ("GET", "/api/history/snapshots"),
+            ("GET", "/api/history/events"),
+            ("GET", "/api/history/alerts"),
+            ("GET", "/api/history/incidents"),
+            ("GET", "/api/history/transitions"),
+            ("POST", "/api/incidents/acknowledge"),
+        )
+        for method, path in routes:
+            with self.subTest(method=method, path=path):
+                self.assertIn(f"| {method} | `{path}` |", api)
+        for contract in ("16384", "64", "unknown_api_endpoint"):
             with self.subTest(contract=contract):
                 self.assertIn(contract, api)
 
