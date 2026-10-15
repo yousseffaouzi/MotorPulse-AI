@@ -1,0 +1,66 @@
+name: MP-049 docs finalizer
+
+on:
+  push:
+    branches: [fix/mp-049-local-first-security]
+    paths:
+      - .github/workflows/mp049-docs-finalize.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: fix/mp-049-local-first-security
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Record verified MP-049 evidence
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          testing = Path('docs/TESTING.md')
+          text = testing.read_text(encoding='utf-8')
+          old = 'The suite contains **476 standard-library unittest test cases**'
+          new = 'The suite contains **482 standard-library unittest test cases**'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected one TESTING count anchor, got {text.count(old)}')
+          text = text.replace(old, new, 1)
+          old = '5 documentation-contract tests from MP-047, and 5 model-card documentation tests from MP-048).'
+          new = '5 documentation-contract tests from MP-047, 5 model-card documentation tests from MP-048, and 6 local-first security tests from MP-049).'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected one TESTING inventory anchor, got {text.count(old)}')
+          text = text.replace(old, new, 1)
+          anchor = 'Implementation evidence: GitHub Actions run `38819182967` passed all six quality jobs. The complete suite ran **476/476** on Python 3.11, 3.12 and 3.13; changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green.\n'
+          section = '''\n## MP-049: secure local-first defaults\n\nSix standard-library regressions in `tests/test_security.py` pin the local-only security boundary. `MotorPulseServer` now refuses non-loopback bind addresses before socket creation and validates ports before superclass initialization; HTTP requests require exactly one local `Host` header (`127.0.0.1` or `localhost`, optionally with a valid port). Startup scenario files reject symlinked files and symlinked parent components, matching the project's existing local-path hardening.\n\nThe CLI still exposes no bind-address override, unknown hardware/PLC-style control actions remain invalid synthetic control requests, and `docs/SECURITY.md` documents the unauthenticated loopback threat model, 16,384-byte HTTP JSON limit, 65,536-byte startup-config limit, symlink rules, no PLC/remote control, and no industrial safety guarantee. These are local research-tool safeguards, not authorization for network exposure.\n\nImplementation evidence: GitHub Actions run `38820601629` passed all six quality jobs. The complete suite ran **482/482** on Python 3.11, 3.12 and 3.13; changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green.\n'''
+          if text.count(anchor) != 1:
+              raise SystemExit(f'expected one MP-048 evidence anchor, got {text.count(anchor)}')
+          text = text.replace(anchor, anchor + section, 1)
+          testing.write_text(text, encoding='utf-8')
+
+          todo = Path('TODO.md')
+          text = todo.read_text(encoding='utf-8')
+          anchor = '- MP-048 implemented: added canonical model cards for the fixed illustrative rules and the healthy-trained synthetic anomaly detector, including source data, intended use, exact input/output contracts, held-out validation evidence, failure modes and prohibited claims. Five documentation-contract tests pin rule thresholds/sensor abstentions, the five-feature healthy-only whole-run anomaly method and training-only 99th-percentile cutoff, and the explicit no-RUL-model boundary. GitHub Actions run `38819182967` passed **476/476** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility; no model behavior or industrial claims changed.\n'
+          bullet = '\n- MP-049 implemented: enforced loopback-only server construction, exact local Host-header validation, pre-bind port validation with safe failed-construction cleanup, and startup-config rejection of symlinked files/parents. Six security regressions also preserve no bind-address CLI escape hatch and no hardware/PLC control actions; `docs/SECURITY.md` documents the unauthenticated local threat boundary and no industrial safety guarantee. GitHub Actions run `38820601629` passed **482/482** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility; no public-network, authentication, hardware or remote-control capability was added.\n'
+          if text.count(anchor) != 1:
+              raise SystemExit(f'expected one MP-048 TODO anchor, got {text.count(anchor)}')
+          text = text.replace(anchor, anchor + bullet, 1)
+          old = '| MP-049 | TODO | P1 | Secure local-first defaults | Localhost-only; validate file paths/inputs; no unsafe controls or industrial guarantees |'
+          new = '| MP-049 | DONE | P1 | Secure local-first defaults | Localhost-only; validate file paths/inputs; no unsafe controls or industrial guarantees |'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected one MP-049 row anchor, got {text.count(old)}')
+          text = text.replace(old, new, 1)
+          todo.write_text(text, encoding='utf-8')
+          PY
+          rm .github/workflows/mp049-docs-finalize.yml
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add TODO.md docs/TESTING.md .github/workflows/mp049-docs-finalize.yml
+          git commit -m 'docs(mp-049): record security acceptance evidence'
+          git push origin HEAD:fix/mp-049-local-first-security
