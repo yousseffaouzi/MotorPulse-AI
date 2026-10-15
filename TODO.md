@@ -67,6 +67,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - MP-048 implemented: added canonical model cards for the fixed illustrative rules and the healthy-trained synthetic anomaly detector, including source data, intended use, exact input/output contracts, held-out validation evidence, failure modes and prohibited claims. Five documentation-contract tests pin rule thresholds/sensor abstentions, the five-feature healthy-only whole-run anomaly method and training-only 99th-percentile cutoff, and the explicit no-RUL-model boundary. GitHub Actions run `38819182967` passed **476/476** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility; no model behavior or industrial claims changed.
 
+- MP-049 implemented: enforced loopback-only server construction, exact local Host-header validation, pre-bind port validation with safe failed-construction cleanup, and startup-config rejection of symlinked files/parents. Six security regressions also preserve no bind-address CLI escape hatch and no hardware/PLC control actions; `docs/SECURITY.md` documents the unauthenticated local threat boundary and no industrial safety guarantee. GitHub Actions run `38820601629` passed **482/482** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility; no public-network, authentication, hardware or remote-control capability was added.
+
 ## Milestone 0 — Existing proof of concept
 
 | ID | Status | Priority | Task | Acceptance evidence |
@@ -153,7 +155,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-046 | DONE | P1 | Fresh-clone reproducibility test | Install, run, export and evaluate from written instructions |
 | MP-047 | DONE | P1 | API/configuration/architecture documentation | Updated diagrams, schemas, CLI tutorial and troubleshooting |
 | MP-048 | DONE | P1 | Model cards and failure modes | Source dataset, intended use, validation and limitations for each baseline |
-| MP-049 | TODO | P1 | Secure local-first defaults | Localhost-only; validate file paths/inputs; no unsafe controls or industrial guarantees |
+| MP-049 | DONE | P1 | Secure local-first defaults | Localhost-only; validate file paths/inputs; no unsafe controls or industrial guarantees |
 | MP-050 | TODO | P2 | Community and issue templates | Issue/PR templates, contributor instructions and beginner tasks |
 | MP-051 | TODO | P2 | Tag a usable release | SemVer, CHANGELOG, reproducible demo and honest release caveats |
 | MP-052 | TODO | P2 | Optional containerized quick start | Simple Dockerfile/Compose; native Python remains supported |
