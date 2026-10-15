@@ -69,6 +69,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - MP-049 implemented: enforced loopback-only server construction, exact local Host-header validation, pre-bind port validation with safe failed-construction cleanup, and startup-config rejection of symlinked files/parents. Six security regressions also preserve no bind-address CLI escape hatch and no hardware/PLC control actions; `docs/SECURITY.md` documents the unauthenticated local threat boundary and no industrial safety guarantee. GitHub Actions run `38820601629` passed **482/482** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility; no public-network, authentication, hardware or remote-control capability was added.
 
+- MP-015 implemented: added a dated 2026-10-15 synthetic-only benchmark generated from the fixed MP-033 experiment config, with reproducible commands, held-out model-vs-rule metrics/provenance, and linked repo-local self-contained SVG demo media. Four tests pin the report/media contracts and Python 3.13 byte-regenerates both artifacts. GitHub Actions run `38821977822` ran 486 tests across Python 3.11/3.12/3.13 (the single byte-snapshot assertion is skipped by design on 3.11/3.12) plus lint/format, dependency policy and fresh-clone reproducibility; the linked demo media is a generated SVG summary, not a hosted video, and metrics are not field performance.
+
 ## Milestone 0 — Existing proof of concept
 
 | ID | Status | Priority | Task | Acceptance evidence |
@@ -150,7 +152,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 | ID | Status | Priority | Task | Acceptance evidence |
 |---|---|---|---|---|
-| MP-015 | TODO | P2 | Demo video and benchmark report | Dated metrics, reproducible commands and linked demo media |
+| MP-015 | DONE | P2 | Demo video and benchmark report | Dated metrics, reproducible commands and linked demo media |
 | MP-045 | DONE | P1 | Expanded quality gates | Lint/format, dependency reviews, API and integration tests, supported Python matrix |
 | MP-046 | DONE | P1 | Fresh-clone reproducibility test | Install, run, export and evaluate from written instructions |
 | MP-047 | DONE | P1 | API/configuration/architecture documentation | Updated diagrams, schemas, CLI tutorial and troubleshooting |
