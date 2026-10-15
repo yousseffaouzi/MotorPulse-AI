@@ -26,6 +26,18 @@ motorpulse-ai --help
 
 Run `python -m motorpulse` or `motorpulse-ai`, then open `http://127.0.0.1:8765`. Use Ctrl+C to stop. The HTTP server remains bound to **127.0.0.1**, not `0.0.0.0`. **Do not port-forward the app or connect real equipment.**
 
+## MP-046 automated fresh-clone acceptance
+
+The PR/manual quality workflow includes a dedicated **Fresh-clone reproducibility** job on Python 3.13. From a clean GitHub Actions checkout it runs `python scripts/fresh_clone_smoke.py`. The script creates a separate temporary virtual environment, performs the documented `python -m pip install -e .`, removes `PYTHONPATH`, disables user-site imports, and then runs the installed application and data commands from a temporary working directory outside the checkout.
+
+To run the same acceptance path yourself from a clean clone:
+
+```bash
+python scripts/fresh_clone_smoke.py
+```
+
+The check starts the installed app paused on `127.0.0.1:8765`, verifies `/api/health` and the packaged dashboard, stops it, exports three synthetic JSONL runs with seeds 11/22/33 and 30 ticks, creates the documented whole-run split, trains the healthy-only anomaly baseline, and evaluates the held-out `test` partition. It verifies output/provenance hashes and the synthetic-only limitation. It never downloads IMS or another external dataset, contacts non-loopback services at runtime, or connects physical equipment. Build isolation may still need access to the build-time setuptools/wheel requirements declared in `pyproject.toml`.
+
 Without installing, you may still run `python -m motorpulse` from the repository root; this is the supported zero-install development path.
 
 ## Wheel smoke test (independent of the checkout directory)

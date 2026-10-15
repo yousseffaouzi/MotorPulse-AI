@@ -1,6 +1,6 @@
 # MotorPulse AI — Master TODO & Development Roadmap
 
-**Last updated:** 2026-10-14  
+**Last updated:** 2026-10-15  
 **Scope:** Open-source, software-first industrial motor condition monitoring and predictive-maintenance **simulation**. No hardware, PLC control, remote deployment, or operational maintenance decisions in this phase.
 
 ## v1 definition of done
@@ -56,6 +56,12 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-013 implemented: three offline-bundled responsive SVG historical charts for synthetic vibration RMS, temperature and motor RPM using the MP-040 read-only SQLite history API. Accessible session/motor selectors, explicit inclusive virtual UTC bounds, cursor-paged 25/50/100 event pages, quality-gated vibration gaps with no interpolation, and expandable numeric source table. Handles disabled persistence without breaking live controls; manual step and reset/configure events sync charts/session options. Added 16 packaging/HTTP/UI/optional V8 render checks and documented the latest-100-session chooser limit. No measured physical degradation or RUL claims.
 
 - MP-042 implemented: versioned SQLite v3 migration/backfill, per-session/per-asset deduplicated synthetic rule incidents with opened/escalated/deescalated/reasons_changed/resolved/interrupted states and once-only, unauthenticated review labels using distinct wall UTC. Raw telemetry/alert events remain intact, and incident transitions commit atomically with full ticks. Added bounded incidents/transitions REST endpoints, validated POST review and an accessible dashboard incident panel, with 24 new offline lifecycle/HTTP/migration/UI tests. No real machinery alarms, authenticated maintenance signoff, or RUL claims.
+
+- MP-043 implemented: strict localhost API request parsing now rejects duplicate JSON object keys, non-standard JSON constants and excessive nesting; safely bounds pathological `Content-Length` values before integer conversion; gives generic API 400/404/409/503 and request-framing errors stable machine-readable codes; and returns consistent JSON semantics for unsupported API methods while preserving static-file behavior and established history/incident codes. Six regression tests cover non-mutation, rollback-safe persistence failures and path redaction; the full Python 3.12 CI suite passes **464 tests**. No authentication, public-network exposure or physical equipment control was added.
+
+- MP-045 implemented: PR/manual quality gates now run the full **466-test** standard-library suite across Python 3.11/3.12/3.13 with `SyntaxWarning` promoted to an error. Pinned Ruff 0.17.0 checks correctness rules `E4`/`E7`/`E9`/`F` plus formatter compliance on changed Python, and a fail-closed dependency policy preserves zero runtime/optional dependencies plus the reviewed build requirements. GitHub's Dependency Review action was evaluated but is unavailable while the repository Dependency graph is disabled. GitHub Actions run `38772141714` passed all matrix, lint/format and dependency-policy gates.
+
+- MP-046 implemented: a dedicated clean-checkout Python 3.13 acceptance job creates an isolated temporary virtual environment, installs with the documented editable path, runs the installed loopback app from outside the checkout, exports three deterministic synthetic runs, builds the whole-run split, trains the healthy-only baseline and evaluates the held-out test partition. `PYTHONPATH` and user-site leakage are disabled; no IMS/external dataset or hardware is used. GitHub Actions run `38773979137` passed the fresh-clone job plus the 466-test 3.11/3.12/3.13 matrix, lint/format and dependency policy.
 
 ## Milestone 0 — Existing proof of concept
 
@@ -129,7 +135,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-040 | DONE | P1 | History and event REST endpoints | Paginated and filtered reads; documented errors and response schema |
 | MP-041 | DONE | P1 | Simulation controls in UI | Start/pause/reset, seed, scenario, severity, speed; explicit simulated time |
 | MP-042 | DONE | P1 | Explicit alert lifecycle | Transitions, deduplication, reasons, severity and persistence |
-| MP-043 | TODO | P1 | API request validation and errors | Bounds, content types, stable response codes and safe failure modes |
+| MP-043 | DONE | P1 | API request validation and errors | Bounds, content types, stable response codes and safe failure modes |
 | MP-044 | TODO | P2 | Export charts and reports | Download telemetry/evaluation reports labelled as simulation |
 
 **Exit criteria:** A user can control a run, see history and compare model outputs without editing source code.
@@ -139,8 +145,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | ID | Status | Priority | Task | Acceptance evidence |
 |---|---|---|---|---|
 | MP-015 | TODO | P2 | Demo video and benchmark report | Dated metrics, reproducible commands and linked demo media |
-| MP-045 | TODO | P1 | Expanded quality gates | Lint/format, dependency reviews, API and integration tests, supported Python matrix |
-| MP-046 | TODO | P1 | Fresh-clone reproducibility test | Install, run, export and evaluate from written instructions |
+| MP-045 | DONE | P1 | Expanded quality gates | Lint/format, dependency reviews, API and integration tests, supported Python matrix |
+| MP-046 | DONE | P1 | Fresh-clone reproducibility test | Install, run, export and evaluate from written instructions |
 | MP-047 | TODO | P1 | API/configuration/architecture documentation | Updated diagrams, schemas, CLI tutorial and troubleshooting |
 | MP-048 | TODO | P1 | Model cards and failure modes | Source dataset, intended use, validation and limitations for each baseline |
 | MP-049 | TODO | P1 | Secure local-first defaults | Localhost-only; validate file paths/inputs; no unsafe controls or industrial guarantees |
