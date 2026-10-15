@@ -16,6 +16,7 @@ from .sim import DEFAULT_START_TIME_UTC, parse_start_time_utc
 
 ROOT = Path(__file__).resolve().parent / "web"
 MAX_CONTROL_BODY_BYTES = 16384
+MAX_JSON_NESTING = 64
 
 
 def _strict_json_object(pairs: list[tuple[str, object]]) -> dict:
@@ -29,6 +30,18 @@ def _strict_json_object(pairs: list[tuple[str, object]]) -> dict:
 
 def _reject_json_constant(value: str) -> None:
     raise ValueError(f"non-standard JSON constant: {value}")
+
+
+def _validate_json_depth(value: object) -> None:
+    stack = [(value, 1)]
+    while stack:
+        current, depth = stack.pop()
+        if depth > MAX_JSON_NESTING:
+            raise ValueError("JSON nesting limit exceeded")
+        if type(current) is dict:
+            stack.extend((item, depth + 1) for item in current.values())
+        elif type(current) is list:
+            stack.extend((item, depth + 1) for item in current)
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -125,11 +138,13 @@ class Handler(SimpleHTTPRequestHandler):
             })
             return False, None
         try:
-            return True, json.loads(
+            body = json.loads(
                 self.rfile.read(length).decode("utf-8"),
                 object_pairs_hook=_strict_json_object,
                 parse_constant=_reject_json_constant,
             )
+            _validate_json_depth(body)
+            return True, body
         except (ValueError, UnicodeError, RecursionError):
             self._json(400, {"error": "Invalid JSON", "code": "invalid_json"})
             return False, None
