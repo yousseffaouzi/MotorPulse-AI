@@ -53,28 +53,26 @@ class SecurityBoundaryTests(unittest.TestCase):
                 self.fail(f"server boundary accepted unsafe address {address!r}")
 
     def test_host_header_rejects_nonlocal_names(self):
-        conn = HTTPConnection("127.0.0.1", self.port, timeout=3)
-        try:
-            conn.putrequest("GET", "/api/health", skip_host=True)
-            conn.putheader("Host", "attacker.example")
-            conn.endheaders()
-            response = conn.getresponse()
-            payload = json.loads(response.read())
-        finally:
-            conn.close()
-        self.assertEqual(response.status, 400)
-        self.assertEqual(payload["code"], "invalid_host_header")
+        def request_with_hosts(*hosts: str) -> tuple[int, dict]:
+            conn = HTTPConnection("127.0.0.1", self.port, timeout=3)
+            try:
+                conn.putrequest("GET", "/api/health", skip_host=True)
+                for host in hosts:
+                    conn.putheader("Host", host)
+                conn.endheaders()
+                response = conn.getresponse()
+                return response.status, json.loads(response.read())
+            finally:
+                conn.close()
 
-        conn = HTTPConnection("127.0.0.1", self.port, timeout=3)
-        try:
-            conn.putrequest("GET", "/api/health", skip_host=True)
-            conn.putheader("Host", f"localhost:{self.port}")
-            conn.endheaders()
-            response = conn.getresponse()
-            payload = json.loads(response.read())
-        finally:
-            conn.close()
-        self.assertEqual(response.status, 200)
+        for hosts in ((), ("attacker.example",), ("localhost", "127.0.0.1")):
+            with self.subTest(hosts=hosts):
+                status, payload = request_with_hosts(*hosts)
+                self.assertEqual(status, 400)
+                self.assertEqual(payload["code"], "invalid_host_header")
+
+        status, payload = request_with_hosts(f"localhost:{self.port}")
+        self.assertEqual(status, 200)
         self.assertEqual(payload["source"], "simulation")
 
     def test_config_file_rejects_symlinked_paths(self):
