@@ -67,7 +67,9 @@ def load_config_file(path: str | Path) -> tuple[AssetScenario, ...]:
         ) from exc
 
     if len(payload) > MAX_CONFIG_BYTES:
-        raise ValueError(f"configuration file exceeds {MAX_CONFIG_BYTES} bytes: {filepath}")
+        raise ValueError(
+            f"configuration file exceeds {MAX_CONFIG_BYTES} bytes: {filepath}"
+        )
     if not payload:
         raise ValueError(f"configuration file is empty: {filepath}")
     try:
