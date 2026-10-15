@@ -1,5 +1,6 @@
 name: MP-015 benchmark generator
 
+# Branch-only self-removing generator; rerun after lint-only source fixes.
 on:
   push:
     branches: [docs/mp-015-demo-benchmark]
