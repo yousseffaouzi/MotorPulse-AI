@@ -80,6 +80,8 @@ jobs:
       - name: Enforce reviewed dependency policy
         run: python -m unittest discover -s tests -p 'test_dependency_policy.py' -v
 
+  # Supported-version behavior is covered by the matrix above; this heavier
+  # clean-install acceptance runs once on the newest supported Python.
   fresh-clone:
     name: Fresh-clone reproducibility
     runs-on: ubuntu-latest
