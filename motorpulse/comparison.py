@@ -338,9 +338,9 @@ def markdown(report: dict) -> str:
     counts = report["outcome_counts"]
     lines = [
         "# MotorPulse AI — Rules versus trained anomaly model (MP-037)", "",
-        f"**Held-out partition:** {report['partition']} · **Model:** \`{report['model_sha256']}\`",
-        f"**Verified artifact:** \`{report['model_artifact_sha256']}\`",
-        f"**MP-030 split:** \`{report['split_plan_sha256']}\`",
+        f"**Held-out partition:** {report['partition']} · **Model:** `{report['model_sha256']}`",
+        f"**Verified artifact:** `{report['model_artifact_sha256']}`",
+        f"**MP-030 split:** `{report['split_plan_sha256']}`",
         f"**Train-only threshold:** {report['frozen_training_threshold']}", "",
         f"**Same eligible windows:** {report['comparison_cohort']['eligible_both_methods']} / "
         f"{report['comparison_cohort']['total_windows']}; "
@@ -374,7 +374,7 @@ def markdown(report: dict) -> str:
             continue
         for event in sample:
             lines.append(
-                f"- **{event['asset_id']}**, run \`{event['group_id']}\`, tick {event['tick']}: "
+                f"- **{event['asset_id']}**, run `{event['group_id']}`, tick {event['tick']}: "
                 f"effective truth **{event['effective_synthetic_truth']}**, "
                 f"configured **{event['configured_future_or_active_fault']}**; "
                 f"sensor **{event['sensor_quality']}**; "

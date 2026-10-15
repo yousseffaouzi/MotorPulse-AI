@@ -310,7 +310,7 @@ def markdown(report: dict) -> str:
         f"**Data class:** {report['data_class']}",
         f"**Audit status:** {report['status']}",
         "**RUL predictions:** NONE. **Model training authorized:** NO.", "",
-        f"**Protocol SHA-256:** \`{report['protocol_sha256']}\`", "",
+        f"**Protocol SHA-256:** `{report['protocol_sha256']}`", "",
         f"**Trajectories:** {cohort['trajectories']}; "
         f"**observed failures:** {cohort['failure_events']}; "
         f"**right-censored:** {cohort['right_censored']}; "

@@ -418,8 +418,8 @@ def markdown(report: dict) -> str:
     cohort = report["comparison_cohort"]
     overall = report["overall"]
     lines = ["# MotorPulse AI — Held-out synthetic detection evaluation", "",
-             f"**Partition:** {report['partition']} · **Model:** \`{report['trained_model_sha256']}\`",
-             f"**Split:** \`{report['split_plan_sha256']}\`", "",
+             f"**Partition:** {report['partition']} · **Model:** `{report['trained_model_sha256']}`",
+             f"**Split:** `{report['split_plan_sha256']}`", "",
              f"**Eligible windows:** {cohort['eligible_both_methods']} / {cohort['total_windows']}; "
              f"abstentions: {cohort['abstentions']}", "",
              "| Metric | Trained model | Existing rules |",
