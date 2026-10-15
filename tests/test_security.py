@@ -19,6 +19,9 @@ from motorpulse.scenarios import DEFAULT_ASSETS, configuration_dict
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# These regressions pin local-only assumptions; they do not certify MotorPulse
+# for public-network, multi-user, hardware-control, or industrial-safety use.
+
 
 class SecurityBoundaryTests(unittest.TestCase):
     @classmethod
