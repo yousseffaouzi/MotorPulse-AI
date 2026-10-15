@@ -45,6 +45,21 @@ def _validate_json_depth(value: object) -> None:
             stack.extend((item, depth + 1) for item in current)
 
 
+def _valid_local_host_header(value: str) -> bool:
+    host = value.strip()
+    name, separator, port = host.partition(":")
+    if name.lower() not in {"127.0.0.1", "localhost"}:
+        return False
+    if not separator:
+        return True
+    if not port.isascii() or not port.isdecimal():
+        return False
+    normalized = port.lstrip("0") or "0"
+    if normalized == "0" or len(normalized) > 5:
+        return False
+    return len(normalized) < 5 or normalized <= "65535"
+
+
 class Handler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT), **kwargs)
@@ -60,6 +75,23 @@ class Handler(SimpleHTTPRequestHandler):
         if not head_only:
             self.wfile.write(payload)
 
+    def _require_local_host(self, *, head_only: bool = False) -> bool:
+        values = self.headers.get_all("Host", [])
+        if len(values) == 1 and _valid_local_host_header(values[0]):
+            return True
+        if urlsplit(self.path).path.startswith("/api/"):
+            self._json(
+                400,
+                {
+                    "error": "Host header must target localhost",
+                    "code": "invalid_host_header",
+                },
+                head_only=head_only,
+            )
+        else:
+            self.send_error(400, "Invalid Host header")
+        return False
+
     def _unknown_api(self, *, head_only: bool = False) -> None:
         self._json(
             404,
@@ -71,6 +103,8 @@ class Handler(SimpleHTTPRequestHandler):
         )
 
     def do_GET(self):
+        if not self._require_local_host():
+            return
         target = urlsplit(self.path)
         path = target.path
         if path in ROUTES:
@@ -176,6 +210,8 @@ class Handler(SimpleHTTPRequestHandler):
             return False, None
 
     def do_POST(self):
+        if not self._require_local_host():
+            return
         path = urlsplit(self.path).path
         if path not in ("/api/control", "/api/incidents/acknowledge"):
             self._unknown_api()
@@ -240,7 +276,7 @@ class Handler(SimpleHTTPRequestHandler):
             self._json(
                 400,
                 {
-                    "error": 'Body must be {"action":"start|pause|step|reset"}',
+                    "error": '{"action":"start|pause|step|reset"} is required',
                     "code": "invalid_control_request",
                 },
             )
@@ -263,6 +299,8 @@ class Handler(SimpleHTTPRequestHandler):
             self._json(200, result)
 
     def do_PUT(self):
+        if not self._require_local_host():
+            return
         path = urlsplit(self.path).path
         if path not in ("/api/config", "/api/runtime"):
             self._unknown_api()
@@ -296,12 +334,16 @@ class Handler(SimpleHTTPRequestHandler):
             self._json(200, result)
 
     def do_HEAD(self):
+        if not self._require_local_host(head_only=True):
+            return
         if urlsplit(self.path).path.startswith("/api/"):
             self._unknown_api(head_only=True)
         else:
             super().do_HEAD()
 
     def _unsupported_method(self) -> None:
+        if not self._require_local_host():
+            return
         if urlsplit(self.path).path.startswith("/api/"):
             self._unknown_api()
         else:
@@ -332,6 +374,15 @@ class MotorPulseServer(ThreadingHTTPServer):
         assets: tuple[AssetScenario, ...] = DEFAULT_ASSETS,
         database_path: str | Path | None = None,
     ):
+        if not isinstance(server_address, tuple) or len(server_address) != 2:
+            raise ValueError("server address must be ('127.0.0.1', port)")
+        host, port = server_address
+        if host != "127.0.0.1":
+            raise ValueError("MotorPulse server must bind to 127.0.0.1 only")
+        if type(port) is not int or not 0 <= port <= 65535:
+            raise ValueError("server port must be an integer between 0 and 65535")
+
+        self.controller = None
         super().__init__(server_address, Handler)
         try:
             self.controller = SimulationController(
@@ -348,7 +399,9 @@ class MotorPulseServer(ThreadingHTTPServer):
             raise
 
     def server_close(self) -> None:
-        self.controller.close()
+        controller = getattr(self, "controller", None)
+        if controller is not None:
+            controller.close()
         super().server_close()
 
 
