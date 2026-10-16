@@ -52,6 +52,8 @@ python -m motorpulse --seed 42 --start-time-utc 2026-01-01T00:00:00Z --step-seco
 
 See [docs/INSTALL.md](docs/INSTALL.md) for wheel builds, offline options, cross-directory verification, and troubleshooting.
 
+An **optional container** quick start is documented in [docs/CONTAINER.md](docs/CONTAINER.md). The **native Python** workflow above remains the primary supported path, and **No Docker** installation is required to run or develop MotorPulse AI.
+
 Contributor references: [localhost API](docs/API.md), [CLI tutorial](docs/CLI.md), [troubleshooting](docs/TROUBLESHOOTING.md), [architecture](docs/ARCHITECTURE.md), [configuration](docs/CONFIG_FILE.md), [baseline model cards](docs/MODEL_CARDS.md), [local-first security](docs/SECURITY.md), and the [dated synthetic benchmark](docs/BENCHMARK.md).
 
 To **launch with a saved motor configuration**, e.g. a reproducible progressive-fault demo:
