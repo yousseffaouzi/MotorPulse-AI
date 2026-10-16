@@ -1,48 +1,137 @@
 # Architecture — MotorPulse AI
 
-## Stage 0 (implemented)
+MotorPulse AI is a **local-first synthetic motor monitoring and predictive-maintenance research lab**. It combines a deterministic online simulator/dashboard with an offline reproducible research toolchain. The project is intentionally software-only: **No hardware control**, PLC communication, remote actuation, production alarm handling, or validated field diagnostics are implemented.
 
-A deterministic synthetic plant starts with three configured motor assets and generates one 1024-sample, 1024 Hz synthetic acceleration window per asset on each virtual tick. Standard-library feature functions produce time- and frequency-domain summaries, with explicit sensor-quality status and non-ML health rules. The demo classifier uses explicit thresholds and explanatory reasons. A localhost-only HTTP server exposes JSON and static UI. MP-017 introduces a thread-safe simulator controller with an independent timed worker, cached read-only snapshots, and Start/Pause/Step/Reset actions. Dashboard polling no longer advances the simulator. MP-018 now provides deterministic simulated UTC timestamps and replayable resets, independent of wall-clock scheduling. MP-019 adds a separately testable acceleration waveform generator, RPM-linked shaft harmonics, 1-second sampling windows, and synthetic fault impulses. MP-007 adds immutable validated per-asset scenarios, severity-scaled synthetic fault signatures, a scheduled onset/finite duration and an atomic in-memory configuration API. MP-020 adds deterministic configurable linear/exponential severity ramps, fault phase metadata and a configured trajectory preview in the dashboard. Optional MP-012 SQLite v2 synthetic telemetry and rule-alert persistence is implemented with transactional ticks and session identity. MP-022 now packages the flat-layout Python modules and `motorpulse/web/index.html` in a setuptools wheel; the localhost HTTP server loads its dashboard relative to the installed module location. MP-023 adds a pure-Python FFT spectral feature stage and in-memory per-asset five-tick rolling means. MP-024 adds a bounded UTF-8 JSON startup loader that validates motor scenarios before opening a localhost socket, and CLI controls for paused startup/port selection. It uses the same `parse_configuration` contract as the in-memory API. MP-025 adds seeded operational speed/load variability and sensor-quality events to the same per-asset configuration. Missing/outlier vibration blocks normal machine assessment while keeping ground-truth machine fault labels separate. The API still serves the cached features without mutating simulation state; MP-012 optionally persists feature snapshots and rule-alert events when a local database path is supplied, but never raw waveforms. The offline MP-008 export CLI independently replays the same simulated ticks to generate files; it is not a database or part of the running HTTP server. MP-026 consolidates model equations, numeric coefficients, physical units, and non-goals in [MODEL_ASSUMPTIONS.md](MODEL_ASSUMPTIONS.md). A synthetic-only trained anomaly baseline (MP-010) and optional local SQLite feature history (MP-012) are implemented; neither is a validated physical fault predictor.
+The runtime has zero third-party Python dependencies. Build/quality tooling is separate from runtime requirements.
 
-## Stage 1 (planned)
+## Architectural boundaries
 
-The v1 JSON snapshot/event feature schema and deterministic scenario library already exist. MP-008 now provides **CSV/JSONL synthetic feature-event export**, a source/config-hashed reproducible export identity, validated tick bounds, safe new-directory writes, and per-file SHA-256 provenance. Raw waveform export and globally unique run/session IDs remain separate work. MP-027 has completed the **metadata-level** IMS provenance and licensing review in [DATA_PROVENANCE.md](DATA_PROVENANCE.md); **dataset-specific redistribution and derivative rights remain unresolved**, and original/processed third-party data must not be bundled. See [DATASET.md](DATASET.md). Keep samples and aggregate features separately for efficiency and traceability.
+Three boundaries are intentionally kept separate:
 
-## Stage 2 (planned)
+1. **Online synthetic simulation** — an in-process deterministic simulator, controller, optional local SQLite history, localhost JSON API, and packaged browser dashboard.
+2. **Offline research pipeline** — deterministic synthetic exports and optional inspection of user-provided local IMS-style files, followed by provenance-aware splitting, model fitting, held-out evaluation and reports.
+3. **Third-party/physical world** — no automatic dataset download, no real sensors, no PLCs/actuators, no cloud prerequisite, and no supported public-network deployment.
 
-MP-009 now provides a **bounded local-only IMS-style ASCII inspector** operating on user-supplied, already-extracted files, preserving test-set/run/channel/timestamp keys and leaving unverified bearing mapping, timezone, physical units, onset and RUL unknown. It is not connected to the synthetic classifier or live HTTP server. See [IMS_INGESTION.md](IMS_INGESTION.md). MP-028 adds offline native-unit validation, chronological and checksum checks, quality flags, a user-chosen native-rate Hann tone estimate (no resampling), and guarded training-only normalization using whole, disjoint runs. See [IMS_VALIDATION.md](IMS_VALIDATION.md). MP-029 adds [reproducible exploratory reports](EDA.md) to the offline toolchain, keeping synthetic truth separate from unknown experimental per-window labels. It verifies synthetic file checksums, preserves native IMS unit/timezone uncertainty, and records per-group descriptive distributions and bounded trend samples. MP-030 adds [split planning](SPLITS.md) using **entire complete source runs** (all channels/assets/timestamps per run), duplicate-record checks, deterministic label-blind train/validation/test allocation, and purged **synthetic-only** chronological windows. This generates plan metadata, **not** a fitted model or physical fault predictions. MP-032 adds packaged [dataset cards](DATASET_CARDS.md), distinguishing synthetic run truth from original IMS provenance and unverified measurement/rights claims. Local run cards bind known export or inspection digests but never embed third-party waveform data. MP-010 adds the first [trained healthy-only synthetic anomaly baseline](ANOMALY_BASELINE.md), with a fixed five-feature allowlist, training-only population normalization and a training-quantile decision threshold. The fitted model refuses unverified source/group plans and never fits on validation/test measurements or real IMS records. Rule outputs are displayed separately; there is **no physical failure-probability or RUL interpretation**. MP-011 adds [held-out synthetic evaluation](EVALUATION.md) on verified whole-run test groups. It freezes MP-010 model parameters and thresholds, compares against existing rules on identical sensor-good windows, computes event-level confusion counts and PR average precision, and records scripted synthetic fault-episode detection delay. No physical predictive maintenance, RUL or hardware accuracy is claimed. MP-033 adds a strict [one-command offline synthetic experiment runner](EXPERIMENTS.md), orchestrating source exports, dataset cards, whole-run splits, training-only model fitting and frozen held-out validation/test reports. Artifact SHA-256 identities are stable except that raw exporter manifests keep their truthful wall-clock creation time (omitted from semantic manifest fingerprints). MP-034 adds [train-only feature processing](FEATURE_PIPELINE.md), enforcing the five-feature sampling/rolling contract and embedding training-group, source-data and fitted-parameter SHA-256 provenance in the model. Both preview scoring and held-out evaluation verify the preprocessing record, and synthetic chronological purge boundaries are independently checked. MP-035 adds [strict versioned JSON model artifacts](MODEL_ARTIFACTS.md) containing frozen fitted feature preprocessing and complete source/split/dataset-card digests. Loaded artifacts are checked against real local manifests and plan before evaluation; MP-033 now saves and reloads one per experiment. No arbitrary code execution, pickle, real IMS redistribution or physical failure-probability claim. Next: cross-regime synthetic robustness tests, rules-vs-ML explanations and uncertainty-aware benchmarking. Never assume IMS waveforms use the synthetic 1024 Hz schema. No upstream archive or derived waveforms may be committed until rights are verified. Do not claim remaining useful life accuracy without validation.
+A model/report produced by the offline pipeline is not loaded into the live dashboard as a physical failure predictor. The live rule health classes remain transparent synthetic demo rules.
 
-## Stage 3 (planned)
+## Online simulator, API, persistence and dashboard
 
-SQLite v2 persistence is now opt-in (MP-012): local sessions/snapshots/telemetry/alerts are stored transactionally with indexed, bounded reads. Introduce MP-040 history/event REST endpoints, MP-013 dashboard historical charts and optionally streaming later. Move from a single-process demo to a separately deployed API worker only when workload requires it. If Supabase is added, keep it optional rather than a precondition for contributors.
+```mermaid
+flowchart LR
+    Browser[Packaged browser dashboard] -->|poll/control on 127.0.0.1| HTTP[__main__.py localhost HTTP handler]
+    HTTP --> Controller[controller.py\nSimulationController]
+    Controller --> Sim[sim.py\ndeterministic synthetic motors]
+    Sim --> Signals[signals.py + spectral.py\n1024 Hz / 1024 sample windows]
+    Signals --> Rules[transparent synthetic health rules]
+    Controller --> Snapshot[cached snapshot/status/config]
+    Snapshot --> HTTP
+    Controller -->|optional transactional ticks| SQLite[(SQLite v3\nsessions + snapshots + events + alerts + incidents)]
+    HTTP -->|read-only bounded history| History[history_api.py]
+    History --> SQLite
+    HTTP -->|once-only local review annotation| SQLite
+```
 
-## Current non-goals
+The HTTP server is `ThreadingHTTPServer` bound to **127.0.0.1**. Browser polling reads cached snapshots and never advances the simulator. The controller owns the timed worker and synchronization: Start resumes automatic ticks, Pause freezes, Step creates exactly one tick while paused, and Reset deterministically recreates tick 1 from the current seed/clock/configuration.
 
-- No ESP32, Raspberry Pi, accelerometers or telemetry gateways.
-- No production alarms or maintenance work-order automation.
-- No cloud deployment, remote control or PLC communications.
-- No claims that synthetic anomaly detection equals predictive maintenance.
+Virtual acquisition time and wall-clock scheduling are deliberately separate. A vibration window remains 1024 samples at 1024 Hz (one nominal second), while `step_seconds` controls labelled virtual time between ticks and `interval_seconds` controls requested real worker cadence.
 
-## Security
+### Configuration and runtime state
 
-Demo bound to `127.0.0.1` only. Do not port-forward. Authentication, authorization, rate limiting and audit trails are future prerequisites for any network-facing installation.
+There are two mutation contracts:
 
-## MP-012 runtime persistence boundary
+- **Asset configuration**: `GET /api/config` and `PUT /api/config` use one `{ "assets": [...] }` scenario schema. `--config FILE` loads that same schema before the server opens its socket. Scenario/fault/operation rules live in `scenarios.py`, [SCENARIOS.md](SCENARIOS.md), [PROGRESSION.md](PROGRESSION.md), and [OPERATIONS.md](OPERATIONS.md).
+- **Runtime seed/clocks**: `PUT /api/runtime` changes the deterministic seed, virtual tick step, and wall worker interval while preserving the asset scenarios and virtual epoch. See [RUNTIME_CONTROLS.md](RUNTIME_CONTROLS.md).
 
-[SQLite history](SQLITE_HISTORY.md) is created only via an explicit local --database path. Controller writes serialized complete simulator ticks atomically and only publishes a new in-memory snapshot once its persistence transaction has committed. A reset, scenario replacement or process restart receives a distinct session UUID, so reproducible event IDs remain stable while historic recordings do not collide. Background errors pause automatic advancement. Schema upgrades from 1→2 are transactional; future/foreign schema is rejected. The MP-040 read-only localhost history REST adapter now validates and maps bounded parameterized queries to the same SQLite repository. Deduplicated alert lifecycle remains separate MP-042 work. Stored rule warnings are illustrative simulation events, not validated physical failure predictions.
+Both runtime mutations validate a candidate before live state changes. When SQLite persistence is enabled, the new initial snapshot/session is committed before the controller publishes the new in-memory state; failures preserve the previous live state.
 
-## MP-040 read-only historical REST boundary
+### Strict localhost API boundary
 
-[History API](HISTORY_API.md) provides four GET endpoints on the optional MP-012 SQLite history: sessions, snapshots, per-motor events and rule alerts. Requests enforce strict query allowlists, 1–100 result pages and resource-specific row-ID cursors, exact UTC acquisition timestamp filtering and source/motor filters. The adapter never invokes a simulator step, never updates the original model or rule decisions, and returns consistent 400/409/503 errors without exposing SQL/path details. No field sensors, cloud backend or remote access are supported.
+`motorpulse/__main__.py` exposes live/config/control routes plus the MP-040/MP-042 history/incident routes. Mutation bodies are JSON-only, limited to 16,384 bytes, reject duplicate keys/non-standard constants and cap parsed nesting at 64. Unknown API routes/methods return stable machine-readable error codes. The consolidated contract is [API.md](API.md).
 
-## MP-042 persistent synthetic incident lifecycle
+The history adapter in **history_api.py** is read-only with respect to simulation state. It validates a maximum 2048-byte query, exact allowlisted fields, 1–100 row pages, newest-first row-ID cursors, UTC filters, and source/session/asset filters before calling the controller's parameterized SQLite repository methods.
 
-MP-042 extends the SQLite schema to v3 with a deterministic reducer from per-asset telemetry to session-scoped rule incidents and transitions. Opening/escalation/deescalation, reason updates, good-sensor resolution and bad-sensor interruption are committed in the same transaction as snapshots and raw rule-alert rows. Historical v2 files are backfilled without overwriting original evidence. A localhost read-only incident API, explicit unauthenticated reviewer action and bounded accessible incident UI surface this synthetic metadata; they are not operational motor alarms. See [ALERT_LIFECYCLE.md](ALERT_LIFECYCLE.md).
+### SQLite v3 persistence
 
-## MP-013 historical presentation layer
+Persistence is opt-in via `--database PATH.sqlite3`. Without it, the live demo stays memory-only.
 
-The dashboard now bundles a zero-dependency `motorpulse/web/history.js` script (included in the Python wheel). It reads only the bounded localhost MP-040 sessions/events API, filters by source session, motor and virtual UTC time, and draws three accessible SVG summary trends with a numerical table. The browser never reads the SQLite file directly, mutates the simulated clock, interpolates missing/suspect vibration windows or assigns RUL/physical fault predictions. History needs opt-in MP-012 storage; all previous memory-only live controls remain usable. See [HISTORICAL_DASHBOARD.md](HISTORICAL_DASHBOARD.md).
+A successful persisted tick commits the snapshot, per-asset telemetry, raw rule-alert rows, incident reductions/transitions and session linkage transactionally before the controller publishes the tick. Reset, asset-config changes, runtime changes and process restart create distinct session identities so recordings are not silently merged.
 
-## MP-041 dashboard runtime control boundary
+SQLite v3 adds deterministic synthetic incident lifecycle state on top of existing history. Incidents are derived from stored synthetic rule evidence; reviewer acknowledgements are once-only local annotations and are not authenticated identities or maintenance approvals. See [SQLITE_HISTORY.md](SQLITE_HISTORY.md), [HISTORY_API.md](HISTORY_API.md), and [ALERT_LIFECYCLE.md](ALERT_LIFECYCLE.md).
 
-The [runtime controls](RUNTIME_CONTROLS.md) use the existing localhost-only controller. PUT /api/runtime strictly validates a bounded deterministic seed and separate virtual microsecond step and real worker interval before replacing a paused tick-1 simulator. When SQLite is on, the new first tick is committed as a new distinct session before memory changes; failed writes preserve old runtime state. Status GET reports the active seed, virtual time step and real scheduling interval without advancing the generator. Existing scenario editor provides synthetic RPM variation, load, faults and severity, and the UI highlights that these are simulation inputs rather than physical motor controls. Historical charts and rule-alert lifecycle remain separate MP-013/MP-042 projects.
+## Offline synthetic research pipeline
+
+```mermaid
+flowchart LR
+    Config[Strict local synthetic config] --> Export[motorpulse-export\nchecksummed run manifests]
+    Export --> Cards[dataset cards + source provenance]
+    Cards --> Split[motorpulse-split\nwhole-run train/validation/test]
+    Split --> Train[motorpulse-anomaly\nhealthy-only train groups]
+    Train --> Artifact[strict JSON model artifact\nfrozen preprocessing + hashes]
+    Artifact --> Eval[motorpulse-evaluate\nheld-out validation/test]
+    Eval --> Compare[rule/model comparison\ncalibration + robustness reports]
+    Export --> Experiment[motorpulse-experiment]
+    Experiment --> Split
+    Experiment --> Train
+    Experiment --> Eval
+    IMS[User-provided local IMS-style files] --> Inspect[bounded local inspect/validate/EDA]
+    Inspect --> Metadata[provenance/quality metadata only]
+```
+
+Synthetic export replays the simulator independently of the HTTP server and writes bounded CSV/JSONL events plus a checksummed manifest. It never reads live dashboard state or SQLite history.
+
+The core research pipeline is leakage-aware:
+
+- source runs are checksummed and provenance-bound;
+- **whole-run** grouping keeps complete source runs together across train/validation/test;
+- the baseline is **healthy-only** and fits scaling/thresholds from verified training groups only;
+- feature-processing parameters and source/split identities are frozen into strict non-executable JSON artifacts;
+- validation/test scoring is **held-out** and verifies model/source/split provenance before computing metrics;
+- rules and the trained baseline are compared on the same eligible synthetic windows;
+- sensor-bad windows abstain rather than becoming fabricated zero-valued evidence.
+
+See [DATASET.md](DATASET.md), [SPLITS.md](SPLITS.md), [ANOMALY_BASELINE.md](ANOMALY_BASELINE.md), [FEATURE_PIPELINE.md](FEATURE_PIPELINE.md), [MODEL_ARTIFACTS.md](MODEL_ARTIFACTS.md), [EVALUATION.md](EVALUATION.md), and [EXPERIMENTS.md](EXPERIMENTS.md).
+
+## IMS/local third-party-data boundary
+
+IMS support is deliberately offline and user-side. `motorpulse-ims` and related commands inspect/validate **already-obtained local files**; the application does not download the NASA IMS archive or expose it through the live API. Synthetic 1024 Hz assumptions, units, labels, bearing mapping, timezone, failure onset, or RUL are never silently assigned to IMS data.
+
+Project documentation may preserve source citations/metadata, but raw or derived third-party waveform redistribution remains prohibited until a documented rights review establishes permission. See [DATA_PROVENANCE.md](DATA_PROVENANCE.md), [IMS_INGESTION.md](IMS_INGESTION.md), and [IMS_VALIDATION.md](IMS_VALIDATION.md).
+
+## Main modules
+
+| Area | Modules / assets | Responsibility |
+| --- | --- | --- |
+| HTTP/UI | `motorpulse/__main__.py`, `motorpulse/web/` | localhost API, static dashboard, strict request boundary |
+| Controller | `motorpulse/controller.py` | thread-safe worker, atomic control/config/runtime operations |
+| Synthetic model | `motorpulse/sim.py`, `signals.py`, `spectral.py`, `scenarios.py` | deterministic windows, features, rules, scenarios |
+| Local persistence | `motorpulse/storage.py`, `incidents.py`, `history_api.py` | SQLite v3 transactions, bounded history, incident lifecycle |
+| Export/provenance | `export.py`, `dataset_cards.py` | reproducible synthetic files and source identity |
+| Research splits/features | `splits.py`, `feature_pipeline.py` | whole-run separation, train-only processing, purge safeguards |
+| Model/evaluation | `anomaly.py`, `model_artifact.py`, `evaluation.py` | healthy-only baseline, frozen artifacts, held-out metrics |
+| Research reporting | `experiment.py`, `robustness.py`, `comparison.py`, `calibration.py`, `rul_research.py` | reproducible experiments and explicitly bounded analyses |
+| Local IMS exploration | `ims.py`, `ims_validation.py`, `eda.py` | bounded user-provided file inspection, never live prediction |
+
+Installed command entry points and a contributor walkthrough are in [CLI.md](CLI.md).
+
+## Failure and atomicity model
+
+- **Reads** (`snapshot`, `status`, `config`, history) do not advance simulation state.
+- **Ticks** publish only after their optional SQLite transaction succeeds; worker persistence errors pause automatic advancement.
+- **Asset config/runtime changes** construct/validate candidate state first and persist the new session/tick before publication when storage is enabled.
+- **Strict local files** reject malformed/oversized/duplicate-key/non-finite JSON before server startup or downstream mutation.
+- **Offline outputs** are provenance-bound and generally fail closed rather than silently overwriting or accepting changed sources.
+
+Operational symptoms and recovery guidance are centralized in [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+
+## Security and deployment boundary
+
+This is not a production API server. It has no authentication, authorization, TLS termination, internet-facing rate limiting, secret management, or remote audit identity. Its safe default is loopback-only development use. Do not port-forward it. Any future public/networked or hardware-facing deployment would require a separate threat model, authentication/authorization, transport security, rate limits, operational audit design, device safety analysis, and explicit project approval.
+
+## Scientific non-goals
+
+- No claim that synthetic faults reproduce a specific physical motor or bearing geometry.
+- No validated industrial alarm/severity thresholds.
+- No physical failure probability, maintenance recommendation, or RUL prediction from the live API.
+- No claim that synthetic held-out metrics transfer to field accuracy.
+- No silent conversion of IMS/third-party records into synthetic units/labels.
+- No hardware control or work-order automation.
