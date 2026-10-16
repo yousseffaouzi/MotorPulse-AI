@@ -6,6 +6,8 @@ This guide prepares the first usable research tag, `v0.1.0`. The release remains
 
 **Do not tag a stacked feature branch.** Create `v0.1.0` only after the intended milestone pull requests are integrated into `main`, the exact integrated `main` commit passes all seven quality jobs, and the release commit is reviewed. This candidate branch must not create a tag or GitHub Release.
 
+A green release-candidate branch does **not complete MP-051**. MP-051 remains TODO until, after explicit approval, `v0.1.0` is created from the exact integrated green `main` commit. Candidate verification is evidence for review, not a substitute for integration or the tag itself.
+
 The packaged server stays bound to `127.0.0.1`. It has no authentication layer because it is not intended for network exposure. No PLC integration, no remote control, no actuator path and no physical-equipment command is part of this release.
 
 MotorPulse AI has **no RUL model**. The healthy-trained anomaly baseline is synthetic unusualness only; fixed rules are illustrative simulator thresholds. The dated metrics in `docs/BENCHMARK.md` are not field performance.
