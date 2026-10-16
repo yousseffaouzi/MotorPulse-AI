@@ -99,7 +99,7 @@ class StreamingDashboardContracts(unittest.TestCase):
     def test_dashboard_uses_eventsource_and_keeps_polling_fallback(self):
         for term in (
             "new EventSource('/api/stream')",
-            "stream.onmessage",
+            "stream.addEventListener('state'",
             "stream.onerror",
             "startPollingFallback",
             "stopPollingFallback",
