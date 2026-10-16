@@ -1,0 +1,37 @@
+name: MP-031 evidence finalizer
+
+on:
+  push:
+    branches:
+      - feat/mp-031-cwru-adapter
+    paths:
+      - .github/workflows/mp031-finalize.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: feat/mp-031-cwru-adapter
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Record verified MP-031 evidence
+        run: |
+          python .github/scripts/mp031_finalize.py
+          python -m unittest tests.test_cwru tests.test_documentation -v
+          git diff --check
+      - name: Commit evidence and self-remove
+        run: |
+          rm .github/workflows/mp031-finalize.yml .github/scripts/mp031_finalize.py
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add TODO.md README.md docs/TESTING.md .github/workflows/mp031-finalize.yml .github/scripts/mp031_finalize.py
+          git diff --cached --check
+          git commit -m 'docs(mp-031): record CWRU adapter evidence'
+          git push origin HEAD:feat/mp-031-cwru-adapter
