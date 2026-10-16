@@ -21,6 +21,7 @@ from .ims import _read_strict_json, write_local_manifest
 SOURCE_CARD_ID = "cwru-bearing-data-center"
 OFFICIAL_SOURCE_URL = "https://engineering.case.edu/bearingdatacenter"
 MAX_MAT_BYTES = 32 * 1024 * 1024
+MAX_REPORT_BYTES = 128 * 1024
 MAX_DECOMPRESSED_BYTES = 64 * 1024 * 1024
 MAX_VARIABLES = 256
 MAX_VECTOR_SAMPLES = 1_000_000
@@ -324,6 +325,105 @@ def inspect_cwru_file(input_mat: str | Path, metadata_json: str | Path) -> dict:
             "raw_or_derived_data_in_repository": False,
         },
     }
+
+
+
+def validate_cwru_report(report: object) -> dict:
+    """Validate one path-free MP-031 summary before downstream use."""
+    if type(report) is not dict or set(report) != {
+        "report_version", "source_card_id", "source_file_name", "source_file_bytes",
+        "source_file_sha256", "metadata", "series", "labels", "rights",
+    }:
+        raise ValueError("CWRU report keys differ from the v1 contract")
+    if report["report_version"] != "1.0.0" or report["source_card_id"] != SOURCE_CARD_ID:
+        raise ValueError("unsupported CWRU report version or source card")
+    name = report["source_file_name"]
+    if type(name) is not str or not name or name != Path(name).name or "/" in name or "\\" in name:
+        raise ValueError("source_file_name must be a local basename only")
+    size = report["source_file_bytes"]
+    if type(size) is not int or not 128 <= size <= MAX_MAT_BYTES:
+        raise ValueError("invalid CWRU source_file_bytes")
+    digest = report["source_file_sha256"]
+    if type(digest) is not str or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+        raise ValueError("invalid CWRU source_file_sha256")
+
+    metadata = report["metadata"]
+    expected_metadata = set(_METADATA_KEYS) | {"experiment_type", "fault_method"}
+    if type(metadata) is not dict or set(metadata) != expected_metadata:
+        raise ValueError("CWRU report metadata keys differ from the v1 contract")
+    if metadata["metadata_version"] != "1.0.0" or metadata["source_url"] != OFFICIAL_SOURCE_URL:
+        raise ValueError("invalid CWRU report metadata provenance")
+    if metadata["file_name"] != name or metadata["experiment_type"] != "seeded_fault_not_run_to_failure":
+        raise ValueError("CWRU report metadata does not match source/experiment semantics")
+    channel = metadata["channel_variable"]
+    if type(channel) is not str or not 1 <= len(channel) <= 128 or not channel.isascii():
+        raise ValueError("invalid CWRU channel_variable")
+    location = metadata["bearing_location"]
+    fault = metadata["fault_type"]
+    diameter = metadata["fault_diameter_mils"]
+    position = metadata["outer_race_position"]
+    load = metadata["load_hp"]
+    rate = metadata["sample_rate_hz"]
+    if location not in _BEARING_LOCATIONS or fault not in _FAULT_TYPES:
+        raise ValueError("invalid CWRU bearing location or fault type")
+    if fault == "normal":
+        if diameter is not None or metadata["fault_method"] is not None:
+            raise ValueError("normal CWRU metadata must not invent a seeded fault")
+    else:
+        if type(diameter) is not int or diameter not in _FAULT_DIAMETERS or metadata["fault_method"] != "EDM":
+            raise ValueError("invalid CWRU seeded fault metadata")
+    if fault == "outer_race":
+        if position not in _OUTER_POSITIONS:
+            raise ValueError("outer-race CWRU report needs position metadata")
+    elif position is not None:
+        raise ValueError("outer-race position is invalid for this CWRU fault type")
+    if type(load) is not int or not 0 <= load <= 3 or type(rate) is not int or rate not in _SAMPLE_RATES:
+        raise ValueError("invalid CWRU load or sample rate")
+    if rate == 48000 and location != "drive_end":
+        raise ValueError("48 kHz CWRU report must be drive-end")
+    if metadata["value_unit"] != "unknown":
+        raise ValueError("CWRU value unit remains unverified")
+
+    series = report["series"]
+    if type(series) is not dict or set(series) != {
+        "sample_count", "mean_native", "rms_native", "peak_to_peak_native",
+        "crest_factor", "sample_rate_hz", "window_duration_s", "value_unit",
+    }:
+        raise ValueError("CWRU series keys differ from the v1 contract")
+    count = series["sample_count"]
+    if type(count) is not int or not 1 <= count <= MAX_VECTOR_SAMPLES:
+        raise ValueError("invalid CWRU sample_count")
+    for field in ("mean_native", "rms_native", "peak_to_peak_native", "crest_factor", "window_duration_s"):
+        value = series[field]
+        if type(value) not in (int, float) or not isfinite(value):
+            raise ValueError(f"non-finite CWRU summary field: {field}")
+    if series["sample_rate_hz"] != rate or series["value_unit"] != "unknown":
+        raise ValueError("CWRU series sampling/unit metadata mismatch")
+    if abs(series["window_duration_s"] - (count / rate)) > 1e-12:
+        raise ValueError("CWRU window duration does not match samples/rate")
+
+    labels = report["labels"]
+    if type(labels) is not dict or set(labels) != {
+        "seeded_fault_type", "seeded_fault_diameter_mils", "run_to_failure",
+        "failure_time", "failure_probability", "remaining_useful_life",
+    }:
+        raise ValueError("CWRU labels keys differ from the v1 contract")
+    if labels["seeded_fault_type"] != fault or labels["seeded_fault_diameter_mils"] != diameter:
+        raise ValueError("CWRU labels do not match explicit metadata")
+    if labels["run_to_failure"] is not False or any(
+        labels[key] is not None for key in ("failure_time", "failure_probability", "remaining_useful_life")
+    ):
+        raise ValueError("CWRU seeded-fault records must not claim run-to-failure/RUL truth")
+
+    rights = report["rights"]
+    if rights != {
+        "official_source": OFFICIAL_SOURCE_URL,
+        "rights_status": "unverified_for_redistribution",
+        "publication_status": "local_only_do_not_redistribute",
+        "raw_or_derived_data_in_repository": False,
+    }:
+        raise ValueError("CWRU report rights boundary differs from the reviewed policy")
+    return report
 
 
 def main() -> None:
