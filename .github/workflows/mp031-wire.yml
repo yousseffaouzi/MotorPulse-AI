@@ -37,3 +37,5 @@ jobs:
           git diff --cached --check
           git commit -m 'feat(mp-031): wire CWRU reports cards and CLI'
           git push origin HEAD:feat/mp-031-cwru-adapter
+
+# Rerun after the documentation contract was clarified.
