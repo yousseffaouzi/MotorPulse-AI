@@ -104,6 +104,15 @@ class SimulationController:
         with self._condition:
             return deepcopy(self._snapshot)
 
+    def stream_state(self) -> dict:
+        """Return one atomic, read-only snapshot/status pair for local streaming."""
+        with self._condition:
+            return {
+                "source": "simulation",
+                "snapshot": deepcopy(self._snapshot),
+                "status": self._status_locked(),
+            }
+
     def configuration(self) -> dict:
         with self._condition:
             return configuration_dict(self._sim.assets)
