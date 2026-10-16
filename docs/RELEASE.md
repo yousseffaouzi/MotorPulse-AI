@@ -18,6 +18,8 @@ The optional container quick start is convenience tooling, not a deployment arch
 
 Release-candidate preparation was verified on branch head `f36f7ec1aa94dbcdbffa218a3d87280cc10b5e22` by GitHub Actions run `38843920706`: all seven permanent quality jobs passed, and the supported-Python suite contains **526 tests**. This is review evidence only and does **not complete MP-051**. Final completion still requires explicit approval, integration into `main`, a new exact-`main` seven-gate run, and creating `v0.1.0` from that verified commit.
 
+The final candidate documentation head `4f7e24da1cd24660f19a214f5c29bd4a76ff5f70` was independently reverified by GitHub Actions run `38914989680`: all seven permanent jobs passed, and the Python 3.13 log reported `Ran 526 tests` and `OK`. This remains candidate evidence only; no tag or release is created by that run.
+
 ## 1. Verify the integrated source
 
 From a clean checkout of the exact candidate commit on `main`:
