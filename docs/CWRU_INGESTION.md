@@ -2,7 +2,7 @@
 
 MotorPulse AI can inspect **user-supplied local** Case Western Reserve University (CWRU) Bearing Data Center MATLAB-v5 files without downloading or republishing the source measurements. This adapter is intentionally conservative: it supports one explicitly named real-double vector at a time, emits summary/provenance only, and requires a separate metadata JSON instead of inferring test conditions from a filename.
 
-This is **not** a run-to-failure or remaining-useful-life (RUL) dataset adapter. The official Bearing Data Center pages describe normal data and single-point bearing faults seeded using **EDM**. Those seeded conditions can support local condition-classification research, but they are not observed degradation trajectories, failure times or physical RUL labels.
+This is **not run-to-failure** and is not a remaining-useful-life (RUL) dataset adapter. The official Bearing Data Center pages describe normal data and single-point bearing faults seeded using **EDM**. Those seeded conditions can support local condition-classification research, but they are not observed degradation trajectories, failure times or physical RUL labels.
 
 ## Official sources and project rights policy
 
