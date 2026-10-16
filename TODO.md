@@ -79,6 +79,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - MP-031 implemented: added an optional, standard-library, **local-only** CWRU MATLAB-v5 adapter for user-supplied files, with bounded real-double vector parsing, optional zlib-compressed elements, explicit channel/bearing/fault/load/rate metadata, summary-only output, source/report SHA-256 provenance and a local-only dataset card. Seeded EDM fault conditions remain explicitly distinct from run-to-failure trajectories, failure time, failure probability and RUL; filenames are never used to infer labels. Ten regressions use only handwritten MATLAB-v5 bytes. Official CWRU pages were reviewed for source/test metadata, but an explicit dataset redistribution license was not established, so original/derived measurement redistribution remains **unverified and blocked by project policy**. GitHub Actions run `38841694707` passed **514/514** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility. The adapter has not been validated on a real CWRU archive file.
 
+- MP-052 implemented: added an **optional** Docker/Compose quick start without changing the MP-049 application bind. The image uses Python 3.13 slim, copies only the runtime package, installs no Python/OS dependencies, runs as non-root, and the supplied Compose service is read-only, drops all capabilities, enables `no-new-privileges`, mounts no host paths/devices/socket, and uses `network_mode: host` with **no port publishing** so MotorPulse continues listening on `127.0.0.1`. Six repository contracts keep native Python primary and pin the container/security/docs surface. GitHub Actions run `38842870063` passed **520/520** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy, fresh-clone reproducibility and the new live container build/run smoke, which verified localhost health/dashboard access and MP-049 `invalid_host_header` rejection. Host networking shares the host network stack and is an optional convenience, not a public deployment mode or security boundary.
+
 ## Milestone 0 — Existing proof of concept
 
 | ID | Status | Priority | Task | Acceptance evidence |
@@ -168,7 +170,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-049 | DONE | P1 | Secure local-first defaults | Localhost-only; validate file paths/inputs; no unsafe controls or industrial guarantees |
 | MP-050 | DONE | P2 | Community and issue templates | Issue/PR templates, contributor instructions and beginner tasks |
 | MP-051 | TODO | P2 | Tag a usable release | SemVer, CHANGELOG, reproducible demo and honest release caveats |
-| MP-052 | TODO | P2 | Optional containerized quick start | Simple Dockerfile/Compose; native Python remains supported |
+| MP-052 | DONE | P2 | Optional containerized quick start | Simple Dockerfile/Compose; native Python remains supported |
 | MP-016 | ON HOLD | P3 | Real sensors, PLC, edge and remote deployment | Separate later phase after software evaluation and security approval |
 
 **Exit criteria:** Fresh-clone setup and evaluation verified; tagged release and community documentation available.
