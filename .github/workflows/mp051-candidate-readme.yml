@@ -1,0 +1,37 @@
+name: MP-051 candidate README helper
+
+on:
+  push:
+    branches:
+      - release/v0.1.0-candidate
+    paths:
+      - .github/workflows/mp051-candidate-readme.yml
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: release/v0.1.0-candidate
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Patch README and run release contracts
+        run: |
+          python .github/scripts/mp051_candidate_readme.py
+          python -m unittest tests.test_release_readiness -v
+          git diff --check
+      - name: Commit tested README integration and self-remove
+        run: |
+          rm .github/workflows/mp051-candidate-readme.yml .github/scripts/mp051_candidate_readme.py
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add README.md .github/workflows/mp051-candidate-readme.yml .github/scripts/mp051_candidate_readme.py
+          git diff --cached --check
+          git commit -m 'docs(mp-051): integrate current release candidate'
+          git push origin HEAD:release/v0.1.0-candidate
