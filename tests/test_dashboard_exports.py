@@ -75,7 +75,9 @@ class DashboardExportContracts(unittest.TestCase):
         self.assertIn("currentRows = [];", script)
         self.assertIn("setExportReady(false)", script)
 
-    @unittest.skipUnless(shutil.which("node"), "Optional JavaScript engine not installed")
+    @unittest.skipUnless(
+        shutil.which("node"), "Optional JavaScript engine not installed"
+    )
     def test_csv_formula_prefix_and_quotes_execute_in_v8(self):
         contract = r"""
 'use strict';
