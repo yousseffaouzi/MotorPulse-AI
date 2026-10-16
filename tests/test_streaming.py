@@ -56,8 +56,8 @@ class StreamingHTTPTests(unittest.TestCase):
             key, _, value = line.partition(":")
             fields[key] = value.lstrip()
         self.assertEqual(fields.get("event"), "state")
+        self.assertEqual(fields.get("retry"), "1500")
         self.assertIn("id", fields)
-        self.assertIn("retry", fields)
         return headers, json.loads(fields["data"])
 
     def test_sse_headers_payload_and_read_only_semantics(self):
