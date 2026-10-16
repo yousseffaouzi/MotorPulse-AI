@@ -77,6 +77,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - MP-014 implemented: added localhost-only standard-library `GET /api/stream` Server-Sent Events carrying atomic read-only synthetic snapshot/status state, with retry metadata and latest-state reconnect semantics but no replay buffer. The dashboard prefers EventSource and automatically retains the existing 1.5-second snapshot/status polling as fallback on unsupported/error/reconnect paths. Six regressions cover headers, non-mutation, explicit-step reconnect, local Host rejection and dashboard fallback contracts. GitHub Actions run `38830266363` passed the **504-test** supported-Python matrix plus lint/format, dependency policy and fresh-clone reproducibility; no CORS/public bind, WebSocket dependency, hardware integration or remote control was added.
 
+- MP-031 implemented: added an optional, standard-library, **local-only** CWRU MATLAB-v5 adapter for user-supplied files, with bounded real-double vector parsing, optional zlib-compressed elements, explicit channel/bearing/fault/load/rate metadata, summary-only output, source/report SHA-256 provenance and a local-only dataset card. Seeded EDM fault conditions remain explicitly distinct from run-to-failure trajectories, failure time, failure probability and RUL; filenames are never used to infer labels. Ten regressions use only handwritten MATLAB-v5 bytes. Official CWRU pages were reviewed for source/test metadata, but an explicit dataset redistribution license was not established, so original/derived measurement redistribution remains **unverified and blocked by project policy**. GitHub Actions run `38841694707` passed **514/514** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility. The adapter has not been validated on a real CWRU archive file.
+
 ## Milestone 0 — Existing proof of concept
 
 | ID | Status | Priority | Task | Acceptance evidence |
@@ -118,7 +120,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-028 | DONE | P1 | Dataset validation and preprocessing | Channel mapping, frequencies, units, timestamps, NaN handling, corrupt-file tests |
 | MP-029 | DONE | P1 | Exploratory data quality report | Reproducible distributions, trend examples, data quality and label caveats |
 | MP-030 | DONE | P1 | Leakage-resistant train/validation/test splitting | Group by run/bearing/asset; preserve temporal order when required |
-| MP-031 | TODO | P2 | Optional CWRU data adapter | Reuse terms and dataset card; distinguish seeded faults from run-to-failure |
+| MP-031 | DONE | P2 | Optional CWRU data adapter | Reuse terms and dataset card; distinguish seeded faults from run-to-failure |
 | MP-032 | DONE | P1 | Dataset cards | Provenance, methods, limitations, intended use and licensing for synthetic and real data |
 
 **Exit criteria:** Synthetic exports and one documented external dataset adapter work with leakage-resistant splitting.
