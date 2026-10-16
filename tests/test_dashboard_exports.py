@@ -1,4 +1,4 @@
-"""MP-044 contracts for local, simulation-labelled dashboard exports."""
+"""MP-044 contracts for bounded, simulation-labelled current-page dashboard exports."""
 
 from __future__ import annotations
 
