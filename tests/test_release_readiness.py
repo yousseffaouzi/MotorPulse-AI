@@ -68,6 +68,15 @@ class ReleaseReadinessTests(unittest.TestCase):
             with self.subTest(target=target):
                 self.assertIn(target, readme)
 
+    def test_tracker_does_not_claim_release_complete_before_tag(self):
+        todo = (ROOT / "TODO.md").read_text(encoding="utf-8")
+        pending = (
+            "| MP-051 | TODO | P2 | Tag a usable release | SemVer, CHANGELOG, "
+            "reproducible demo and honest release caveats |"
+        )
+        self.assertIn(pending, todo)
+        self.assertNotIn("| MP-051 | DONE |", todo)
+
 
 if __name__ == "__main__":
     unittest.main()
