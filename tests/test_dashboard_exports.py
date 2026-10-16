@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+import shutil
+import subprocess
 import unittest
 
 
@@ -72,6 +74,58 @@ class DashboardExportContracts(unittest.TestCase):
         self.assertIn("setExportReady(count > 0)", script)
         self.assertIn("currentRows = [];", script)
         self.assertIn("setExportReady(false)", script)
+
+    @unittest.skipUnless(shutil.which("node"), "Optional JavaScript engine not installed")
+    def test_csv_formula_prefix_and_quotes_execute_in_v8(self):
+        contract = r"""
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const code = fs.readFileSync(process.argv[1], 'utf8');
+class Element {
+  constructor() {
+    this.value=''; this.disabled=false; this.options=[]; this.children=[];
+    this.textContent=''; this.classList={toggle:()=>{}};
+  }
+  addEventListener() {}
+  appendChild(child) {this.children.push(child); return child;}
+  replaceChildren(...children) {this.children=children;}
+  setAttribute() {}
+}
+const elements = {};
+global.document = {
+  getElementById(id) {return elements[id] ||= new Element();},
+  createElement() {return new Element();},
+  createElementNS() {return new Element();},
+  createDocumentFragment() {return new Element();},
+  body: new Element(),
+};
+global.window = {};
+const modified = code.replace(
+  '  void reloadSessions({preferCurrent:true});',
+  '  window.__exportHooks={csvCell};'
+);
+assert.notEqual(modified, code, 'expected export hook anchor');
+vm.runInThisContext(modified, {filename:'history.js'});
+const csvCell = window.__exportHooks.csvCell;
+assert.equal(csvCell('safe'), '"safe"');
+assert.equal(csvCell('a"b'), '"a""b"');
+for (const value of ['=2+2', '+cmd', '-1', '@name']) {
+  assert.equal(csvCell(value)[1], "'", value + ' must be neutralized');
+}
+console.log('MP-044 CSV escaping: OK');
+"""
+        check = subprocess.run(
+            ["node", "-e", contract, str(JS)],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=15,
+            check=False,
+        )
+        self.assertEqual(check.returncode, 0, check.stdout + "\n" + check.stderr)
+        self.assertIn("MP-044 CSV escaping: OK", check.stdout)
 
 
 if __name__ == "__main__":
