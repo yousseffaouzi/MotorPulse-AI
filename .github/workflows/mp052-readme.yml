@@ -35,3 +35,5 @@ jobs:
           git diff --cached --check
           git commit -m 'docs(mp-052): link optional container quick start'
           git push origin HEAD:chore/mp-052-container-quickstart
+
+# Rerun after safety assertions were corrected to test configuration semantics.
