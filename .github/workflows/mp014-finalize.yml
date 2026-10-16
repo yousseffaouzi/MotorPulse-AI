@@ -1,0 +1,78 @@
+name: MP-014 evidence finalizer
+
+on:
+  push:
+    branches: [feat/mp-014-sse-streaming]
+    paths:
+      - .github/workflows/mp014-finalize.yml
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: feat/mp-014-sse-streaming
+      - name: Record verified MP-014 evidence
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          api = Path('docs/API.md')
+          text = api.read_text(encoding='utf-8')
+          row_anchor = '| GET | `/api/status` | Read controller state, seed, clocks, tick and optional storage/session status | No |\n'
+          stream_row = '| GET | `/api/stream` | Stream read-only latest synthetic snapshot/status state with Server-Sent Events | No |\n'
+          if text.count(row_anchor) != 1 or '/api/stream` | Stream' in text:
+              raise SystemExit('API route-table anchor mismatch')
+          text = text.replace(row_anchor, row_anchor + stream_row, 1)
+
+          status_anchor = '### `GET /api/status`\n\nReturns controller state and timing metadata, including `state`, `tick`, `seed`, `start_time_utc`, `simulated_at_utc`, `step_seconds`, and `interval_seconds`. When SQLite persistence is enabled, status also exposes local storage/session metadata. See [RUNTIME_CONTROLS.md](RUNTIME_CONTROLS.md).\n\n'
+          stream_section = '''### `GET /api/stream`\n\nReturns a long-lived `text/event-stream` response for the local dashboard. Each named `state` event contains one atomic read-only object with `source="simulation"`, the current cached `snapshot`, and matching controller `status`. Opening or reading the stream never advances virtual time, persists a tick, changes a control state, or invokes a simulation action.\n\nThe server emits an event immediately and then approximately every 1.5 wall-clock seconds. Frames include `retry: 1500`, `event: state`, and an `id` equal to the current synthetic tick. The `id` is convenience metadata, **not** an event-log cursor: the server does not buffer or replay missed frames. A reconnect reads the latest current state.\n\nThe same loopback bind and local `Host` validation apply to the stream. There is no CORS/public-network mode or authentication layer. The packaged browser prefers `EventSource` when available; if EventSource is unavailable, parsing fails, or the connection errors while the browser reconnects, the existing 1.5-second `/api/snapshot` + `/api/status` polling loop remains the fallback.\n\n'''
+          if text.count(status_anchor) != 1:
+              raise SystemExit('API status-section anchor mismatch')
+          text = text.replace(status_anchor, status_anchor + stream_section, 1)
+          api.write_text(text, encoding='utf-8')
+
+          testing = Path('docs/TESTING.md')
+          text = testing.read_text(encoding='utf-8')
+          old_count = 'The suite contains **498 standard-library unittest test cases**'
+          if text.count(old_count) != 1:
+              raise SystemExit('TESTING suite-count anchor mismatch')
+          text = text.replace(old_count, 'The suite contains **504 standard-library unittest test cases**', 1)
+          old_tail = '6 community/onboarding contract tests from MP-050, and 6 bounded dashboard-export tests from MP-044).'
+          new_tail = '6 community/onboarding contract tests from MP-050, 6 bounded dashboard-export tests from MP-044, and 6 localhost SSE/reconnect/fallback tests from MP-014).'
+          if text.count(old_tail) != 1:
+              raise SystemExit('TESTING suite-list anchor mismatch')
+          text = text.replace(old_tail, new_tail, 1)
+          anchor = 'Implementation evidence: GitHub Actions run `38829188216` passed all six permanent quality jobs. The complete suite ran **498 tests** on Python 3.11, 3.12 and 3.13 (with the existing MP-015 Python-3.13-only benchmark byte-regeneration assertion skipped by design on 3.11/3.12); changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green. The MP-044 V8 test executed CSV quote escaping and formula-prefix neutralization.\n'
+          section = '''\n## MP-014: optional localhost SSE with polling fallback\n\nSix regressions in `tests/test_streaming.py` pin the optional streaming boundary. `GET /api/stream` emits standard-library Server-Sent Events containing one atomic, read-only snapshot/status pair, preserves the MP-049 local Host restriction, and never advances simulation state. Disconnect/reconnect coverage proves a new connection observes the latest state after an explicit user-triggered step; no buffered replay is claimed.\n\nThe packaged dashboard uses `EventSource('/api/stream')` when supported, consumes named `state` events, and stops the legacy snapshot/status polling after a valid stream frame. If EventSource is unavailable, an event cannot be parsed, or the connection errors while the browser reconnects, the existing 1.5-second polling loop remains active as fallback. No WebSocket dependency, CORS permission, public bind, hardware integration or remote control was added.\n\nImplementation evidence: GitHub Actions run `38830266363` passed all six permanent quality jobs on head `1fd033b6700af43c3d9e4516b0b9d6c5f931b65d`. The complete suite ran **504 tests** on Python 3.11, 3.12 and 3.13 (with the existing MP-015 Python-3.13-only benchmark byte-regeneration assertion skipped by design on 3.11/3.12); changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green.\n'''
+          if text.count(anchor) != 1:
+              raise SystemExit('TESTING MP-044 evidence anchor mismatch')
+          text = text.replace(anchor, anchor + section, 1)
+          testing.write_text(text, encoding='utf-8')
+
+          todo = Path('TODO.md')
+          text = todo.read_text(encoding='utf-8')
+          row_old = '| MP-014 | TODO | P2 | Optional SSE/WebSocket streaming | Live events and reconnect tested; polling fallback |'
+          row_new = '| MP-014 | DONE | P2 | Optional SSE/WebSocket streaming | Live events and reconnect tested; polling fallback |'
+          if text.count(row_old) != 1:
+              raise SystemExit('TODO MP-014 row anchor mismatch')
+          text = text.replace(row_old, row_new, 1)
+          milestone = '## Milestone 0 — Existing proof of concept\n'
+          bullet = '- MP-014 implemented: added localhost-only standard-library `GET /api/stream` Server-Sent Events carrying atomic read-only synthetic snapshot/status state, with retry metadata and latest-state reconnect semantics but no replay buffer. The dashboard prefers EventSource and automatically retains the existing 1.5-second snapshot/status polling as fallback on unsupported/error/reconnect paths. Six regressions cover headers, non-mutation, explicit-step reconnect, local Host rejection and dashboard fallback contracts. GitHub Actions run `38830266363` passed the **504-test** supported-Python matrix plus lint/format, dependency policy and fresh-clone reproducibility; no CORS/public bind, WebSocket dependency, hardware integration or remote control was added.\n\n'
+          if text.count(milestone) != 1 or 'MP-014 implemented:' in text:
+              raise SystemExit('TODO implementation-bullet anchor mismatch')
+          text = text.replace(milestone, bullet + milestone, 1)
+          todo.write_text(text, encoding='utf-8')
+          PY
+          git diff --check
+          git rm .github/workflows/mp014-finalize.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/API.md docs/TESTING.md TODO.md
+          git commit -m 'docs(mp-014): record streaming evidence'
+          git push origin HEAD:feat/mp-014-sse-streaming
