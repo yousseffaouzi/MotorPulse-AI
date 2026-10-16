@@ -31,7 +31,14 @@ class ContainerQuickStartContracts(unittest.TestCase):
         self.assertIn('["--port", "8765"]', text)
         self.assertIn("http://127.0.0.1:8765/api/health", text)
         self.assertNotIn("0.0.0.0", text)
-        for forbidden in ("pip install", "apt-get", "apk add", "curl ", "wget ", "EXPOSE "):
+        for forbidden in (
+            "pip install",
+            "apt-get",
+            "apk add",
+            "curl ",
+            "wget ",
+            "EXPOSE ",
+        ):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, text)
 
@@ -48,7 +55,13 @@ class ContainerQuickStartContracts(unittest.TestCase):
             with self.subTest(required=required):
                 self.assertIn(required, text)
         self.assertNotIn("0.0.0.0", text)
-        for forbidden in ("ports:", "volumes:", "devices:", "privileged:", "/var/run/docker.sock"):
+        for forbidden in (
+            "ports:",
+            "volumes:",
+            "devices:",
+            "privileged:",
+            "/var/run/docker.sock",
+        ):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, text)
 
