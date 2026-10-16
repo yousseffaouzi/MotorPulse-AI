@@ -104,10 +104,11 @@ The package installs the following console scripts. Use each command's `--help` 
 | `motorpulse-ai` | Localhost synthetic simulator/dashboard/API | [INSTALL.md](INSTALL.md), [API.md](API.md) |
 | `motorpulse-export` | Reproducible synthetic CSV/JSONL feature-event export | [DATASET.md](DATASET.md) |
 | `motorpulse-ims` | Inspect **user-provided local** IMS-style ASCII records | [IMS_INGESTION.md](IMS_INGESTION.md) |
+| `motorpulse-cwru` | Inspect one **user-provided local** CWRU MATLAB-v5 seeded-fault record using explicit metadata | [CWRU_INGESTION.md](CWRU_INGESTION.md) |
 | `motorpulse-ims-validate` | Validate/report local IMS-style records with declared metadata | [IMS_VALIDATION.md](IMS_VALIDATION.md) |
 | `motorpulse-eda` | Generate deterministic synthetic or local-IMS exploratory reports | [EDA.md](EDA.md) |
 | `motorpulse-split` | Create whole-run train/validation/test split plans | [SPLITS.md](SPLITS.md) |
-| `motorpulse-card` | Read/create provenance-bound dataset cards | [DATASET_CARDS.md](DATASET_CARDS.md) |
+| `motorpulse-card` | Read/create provenance-bound dataset cards | [DATASET_CARDS.md](DATASET_CARDS.md), [CWRU_INGESTION.md](CWRU_INGESTION.md) |
 | `motorpulse-anomaly` | Fit/preview the healthy-only synthetic anomaly baseline | [ANOMALY_BASELINE.md](ANOMALY_BASELINE.md) |
 | `motorpulse-evaluate` | Evaluate frozen models on validation/test partitions | [EVALUATION.md](EVALUATION.md) |
 | `motorpulse-experiment` | Orchestrate strict reproducible synthetic experiments | [EXPERIMENTS.md](EXPERIMENTS.md) |
@@ -117,9 +118,9 @@ The package installs the following console scripts. Use each command's `--help` 
 | `motorpulse-calibrate` | Select validation-only anomaly thresholds under false-alarm budgets | [CALIBRATION.md](CALIBRATION.md) |
 | `motorpulse-rul-audit` | Audit whether a dataset even supports a separate RUL research question | [RUL_RESEARCH.md](RUL_RESEARCH.md) |
 
-## IMS is local-only and rights-sensitive
+## External bearing data are local-only and rights-sensitive
 
-The IMS commands never download an archive. You must supply already-obtained local files and the required metadata. MotorPulse AI does **not** redistribute NASA IMS raw or derived waveforms; dataset-specific redistribution/derivative rights remain a separate review concern. Do not infer synthetic 1024 Hz units, fault labels, or RUL labels for IMS records. See [DATA_PROVENANCE.md](DATA_PROVENANCE.md).
+The IMS and CWRU commands never download source measurements. You must supply already-obtained local files and the required metadata. MotorPulse AI does **not** redistribute NASA IMS or CWRU raw measurements or measurement-derived tables under MP-031; source-specific redistribution/derivative rights remain separate review concerns. Do not infer synthetic 1024 Hz units, synthetic fault labels, failure probabilities, or RUL labels for these experimental bearing records. CWRU conditions are seeded faults rather than run-to-failure trajectories. See [DATA_PROVENANCE.md](DATA_PROVENANCE.md) and [CWRU_INGESTION.md](CWRU_INGESTION.md).
 
 ## Output ownership and reproducibility
 
@@ -131,6 +132,6 @@ For a complete clean-checkout acceptance run, execute:
 python scripts/fresh_clone_smoke.py
 ```
 
-That script installs into an isolated temporary virtual environment, runs commands from outside the checkout, starts/stops the loopback server, exports three synthetic runs, creates the whole-run split, trains the healthy-only baseline, and evaluates the held-out `test` partition. It uses no IMS archive or hardware.
+That script installs into an isolated temporary virtual environment, runs commands from outside the checkout, starts/stops the loopback server, exports three synthetic runs, creates the whole-run split, trains the healthy-only baseline, and evaluates the held-out `test` partition. It uses no IMS archive, CWRU measurements, or hardware.
 
 For common install, port, JSON, SQLite, and output-path failures, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
