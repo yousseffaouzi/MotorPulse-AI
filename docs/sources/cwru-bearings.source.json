@@ -16,5 +16,5 @@
   "dataset_specific_license_found_on_official_pages": false,
   "raw_or_derived_data_in_repository": false,
   "project_policy": "local_only_do_not_redistribute_original_or_derived_measurements_without_documented_rights_review",
-  "notes": "Public download availability is not treated as an explicit redistribution grant. MotorPulse AI provides code, source links, handwritten fixtures and summary-only local inspection tooling; it does not republish CWRU measurements."
+  "notes": "Public download availability is not treated as an explicit redistribution grant. MotorPulse AI provides code, source links, handwritten fixtures and summary-only local inspection tooling tested against handwritten MATLAB-v5 structures; it does not republish CWRU measurements or claim real-archive compatibility."
 }
