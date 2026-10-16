@@ -33,19 +33,27 @@ Below the SVGs, an expandable **numerical data table** offers full virtual UTC t
 
 Charts use CSS responsive columns, labelled form fields, focused controls, polite status updates and a data table without reliance on color alone. Motor/session names and telemetry text are inserted using DOM textContent rather than unsanitized HTML.
 
+### Export the loaded synthetic page
+
+After a successful history page load, four local export controls become available. **Export loaded page CSV** downloads exactly the currently selected, filtered and paginated rows already held by the browser; it does not request older pages or bypass the server's 100-event page bound. The CSV begins with an explicit `MotorPulse AI synthetic simulation export` marker plus the selected session, asset and page number, then records virtual UTC timestamp, vibration RMS, temperature, RPM, sensor quality and original rule health. Text cells are quoted, embedded quotes are escaped, and values beginning with `=`, `+`, `-` or `@` are prefixed with an apostrophe before download to reduce spreadsheet-formula execution risk.
+
+The three **Download ... SVG** controls clone the already-rendered vibration, temperature or RPM chart in the browser, add a `Synthetic simulation chart` title, serialize that SVG and download it locally. The export does not create a new chart from hidden database rows, add a server endpoint, write a backend file or make an additional history request. Export controls are disabled whenever there is no successfully loaded page.
+
+These history exports are descriptive synthetic telemetry only. Held-out model/rule evaluation reports remain the separate write-once JSON/Markdown artifacts produced by `motorpulse-evaluate` and the reproducible experiment workflow; the dashboard does not recalculate or relabel those metrics.
+
 ## Implementation notes and limitations
 
 - Backend remains unchanged: MP-040 GET /api/history/sessions and GET /api/history/events accept the filtered and paged requests, and existing snapshot GET is non-mutating.
 - Read failures or HTTP 409 (persistence disabled) are visible in the history message. They do not stop the live cards or mutate a generator.
 - To protect local performance, charts cap page size to 100 events, and session chooser lists the most recent 100 sessions. Historical data older than those sessions remains in SQLite and in the MP-040 API, but is not selectable using the current single-page session chooser.
 - Chart values are **synthetic feature summaries**, not raw waveform plots, uncertainty intervals, validated industrial thresholds or sensor calibrations.
-- This milestone does **not** introduce SSE/WebSocket streaming (MP-014), alert lifecycle acknowledgements or deduplication (MP-042), chart exports (MP-044), machine learning in the live dashboard, or RUL forecasts.
+- This dashboard still does **not** introduce SSE/WebSocket streaming (MP-014), machine learning in the live dashboard, unbounded database export, or RUL forecasts. Incident lifecycle review is documented separately; CSV/SVG downloads remain bounded to the currently loaded synthetic history page.
 
 ## Tests
 
     python -m unittest discover -s tests -p 'test_history_dashboard.py' -v
     python -m unittest discover -s tests -v
 
-Regression tests validate packaged static HTML and JavaScript, accessible SVG and table semantics, a read-only REST fetch after restart, event/session/time filtering, missing/outlier vibration fixtures, 409 fallback without persistence, responsive controls and history update hooks. When a Node.js JavaScript runtime is already available in the **test environment**, optional V8 client tests additionally execute the real chart mathematics/DOM rendering with a tiny test double to check exact microsecond spacing, missing-sensor gaps, non-interpolation, and numerical table rows. Node is **not a runtime dependency** of MotorPulse-AI and is not needed to run the dashboard.
+Regression tests validate packaged static HTML and JavaScript, accessible SVG and table semantics, a read-only REST fetch after restart, event/session/time filtering, missing/outlier vibration fixtures, 409 fallback without persistence, responsive controls, history update hooks, bounded client-side export controls and simulation labels. When a Node.js JavaScript runtime is already available in the **test environment**, optional V8 client tests additionally execute the real chart mathematics/DOM rendering plus the CSV escaping helper to check exact microsecond spacing, missing-sensor gaps, non-interpolation, numerical table rows, quote escaping and spreadsheet-formula neutralization. Node is **not a runtime dependency** of MotorPulse-AI and is not needed to run the dashboard.
 
 See also [HISTORY_API.md](HISTORY_API.md), [SQLITE_HISTORY.md](SQLITE_HISTORY.md) and [RUNTIME_CONTROLS.md](RUNTIME_CONTROLS.md).

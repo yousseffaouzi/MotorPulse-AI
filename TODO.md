@@ -1,6 +1,6 @@
 # MotorPulse AI — Master TODO & Development Roadmap
 
-**Last updated:** 2026-10-15  
+**Last updated:** 2026-10-16
 **Scope:** Open-source, software-first industrial motor condition monitoring and predictive-maintenance **simulation**. No hardware, PLC control, remote deployment, or operational maintenance decisions in this phase.
 
 ## v1 definition of done
@@ -72,6 +72,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-015 implemented: added a dated 2026-10-15 synthetic-only benchmark generated from the fixed MP-033 experiment config, with reproducible commands, held-out model-vs-rule metrics/provenance, and linked repo-local self-contained SVG demo media. Four tests pin the report/media contracts and Python 3.13 byte-regenerates both artifacts. GitHub Actions run `38821977822` ran 486 tests across Python 3.11/3.12/3.13 (the single byte-snapshot assertion is skipped by design on 3.11/3.12) plus lint/format, dependency policy and fresh-clone reproducibility; the linked demo media is a generated SVG summary, not a hosted video, and metrics are not field performance.
 
 - MP-050 implemented: added structured bug/feature issue forms, a PR quality/claim/provenance checklist, current contributor guidance and synthetic-only beginner tasks. Six regression contracts require reproducibility fields, protect local-first/security/data boundaries and keep starter work away from already-completed or hardware/real-data milestones. GitHub Actions run `38822843799` passed **492/492** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility.
+
+- MP-044 implemented: the recorded-history panel can download the currently loaded bounded synthetic page as formula-safe CSV and clone each visible vibration/temperature/RPM chart as a simulation-labelled SVG. Exports are browser-only, add no API route or backend write, never fetch hidden pages, and leave held-out evaluation reports to the existing write-once CLI workflow. Six regression/V8 contracts cover export state, simulation labels, SVG serialization and CSV escaping. GitHub Actions run `38829188216` passed the **498-test** supported-Python matrix plus lint/format, dependency policy and fresh-clone reproducibility.
 
 ## Milestone 0 — Existing proof of concept
 
@@ -146,7 +148,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-041 | DONE | P1 | Simulation controls in UI | Start/pause/reset, seed, scenario, severity, speed; explicit simulated time |
 | MP-042 | DONE | P1 | Explicit alert lifecycle | Transitions, deduplication, reasons, severity and persistence |
 | MP-043 | DONE | P1 | API request validation and errors | Bounds, content types, stable response codes and safe failure modes |
-| MP-044 | TODO | P2 | Export charts and reports | Download telemetry/evaluation reports labelled as simulation |
+| MP-044 | DONE | P2 | Export charts and reports | Download telemetry/evaluation reports labelled as simulation |
 
 **Exit criteria:** A user can control a run, see history and compare model outputs without editing source code.
 
