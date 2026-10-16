@@ -2,7 +2,7 @@
 
 **Software-first predictive-maintenance lab for industrial motors and rotating equipment.**
 
-> **Status:** pre-alpha simulated prototype. The current alerts are explainable rule-based baselines, **not** a trained predictive-maintenance AI model. All demo measurements are synthetic; no hardware is required.
+> **Status:** `v0.1.0` alpha **release candidate, not published**. MotorPulse AI remains a synthetic research lab: fixed rules and the healthy-trained anomaly baseline are not field-validated predictive-maintenance diagnoses, failure probabilities, or RUL estimates. No hardware is required.
 
 ## What you can run today
 - Reproducible simulated vibration, temperature and RPM signals for three motors.
@@ -54,7 +54,7 @@ See [docs/INSTALL.md](docs/INSTALL.md) for wheel builds, offline options, cross-
 
 An **optional container** quick start is documented in [docs/CONTAINER.md](docs/CONTAINER.md). The **native Python** workflow above remains the primary supported path, and **No Docker** installation is required to run or develop MotorPulse AI.
 
-Contributor references: [localhost API](docs/API.md), [CLI tutorial](docs/CLI.md), [troubleshooting](docs/TROUBLESHOOTING.md), [architecture](docs/ARCHITECTURE.md), [configuration](docs/CONFIG_FILE.md), [baseline model cards](docs/MODEL_CARDS.md), [local-first security](docs/SECURITY.md), and the [dated synthetic benchmark](docs/BENCHMARK.md).
+Contributor references: [localhost API](docs/API.md), [CLI tutorial](docs/CLI.md), [troubleshooting](docs/TROUBLESHOOTING.md), [architecture](docs/ARCHITECTURE.md), [configuration](docs/CONFIG_FILE.md), [baseline model cards](docs/MODEL_CARDS.md), [local-first security](docs/SECURITY.md), the [dated synthetic benchmark](docs/BENCHMARK.md), [CHANGELOG.md](CHANGELOG.md), and the [release procedure](docs/RELEASE.md).
 
 To **launch with a saved motor configuration**, e.g. a reproducible progressive-fault demo:
 
@@ -175,7 +175,7 @@ See [docs/PROGRESSION.md](docs/PROGRESSION.md) for exact ramp equations, validat
 
 ## Python packaging (MP-022)
 
-MotorPulse AI is packaged as **motorpulse-ai 0.1.0.dev0** (development-only metadata; **not published to PyPI**). All runtime modules are standard-library-only; installing or building the wheel needs Python packaging tools. The single source of truth for the dashboard is now `motorpulse/web/index.html`, so it works after installing from a wheel even when launched from another working directory. See [docs/INSTALL.md](docs/INSTALL.md) for instructions and smoke checks.
+MotorPulse AI is packaged as **motorpulse-ai 0.1.0** for this alpha release candidate (**not published to PyPI and not yet tagged**). All runtime modules are standard-library-only; installing or building the wheel needs Python packaging tools. The single source of truth for the dashboard is `motorpulse/web/index.html`, so it works after installing from a wheel even when launched from another working directory. See [docs/INSTALL.md](docs/INSTALL.md) for instructions and smoke checks, and [docs/RELEASE.md](docs/RELEASE.md) for the integrated-`main` verification/tag boundary.
 
 ## Spectral and rolling indicators (MP-023)
 
