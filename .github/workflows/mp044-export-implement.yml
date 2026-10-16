@@ -1,0 +1,156 @@
+name: MP-044 export implementation helper
+
+on:
+  push:
+    branches: [feat/mp-044-export-charts-reports]
+    paths: [.github/workflows/mp044-export-implement.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  implement:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: feat/mp-044-export-charts-reports
+      - name: Add local history exports
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          html_path = Path('motorpulse/web/index.html')
+          html = html_path.read_text(encoding='utf-8')
+          old = '<div class="history-actions"><button type="submit" id="history-apply">Load trends</button><button type="button" id="history-newer" disabled>Newer page</button><button type="button" id="history-older" disabled>Older page</button><button type="button" id="history-latest">Current recording</button></div>'
+          new = old + '\n<div class="history-actions" role="group" aria-label="Export loaded page as synthetic simulation files"><button type="button" id="history-export-csv" disabled>Export loaded page CSV</button><button type="button" id="history-export-rms" disabled>Download vibration SVG</button><button type="button" id="history-export-temp" disabled>Download temperature SVG</button><button type="button" id="history-export-rpm" disabled>Download RPM SVG</button></div>\n<p class="runtime-help">Exports contain only the currently loaded bounded page and are labelled as <strong>synthetic simulation</strong> data. Evaluation JSON/Markdown reports remain separate write-once CLI artifacts.</p>'
+          if html.count(old) != 1:
+              raise SystemExit('history action anchor mismatch')
+          html_path.write_text(html.replace(old, new, 1), encoding='utf-8')
+
+          js_path = Path('motorpulse/web/history.js')
+          js = js_path.read_text(encoding='utf-8')
+          old = "  const latest = $('history-latest');\n  const table = $('history-table');"
+          new = "  const latest = $('history-latest');\n  const exportCsvButton = $('history-export-csv');\n  const exportRms = $('history-export-rms');\n  const exportTemp = $('history-export-temp');\n  const exportRpm = $('history-export-rpm');\n  const exportButtons = [exportCsvButton, exportRms, exportTemp, exportRpm];\n  const table = $('history-table');"
+          if js.count(old) != 1:
+              raise SystemExit('JS element anchor mismatch')
+          js = js.replace(old, new, 1)
+
+          old = "  let currentPage = null;\n  let token = 0;"
+          new = "  let currentPage = null;\n  let currentRows = [];\n  let token = 0;"
+          if js.count(old) != 1:
+              raise SystemExit('JS current-page anchor mismatch')
+          js = js.replace(old, new, 1)
+
+          anchor = "  function appendOption(select, value, text) {"
+          insert = r'''  function setExportReady(ready) {
+    for (const button of exportButtons) button.disabled = !ready;
+  }
+  function csvCell(value) {
+    let text = value === null || value === undefined ? '' : String(value);
+    if (/^[=+\-@]/.test(text)) text = "'" + text;
+    return '"' + text.replaceAll('"', '""') + '"';
+  }
+  function exportName(suffix) {
+    const safe = value => String(value || 'unknown').replace(/[^A-Za-z0-9._-]+/g, '-').slice(0, 80) || 'unknown';
+    return 'motorpulse-synthetic-history-' + safe(sessions.value) + '-' + safe(assets.value) +
+      '-page-' + (position + 1) + suffix;
+  }
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+  function exportCsv() {
+    if (!currentRows.length) return;
+    const lines = [
+      ['MotorPulse AI synthetic simulation export'],
+      ['session_id', sessions.value],
+      ['asset_id', assets.value],
+      ['page', String(position + 1)],
+      [],
+      ['timestamp_utc','rms_g','temperature_c','rpm','sensor_quality','health'],
+    ];
+    for (const row of currentRows) {
+      const event = row.event || {};
+      lines.push([
+        event.timestamp_utc,
+        event.rms_g,
+        event.temperature_c,
+        event.rpm,
+        event.sensor_quality,
+        event.health,
+      ]);
+    }
+    const csv = lines.map(values => values.map(csvCell).join(',')).join('\r\n') + '\r\n';
+    downloadBlob(new Blob([csv], {type:'text/csv;charset=utf-8'}), exportName('.csv'));
+  }
+  function exportSvg(metric) {
+    if (!currentRows.length) return;
+    const source = $(metric.element);
+    const clone = source.cloneNode(true);
+    clone.setAttribute('xmlns', NS);
+    clone.setAttribute('width', '600');
+    clone.setAttribute('height', '200');
+    clone.insertBefore(node('title', {}, 'Synthetic simulation chart — ' + metric.label), clone.firstChild);
+    const markup = new XMLSerializer().serializeToString(clone);
+    downloadBlob(new Blob([markup], {type:'image/svg+xml;charset=utf-8'}),
+      exportName('-' + metric.key.replaceAll('_','-') + '.svg'));
+  }
+'''
+          if js.count(anchor) != 1:
+              raise SystemExit('JS function anchor mismatch')
+          js = js.replace(anchor, insert + anchor, 1)
+
+          old = "  function render(rows, page) {\n    for(const metric of metrics) draw(metric, rows);"
+          new = "  function render(rows, page) {\n    currentRows = rows;\n    for(const metric of metrics) draw(metric, rows);"
+          if js.count(old) != 1:
+              raise SystemExit('render anchor mismatch')
+          js = js.replace(old, new, 1)
+
+          old = "    const count = rows.length;\n    const badVibration = rows.filter(row => row.event.sensor_quality !== 'good').length;"
+          new = "    const count = rows.length;\n    setExportReady(count > 0);\n    const badVibration = rows.filter(row => row.event.sensor_quality !== 'good').length;"
+          if js.count(old) != 1:
+              raise SystemExit('render count anchor mismatch')
+          js = js.replace(old, new, 1)
+
+          old = "        currentPage=null;\n        for(const metric of metrics) draw(metric,[]);"
+          new = "        currentPage=null;\n        currentRows = [];\n        setExportReady(false);\n        for(const metric of metrics) draw(metric,[]);"
+          if js.count(old) != 1:
+              raise SystemExit('load error anchor mismatch')
+          js = js.replace(old, new, 1)
+
+          old = "        resetPage();\n        for(const metric of metrics) draw(metric,[]);\n        buildTable([]);\n        pageLabel.textContent='';\n        setMessage('No recordings yet. Start the simulator with --database.',false);"
+          new = "        resetPage();\n        currentRows = [];\n        setExportReady(false);\n        for(const metric of metrics) draw(metric,[]);\n        buildTable([]);\n        pageLabel.textContent='';\n        setMessage('No recordings yet. Start the simulator with --database.',false);"
+          if js.count(old) != 1:
+              raise SystemExit('no recordings anchor mismatch')
+          js = js.replace(old, new, 1)
+
+          old = "      knownSessions=[];\n      resetPage();\n      for(const metric of metrics) draw(metric,[]);"
+          new = "      knownSessions=[];\n      resetPage();\n      currentRows = [];\n      setExportReady(false);\n      for(const metric of metrics) draw(metric,[]);"
+          if js.count(old) != 1:
+              raise SystemExit('session error anchor mismatch')
+          js = js.replace(old, new, 1)
+
+          anchor = "  latest.addEventListener('click',async()=>{"
+          listeners = "  exportCsvButton.addEventListener('click',exportCsv);\n  exportRms.addEventListener('click',()=>exportSvg(metrics[0]));\n  exportTemp.addEventListener('click',()=>exportSvg(metrics[1]));\n  exportRpm.addEventListener('click',()=>exportSvg(metrics[2]));\n  setExportReady(false);\n"
+          if js.count(anchor) != 1:
+              raise SystemExit('listener anchor mismatch')
+          js = js.replace(anchor, listeners + anchor, 1)
+
+          js_path.write_text(js, encoding='utf-8')
+          PY
+          git diff --check
+          git rm .github/workflows/mp044-export-implement.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add motorpulse/web/index.html motorpulse/web/history.js
+          git commit -m 'feat(mp-044): export loaded synthetic history'
+          git push origin HEAD:feat/mp-044-export-charts-reports
