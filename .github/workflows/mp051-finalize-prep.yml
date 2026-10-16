@@ -45,7 +45,7 @@ jobs:
           text = todo.read_text(encoding='utf-8')
           if text.count('**Last updated:** 2026-10-15  ') != 1:
               raise SystemExit('TODO date anchor mismatch')
-          text = text.replace('**Last updated:** 2026-10-15  ', '**Last updated:** 2026-10-16  ', 1)
+          text = text.replace('**Last updated:** 2026-10-15  ', '**Last updated:** 2026-10-16', 1)
           row = '| MP-051 | TODO | P2 | Tag a usable release | SemVer, CHANGELOG, reproducible demo and honest release caveats |'
           if text.count(row) != 1:
               raise SystemExit('TODO MP-051 row must remain TODO')
