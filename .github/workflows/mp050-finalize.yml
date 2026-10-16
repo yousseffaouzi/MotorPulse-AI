@@ -1,0 +1,68 @@
+name: MP-050 finalizer
+
+on:
+  push:
+    branches: [docs/mp-050-community-templates]
+    paths: [.github/workflows/mp050-finalize.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: docs/mp-050-community-templates
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Record verified MP-050 evidence
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          testing = Path('docs/TESTING.md')
+          text = testing.read_text(encoding='utf-8')
+          old_count = 'The suite contains **486 standard-library unittest test cases**'
+          if text.count(old_count) != 1:
+              raise SystemExit('TESTING suite-count anchor mismatch')
+          text = text.replace(old_count, 'The suite contains **492 standard-library unittest test cases**', 1)
+
+          old_tail = '6 local-first security tests from MP-049, and 4 dated benchmark/demo tests from MP-015).'
+          new_tail = '6 local-first security tests from MP-049, 4 dated benchmark/demo tests from MP-015, and 6 community/onboarding contract tests from MP-050).'
+          if text.count(old_tail) != 1:
+              raise SystemExit('TESTING test-list anchor mismatch')
+          text = text.replace(old_tail, new_tail, 1)
+
+          anchor = 'Implementation evidence: GitHub Actions run `38821977822` passed all six quality jobs. The suite ran **486 tests** on every supported Python; 3.13 returned OK with all four MP-015 tests executed, while 3.11/3.12 returned OK with the single Python-3.13 byte-snapshot assertion skipped by design. Changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green.\n'
+          section = '''\n## MP-050: community and issue templates\n\nSix standard-library contracts in `tests/test_community.py` pin the public contribution surface: structured bug and feature issue forms, issue-template configuration, the pull-request checklist, current contributor guidance and safe beginner tasks. The templates require reproducibility evidence while explicitly excluding proprietary telemetry, credentials, third-party dataset records, physical-equipment controls and unsupported industrial claims.\n\n`CONTRIBUTING.md` now links the current install, testing, security, model-card, benchmark and beginner-task guides; `docs/BEGINNER_TASKS.md` keeps starter work focused on documentation, tests and accessibility using synthetic-only fixtures rather than already-completed milestones or hardware/real-data integration.\n\nImplementation evidence: GitHub Actions run `38822843799` passed all six quality jobs. The complete suite ran **492/492** on Python 3.11, 3.12 and 3.13; changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green.\n'''
+          if text.count(anchor) != 1:
+              raise SystemExit('TESTING MP-015 evidence anchor mismatch')
+          text = text.replace(anchor, anchor + section, 1)
+          testing.write_text(text, encoding='utf-8')
+
+          todo = Path('TODO.md')
+          text = todo.read_text(encoding='utf-8')
+          row_old = '| MP-050 | TODO | P2 | Community and issue templates | Issue/PR templates, contributor instructions and beginner tasks |'
+          row_new = '| MP-050 | DONE | P2 | Community and issue templates | Issue/PR templates, contributor instructions and beginner tasks |'
+          if text.count(row_old) != 1:
+              raise SystemExit('TODO MP-050 row anchor mismatch')
+          text = text.replace(row_old, row_new, 1)
+
+          bullet_anchor = '- MP-015 implemented: added a dated 2026-10-15 synthetic-only benchmark generated from the fixed MP-033 experiment config, with reproducible commands, held-out model-vs-rule metrics/provenance, and linked repo-local self-contained SVG demo media. Four tests pin the report/media contracts and Python 3.13 byte-regenerates both artifacts. GitHub Actions run `38821977822` ran 486 tests across Python 3.11/3.12/3.13 (the single byte-snapshot assertion is skipped by design on 3.11/3.12) plus lint/format, dependency policy and fresh-clone reproducibility; the linked demo media is a generated SVG summary, not a hosted video, and metrics are not field performance.\n'
+          bullet = '\n- MP-050 implemented: added structured bug/feature issue forms, a PR quality/claim/provenance checklist, current contributor guidance and synthetic-only beginner tasks. Six regression contracts require reproducibility fields, protect local-first/security/data boundaries and keep starter work away from already-completed or hardware/real-data milestones. GitHub Actions run `38822843799` passed **492/492** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility.\n'
+          if text.count(bullet_anchor) != 1:
+              raise SystemExit('TODO MP-015 bullet anchor mismatch')
+          text = text.replace(bullet_anchor, bullet_anchor + bullet, 1)
+          todo.write_text(text, encoding='utf-8')
+          PY
+          git diff --check
+          git rm .github/workflows/mp050-finalize.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/TESTING.md TODO.md
+          git commit -m 'docs(mp-050): record community template evidence'
+          git push origin HEAD:docs/mp-050-community-templates
