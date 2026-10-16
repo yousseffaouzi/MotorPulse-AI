@@ -71,6 +71,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - MP-015 implemented: added a dated 2026-10-15 synthetic-only benchmark generated from the fixed MP-033 experiment config, with reproducible commands, held-out model-vs-rule metrics/provenance, and linked repo-local self-contained SVG demo media. Four tests pin the report/media contracts and Python 3.13 byte-regenerates both artifacts. GitHub Actions run `38821977822` ran 486 tests across Python 3.11/3.12/3.13 (the single byte-snapshot assertion is skipped by design on 3.11/3.12) plus lint/format, dependency policy and fresh-clone reproducibility; the linked demo media is a generated SVG summary, not a hosted video, and metrics are not field performance.
 
+- MP-050 implemented: added structured bug/feature issue forms, a PR quality/claim/provenance checklist, current contributor guidance and synthetic-only beginner tasks. Six regression contracts require reproducibility fields, protect local-first/security/data boundaries and keep starter work away from already-completed or hardware/real-data milestones. GitHub Actions run `38822843799` passed **492/492** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility.
+
 ## Milestone 0 — Existing proof of concept
 
 | ID | Status | Priority | Task | Acceptance evidence |
@@ -158,7 +160,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-047 | DONE | P1 | API/configuration/architecture documentation | Updated diagrams, schemas, CLI tutorial and troubleshooting |
 | MP-048 | DONE | P1 | Model cards and failure modes | Source dataset, intended use, validation and limitations for each baseline |
 | MP-049 | DONE | P1 | Secure local-first defaults | Localhost-only; validate file paths/inputs; no unsafe controls or industrial guarantees |
-| MP-050 | TODO | P2 | Community and issue templates | Issue/PR templates, contributor instructions and beginner tasks |
+| MP-050 | DONE | P2 | Community and issue templates | Issue/PR templates, contributor instructions and beginner tasks |
 | MP-051 | TODO | P2 | Tag a usable release | SemVer, CHANGELOG, reproducible demo and honest release caveats |
 | MP-052 | TODO | P2 | Optional containerized quick start | Simple Dockerfile/Compose; native Python remains supported |
 | MP-016 | ON HOLD | P3 | Real sensors, PLC, edge and remote deployment | Separate later phase after software evaluation and security approval |
