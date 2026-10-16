@@ -1,4 +1,4 @@
-"""MP-050 community onboarding and contribution-template contracts."""
+"""MP-050 contracts keep public contribution templates safe, reproducible, and current."""
 
 from __future__ import annotations
 
