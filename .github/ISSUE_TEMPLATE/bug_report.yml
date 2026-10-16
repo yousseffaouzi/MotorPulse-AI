@@ -1,0 +1,79 @@
+name: Bug report
+description: Report a reproducible problem in the local synthetic MotorPulse lab
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve MotorPulse AI. This project is synthetic and local-first.
+        Do not include proprietary telemetry, credentials, private datasets, or physical equipment control configurations.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the project is affected?
+      options:
+        - Local simulator or dashboard
+        - API or SQLite history
+        - Synthetic export or dataset tooling
+        - Offline model/evaluation research
+        - Documentation or packaging
+        - Tests or CI
+        - Other local software behavior
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      description: Include the full version, for example Python 3.13.16.
+      placeholder: "Python 3.13.x"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Operating system
+      placeholder: "Ubuntu 24.04, macOS, Windows, ..."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Give the smallest local command sequence or synthetic fixture needed to reproduce the problem.
+      placeholder: |
+        1. Run ...
+        2. Use synthetic config ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should the documented software contract do?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happened instead? Redact local paths, secrets and private data when they are not needed.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Safe diagnostic evidence
+      description: Paste short logs or synthetic-only examples. Do not upload real machine telemetry or third-party dataset records.
+      render: shell
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Data and safety check
+      options:
+        - label: I used synthetic/repository fixtures only, or I removed all proprietary/private data from this report.
+          required: true
+        - label: This report does not ask MotorPulse to control physical equipment or bypass its local-only security boundary.
+          required: true

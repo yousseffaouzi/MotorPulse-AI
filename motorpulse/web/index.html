@@ -40,6 +40,8 @@
 </div>
 <p id="history-time-help" class="runtime-help">Leave dates blank for all recorded times. Use explicit UTC, for example 2026-01-01T00:00:00Z, with optional fractional seconds. Virtual timestamps are not the real wall clock.</p>
 <div class="history-actions"><button type="submit" id="history-apply">Load trends</button><button type="button" id="history-newer" disabled>Newer page</button><button type="button" id="history-older" disabled>Older page</button><button type="button" id="history-latest">Current recording</button></div>
+<div class="history-actions" role="group" aria-label="Export loaded page as synthetic simulation files"><button type="button" id="history-export-csv" disabled>Export loaded page CSV</button><button type="button" id="history-export-rms" disabled>Download vibration SVG</button><button type="button" id="history-export-temp" disabled>Download temperature SVG</button><button type="button" id="history-export-rpm" disabled>Download RPM SVG</button></div>
+<p class="runtime-help">Exports contain only the currently loaded bounded page and are labelled as <strong>synthetic simulation</strong> data. Evaluation JSON/Markdown reports remain separate write-once CLI artifacts.</p>
 </form>
 <p id="history-message" class="history-message" role="status" aria-live="polite">Checking if local history is available…</p>
 <p id="history-page" class="history-page" aria-live="polite"></p>
