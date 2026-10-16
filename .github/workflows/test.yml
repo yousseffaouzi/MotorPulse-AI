@@ -92,3 +92,66 @@ jobs:
           python-version: '3.13'
       - name: Install, run, export, and evaluate from clean checkout
         run: python scripts/fresh_clone_smoke.py
+
+  # Optional container path: preserve the application's loopback-only bind by
+  # sharing the runner's network stack instead of introducing a 0.0.0.0 bind.
+  container-quickstart:
+    name: Container quick start
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Build and validate Compose configuration
+        run: |
+          docker compose config
+          docker compose build
+      - name: Run localhost container smoke test
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker compose up -d
+          trap 'docker compose down --remove-orphans' EXIT
+          if ! python - <<'PY'
+          import http.client
+          import json
+          import time
+          import urllib.error
+          import urllib.request
+
+          health = "http://127.0.0.1:8765/api/health"
+          deadline = time.monotonic() + 30
+          while True:
+              try:
+                  with urllib.request.urlopen(health, timeout=2) as response:
+                      payload = json.load(response)
+                  if payload == {"status": "ok", "source": "simulation"}:
+                      break
+              except (OSError, ValueError, urllib.error.URLError):
+                  pass
+              if time.monotonic() >= deadline:
+                  raise SystemExit("container health endpoint did not become ready")
+              time.sleep(0.5)
+
+          with urllib.request.urlopen("http://127.0.0.1:8765/", timeout=3) as response:
+              dashboard = response.read().decode("utf-8")
+          assert "MotorPulse" in dashboard
+
+          conn = http.client.HTTPConnection("127.0.0.1", 8765, timeout=3)
+          try:
+              conn.putrequest("GET", "/api/health", skip_host=True)
+              conn.putheader("Host", "example.com")
+              conn.endheaders()
+              response = conn.getresponse()
+              body = json.loads(response.read())
+              assert response.status == 400, response.status
+              assert body.get("code") == "invalid_host_header", body
+          finally:
+              conn.close()
+          PY
+          then
+            docker compose logs --no-color
+            exit 1
+          fi
+          docker compose ps
