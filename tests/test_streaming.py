@@ -1,4 +1,7 @@
-"""MP-014 contracts for optional localhost SSE with polling fallback."""
+"""MP-014 contracts for optional localhost SSE with polling fallback.
+
+Reconnect reads the latest local state; the server does not claim buffered event replay.
+"""
 
 from __future__ import annotations
 
