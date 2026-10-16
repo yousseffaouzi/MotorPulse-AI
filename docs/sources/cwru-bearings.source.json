@@ -1,0 +1,20 @@
+{
+  "source_card_version": "1.0.0",
+  "source_card_id": "cwru-bearing-data-center",
+  "title": "Case Western Reserve University Bearing Data Center",
+  "provider": "Case Western Reserve University Bearing Data Center",
+  "official_home": "https://engineering.case.edu/bearingdatacenter",
+  "official_download": "https://engineering.case.edu/bearingdatacenter/download-data-file",
+  "reviewed_on": "2026-10-16",
+  "source_type": "experimental_bearing_seeded_fault_measurements",
+  "experiment_summary": "Official pages describe normal bearing data and single-point seeded bearing faults introduced by EDM, with documented bearing location, fault diameter, load and acquisition-rate groupings.",
+  "seeded_faults_not_run_to_failure": true,
+  "documented_fault_diameters_mils": [7, 14, 21, 28, 40],
+  "documented_load_hp": [0, 1, 2, 3],
+  "documented_sample_rates_hz": [12000, 48000],
+  "rights_status": "unverified_for_redistribution",
+  "dataset_specific_license_found_on_official_pages": false,
+  "raw_or_derived_data_in_repository": false,
+  "project_policy": "local_only_do_not_redistribute_original_or_derived_measurements_without_documented_rights_review",
+  "notes": "Public download availability is not treated as an explicit redistribution grant. MotorPulse AI provides code, source links, handwritten fixtures and summary-only local inspection tooling tested against handwritten MATLAB-v5 structures; it does not republish CWRU measurements or claim real-archive compatibility."
+}

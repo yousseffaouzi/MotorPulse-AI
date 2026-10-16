@@ -1,0 +1,13 @@
+services:
+  motorpulse:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    network_mode: host
+    read_only: true
+    init: true
+    restart: "no"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
