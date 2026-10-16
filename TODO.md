@@ -1,6 +1,6 @@
 # MotorPulse AI — Master TODO & Development Roadmap
 
-**Last updated:** 2026-10-14  
+**Last updated:** 2026-10-16
 **Scope:** Open-source, software-first industrial motor condition monitoring and predictive-maintenance **simulation**. No hardware, PLC control, remote deployment, or operational maintenance decisions in this phase.
 
 ## v1 definition of done
@@ -57,6 +57,28 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - MP-042 implemented: versioned SQLite v3 migration/backfill, per-session/per-asset deduplicated synthetic rule incidents with opened/escalated/deescalated/reasons_changed/resolved/interrupted states and once-only, unauthenticated review labels using distinct wall UTC. Raw telemetry/alert events remain intact, and incident transitions commit atomically with full ticks. Added bounded incidents/transitions REST endpoints, validated POST review and an accessible dashboard incident panel, with 24 new offline lifecycle/HTTP/migration/UI tests. No real machinery alarms, authenticated maintenance signoff, or RUL claims.
 
+- MP-043 implemented: strict localhost API request parsing now rejects duplicate JSON object keys, non-standard JSON constants and excessive nesting; safely bounds pathological `Content-Length` values before integer conversion; gives generic API 400/404/409/503 and request-framing errors stable machine-readable codes; and returns consistent JSON semantics for unsupported API methods while preserving static-file behavior and established history/incident codes. Six regression tests cover non-mutation, rollback-safe persistence failures and path redaction; the full Python 3.12 CI suite passes **464 tests**. No authentication, public-network exposure or physical equipment control was added.
+
+- MP-045 implemented: PR/manual quality gates now run the full **466-test** standard-library suite across Python 3.11/3.12/3.13 with `SyntaxWarning` promoted to an error. Pinned Ruff 0.17.0 checks correctness rules `E4`/`E7`/`E9`/`F` plus formatter compliance on changed Python, and a fail-closed dependency policy preserves zero runtime/optional dependencies plus the reviewed build requirements. GitHub's Dependency Review action was evaluated but is unavailable while the repository Dependency graph is disabled. GitHub Actions run `38772141714` passed all matrix, lint/format and dependency-policy gates.
+
+- MP-046 implemented: a dedicated clean-checkout Python 3.13 acceptance job creates an isolated temporary virtual environment, installs with the documented editable path, runs the installed loopback app from outside the checkout, exports three deterministic synthetic runs, builds the whole-run split, trains the healthy-only baseline and evaluates the held-out test partition. `PYTHONPATH` and user-site leakage are disabled; no IMS/external dataset or hardware is used. GitHub Actions run `38773979137` passed the fresh-clone job plus the 466-test 3.11/3.12/3.13 matrix, lint/format and dependency policy.
+
+- MP-047 implemented: added a consolidated localhost API reference, end-to-end CLI tutorial covering every installed console command, dedicated troubleshooting guide, refreshed online/offline architecture diagrams, and clarified local-file versus HTTP/runtime configuration boundaries. Five documentation-contract tests pin README navigation, routes/limits, CLI coverage, diagrams and failure surfaces. GitHub Actions run `38775790658` passed **471/471** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility; no runtime behavior or hardware/public-network capability was added.
+
+- MP-048 implemented: added canonical model cards for the fixed illustrative rules and the healthy-trained synthetic anomaly detector, including source data, intended use, exact input/output contracts, held-out validation evidence, failure modes and prohibited claims. Five documentation-contract tests pin rule thresholds/sensor abstentions, the five-feature healthy-only whole-run anomaly method and training-only 99th-percentile cutoff, and the explicit no-RUL-model boundary. GitHub Actions run `38819182967` passed **476/476** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility; no model behavior or industrial claims changed.
+
+- MP-049 implemented: enforced loopback-only server construction, exact local Host-header validation, pre-bind port validation with safe failed-construction cleanup, and startup-config rejection of symlinked files/parents. Six security regressions also preserve no bind-address CLI escape hatch and no hardware/PLC control actions; `docs/SECURITY.md` documents the unauthenticated local threat boundary and no industrial safety guarantee. GitHub Actions run `38820601629` passed **482/482** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility; no public-network, authentication, hardware or remote-control capability was added.
+
+- MP-015 implemented: added a dated 2026-10-15 synthetic-only benchmark generated from the fixed MP-033 experiment config, with reproducible commands, held-out model-vs-rule metrics/provenance, and linked repo-local self-contained SVG demo media. Four tests pin the report/media contracts and Python 3.13 byte-regenerates both artifacts. GitHub Actions run `38821977822` ran 486 tests across Python 3.11/3.12/3.13 (the single byte-snapshot assertion is skipped by design on 3.11/3.12) plus lint/format, dependency policy and fresh-clone reproducibility; the linked demo media is a generated SVG summary, not a hosted video, and metrics are not field performance.
+
+- MP-050 implemented: added structured bug/feature issue forms, a PR quality/claim/provenance checklist, current contributor guidance and synthetic-only beginner tasks. Six regression contracts require reproducibility fields, protect local-first/security/data boundaries and keep starter work away from already-completed or hardware/real-data milestones. GitHub Actions run `38822843799` passed **492/492** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility.
+
+- MP-044 implemented: the recorded-history panel can download the currently loaded bounded synthetic page as formula-safe CSV and clone each visible vibration/temperature/RPM chart as a simulation-labelled SVG. Exports are browser-only, add no API route or backend write, never fetch hidden pages, and leave held-out evaluation reports to the existing write-once CLI workflow. Six regression/V8 contracts cover export state, simulation labels, SVG serialization and CSV escaping. GitHub Actions run `38829188216` passed the **498-test** supported-Python matrix plus lint/format, dependency policy and fresh-clone reproducibility.
+
+- MP-014 implemented: added localhost-only standard-library `GET /api/stream` Server-Sent Events carrying atomic read-only synthetic snapshot/status state, with retry metadata and latest-state reconnect semantics but no replay buffer. The dashboard prefers EventSource and automatically retains the existing 1.5-second snapshot/status polling as fallback on unsupported/error/reconnect paths. Six regressions cover headers, non-mutation, explicit-step reconnect, local Host rejection and dashboard fallback contracts. GitHub Actions run `38830266363` passed the **504-test** supported-Python matrix plus lint/format, dependency policy and fresh-clone reproducibility; no CORS/public bind, WebSocket dependency, hardware integration or remote control was added.
+
+- MP-031 implemented: added an optional, standard-library, **local-only** CWRU MATLAB-v5 adapter for user-supplied files, with bounded real-double vector parsing, optional zlib-compressed elements, explicit channel/bearing/fault/load/rate metadata, summary-only output, source/report SHA-256 provenance and a local-only dataset card. Seeded EDM fault conditions remain explicitly distinct from run-to-failure trajectories, failure time, failure probability and RUL; filenames are never used to infer labels. Ten regressions use only handwritten MATLAB-v5 bytes. Official CWRU pages were reviewed for source/test metadata, but an explicit dataset redistribution license was not established, so original/derived measurement redistribution remains **unverified and blocked by project policy**. GitHub Actions run `38841694707` passed **514/514** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility. The adapter has not been validated on a real CWRU archive file.
+
 ## Milestone 0 — Existing proof of concept
 
 | ID | Status | Priority | Task | Acceptance evidence |
@@ -98,7 +120,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-028 | DONE | P1 | Dataset validation and preprocessing | Channel mapping, frequencies, units, timestamps, NaN handling, corrupt-file tests |
 | MP-029 | DONE | P1 | Exploratory data quality report | Reproducible distributions, trend examples, data quality and label caveats |
 | MP-030 | DONE | P1 | Leakage-resistant train/validation/test splitting | Group by run/bearing/asset; preserve temporal order when required |
-| MP-031 | TODO | P2 | Optional CWRU data adapter | Reuse terms and dataset card; distinguish seeded faults from run-to-failure |
+| MP-031 | DONE | P2 | Optional CWRU data adapter | Reuse terms and dataset card; distinguish seeded faults from run-to-failure |
 | MP-032 | DONE | P1 | Dataset cards | Provenance, methods, limitations, intended use and licensing for synthetic and real data |
 
 **Exit criteria:** Synthetic exports and one documented external dataset adapter work with leakage-resistant splitting.
@@ -125,12 +147,12 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 |---|---|---|---|---|
 | MP-012 | DONE | P1 | Persist telemetry and alerts in SQLite | Versioned migrations, restart and history integration tests |
 | MP-013 | DONE | P1 | Trend charts, filtering and accessible UI | Motor/time selection, temperature and vibration trends; keyboard and responsive tests |
-| MP-014 | TODO | P2 | Optional SSE/WebSocket streaming | Live events and reconnect tested; polling fallback |
+| MP-014 | DONE | P2 | Optional SSE/WebSocket streaming | Live events and reconnect tested; polling fallback |
 | MP-040 | DONE | P1 | History and event REST endpoints | Paginated and filtered reads; documented errors and response schema |
 | MP-041 | DONE | P1 | Simulation controls in UI | Start/pause/reset, seed, scenario, severity, speed; explicit simulated time |
 | MP-042 | DONE | P1 | Explicit alert lifecycle | Transitions, deduplication, reasons, severity and persistence |
-| MP-043 | TODO | P1 | API request validation and errors | Bounds, content types, stable response codes and safe failure modes |
-| MP-044 | TODO | P2 | Export charts and reports | Download telemetry/evaluation reports labelled as simulation |
+| MP-043 | DONE | P1 | API request validation and errors | Bounds, content types, stable response codes and safe failure modes |
+| MP-044 | DONE | P2 | Export charts and reports | Download telemetry/evaluation reports labelled as simulation |
 
 **Exit criteria:** A user can control a run, see history and compare model outputs without editing source code.
 
@@ -138,13 +160,13 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 | ID | Status | Priority | Task | Acceptance evidence |
 |---|---|---|---|---|
-| MP-015 | TODO | P2 | Demo video and benchmark report | Dated metrics, reproducible commands and linked demo media |
-| MP-045 | TODO | P1 | Expanded quality gates | Lint/format, dependency reviews, API and integration tests, supported Python matrix |
-| MP-046 | TODO | P1 | Fresh-clone reproducibility test | Install, run, export and evaluate from written instructions |
-| MP-047 | TODO | P1 | API/configuration/architecture documentation | Updated diagrams, schemas, CLI tutorial and troubleshooting |
-| MP-048 | TODO | P1 | Model cards and failure modes | Source dataset, intended use, validation and limitations for each baseline |
-| MP-049 | TODO | P1 | Secure local-first defaults | Localhost-only; validate file paths/inputs; no unsafe controls or industrial guarantees |
-| MP-050 | TODO | P2 | Community and issue templates | Issue/PR templates, contributor instructions and beginner tasks |
+| MP-015 | DONE | P2 | Demo video and benchmark report | Dated metrics, reproducible commands and linked demo media |
+| MP-045 | DONE | P1 | Expanded quality gates | Lint/format, dependency reviews, API and integration tests, supported Python matrix |
+| MP-046 | DONE | P1 | Fresh-clone reproducibility test | Install, run, export and evaluate from written instructions |
+| MP-047 | DONE | P1 | API/configuration/architecture documentation | Updated diagrams, schemas, CLI tutorial and troubleshooting |
+| MP-048 | DONE | P1 | Model cards and failure modes | Source dataset, intended use, validation and limitations for each baseline |
+| MP-049 | DONE | P1 | Secure local-first defaults | Localhost-only; validate file paths/inputs; no unsafe controls or industrial guarantees |
+| MP-050 | DONE | P2 | Community and issue templates | Issue/PR templates, contributor instructions and beginner tasks |
 | MP-051 | TODO | P2 | Tag a usable release | SemVer, CHANGELOG, reproducible demo and honest release caveats |
 | MP-052 | TODO | P2 | Optional containerized quick start | Simple Dockerfile/Compose; native Python remains supported |
 | MP-016 | ON HOLD | P3 | Real sensors, PLC, edge and remote deployment | Separate later phase after software evaluation and security approval |
