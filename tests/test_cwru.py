@@ -35,9 +35,13 @@ def _matrix(name: str, values: list[float], *, array_class: int = 6) -> bytes:
     return _element(14, flags + dims + name_part + real)
 
 
-def _write_mat(path: Path, variables: dict[str, list[float]], *, compressed=False) -> None:
+def _write_mat(
+    path: Path, variables: dict[str, list[float]], *, compressed=False
+) -> None:
     description = b"MATLAB 5.0 MAT-file, handwritten MotorPulse test fixture"
-    header = description.ljust(116, b" ") + b"\0" * 8 + struct.pack("<H", 0x0100) + b"IM"
+    header = (
+        description.ljust(116, b" ") + b"\0" * 8 + struct.pack("<H", 0x0100) + b"IM"
+    )
     body = bytearray()
     for name, values in variables.items():
         matrix = _matrix(name, values)
@@ -101,7 +105,9 @@ class CWRUMatAdapterTests(unittest.TestCase):
             report = inspect_cwru_file(source, metadata)
         self.assertEqual(report["labels"]["seeded_fault_type"], "normal")
         self.assertIsNone(report["labels"]["seeded_fault_diameter_mils"])
-        self.assertEqual(report["metadata"]["experiment_type"], "seeded_fault_not_run_to_failure")
+        self.assertEqual(
+            report["metadata"]["experiment_type"], "seeded_fault_not_run_to_failure"
+        )
 
     def test_channel_and_fault_metadata_are_explicit_not_filename_inferred(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -159,7 +165,12 @@ class CWRUMatAdapterTests(unittest.TestCase):
                 inspect_cwru_file(source, metadata)
             bad = root / "bad.mat"
             description = b"MATLAB 5.0 MAT-file, handwritten MotorPulse test fixture"
-            header = description.ljust(116, b" ") + b"\0" * 8 + struct.pack("<H", 0x0100) + b"IM"
+            header = (
+                description.ljust(116, b" ")
+                + b"\0" * 8
+                + struct.pack("<H", 0x0100)
+                + b"IM"
+            )
             bad.write_bytes(header + _matrix("X105_DE_time", [1.0, 2.0], array_class=7))
             bad_meta = _write_metadata(bad, _metadata(bad))
             with self.assertRaises(ValueError):
@@ -175,7 +186,9 @@ class CWRUMatAdapterTests(unittest.TestCase):
         self.assertNotIn(str(source.parent), encoded)
         self.assertNotIn("samples", report["series"])
         self.assertEqual(len(report["source_file_sha256"]), 64)
-        self.assertEqual(report["rights"]["publication_status"], "local_only_do_not_redistribute")
+        self.assertEqual(
+            report["rights"]["publication_status"], "local_only_do_not_redistribute"
+        )
 
     def test_cli_is_write_once_and_offline(self):
         with tempfile.TemporaryDirectory() as tmp:

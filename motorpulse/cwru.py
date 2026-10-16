@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import json
 from math import isfinite, sqrt
 from pathlib import Path
 import struct
@@ -69,7 +68,11 @@ def _read_metadata(path: str | Path, source: Path) -> dict:
     if document["file_name"] != source.name:
         raise ValueError("metadata file_name does not match local MAT filename")
     channel = document["channel_variable"]
-    if type(channel) is not str or not 1 <= len(channel) <= 128 or not channel.isascii():
+    if (
+        type(channel) is not str
+        or not 1 <= len(channel) <= 128
+        or not channel.isascii()
+    ):
         raise ValueError("channel_variable must be 1-128 ASCII characters")
     location = document["bearing_location"]
     if location not in _BEARING_LOCATIONS:
@@ -86,7 +89,9 @@ def _read_metadata(path: str | Path, source: Path) -> dict:
     position = document["outer_race_position"]
     if fault == "outer_race":
         if position not in _OUTER_POSITIONS:
-            raise ValueError("outer-race faults require 3/6/12 o'clock position metadata")
+            raise ValueError(
+                "outer-race faults require 3/6/12 o'clock position metadata"
+            )
     elif position is not None:
         raise ValueError("outer_race_position applies only to outer-race faults")
     load = document["load_hp"]
@@ -155,7 +160,9 @@ def _uncompress(payload: bytes) -> bytes:
     return data
 
 
-def _matrix_vector(payload: bytes, target: str, endian: str) -> tuple[str, bytes, int] | None:
+def _matrix_vector(
+    payload: bytes, target: str, endian: str
+) -> tuple[str, bytes, int] | None:
     offset = 0
     flags: int | None = None
     dims: tuple[int, ...] | None = None
@@ -225,7 +232,9 @@ def _extract_vector(data: bytes, target: str) -> tuple[bytes, int, str]:
                     nested, nested_offset, endian
                 )
                 if nested_kind != MI_MATRIX:
-                    raise ValueError("compressed MATLAB payload contains unsupported element")
+                    raise ValueError(
+                        "compressed MATLAB payload contains unsupported element"
+                    )
                 variables += 1
                 if variables > MAX_VARIABLES:
                     raise ValueError("too many MATLAB variables")
@@ -327,36 +336,67 @@ def inspect_cwru_file(input_mat: str | Path, metadata_json: str | Path) -> dict:
     }
 
 
-
 def validate_cwru_report(report: object) -> dict:
     """Validate one path-free MP-031 summary before downstream use."""
     if type(report) is not dict or set(report) != {
-        "report_version", "source_card_id", "source_file_name", "source_file_bytes",
-        "source_file_sha256", "metadata", "series", "labels", "rights",
+        "report_version",
+        "source_card_id",
+        "source_file_name",
+        "source_file_bytes",
+        "source_file_sha256",
+        "metadata",
+        "series",
+        "labels",
+        "rights",
     }:
         raise ValueError("CWRU report keys differ from the v1 contract")
-    if report["report_version"] != "1.0.0" or report["source_card_id"] != SOURCE_CARD_ID:
+    if (
+        report["report_version"] != "1.0.0"
+        or report["source_card_id"] != SOURCE_CARD_ID
+    ):
         raise ValueError("unsupported CWRU report version or source card")
     name = report["source_file_name"]
-    if type(name) is not str or not name or name != Path(name).name or "/" in name or "\\" in name:
+    if (
+        type(name) is not str
+        or not name
+        or name != Path(name).name
+        or "/" in name
+        or "\\" in name
+    ):
         raise ValueError("source_file_name must be a local basename only")
     size = report["source_file_bytes"]
     if type(size) is not int or not 128 <= size <= MAX_MAT_BYTES:
         raise ValueError("invalid CWRU source_file_bytes")
     digest = report["source_file_sha256"]
-    if type(digest) is not str or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+    if (
+        type(digest) is not str
+        or len(digest) != 64
+        or any(c not in "0123456789abcdef" for c in digest)
+    ):
         raise ValueError("invalid CWRU source_file_sha256")
 
     metadata = report["metadata"]
     expected_metadata = set(_METADATA_KEYS) | {"experiment_type", "fault_method"}
     if type(metadata) is not dict or set(metadata) != expected_metadata:
         raise ValueError("CWRU report metadata keys differ from the v1 contract")
-    if metadata["metadata_version"] != "1.0.0" or metadata["source_url"] != OFFICIAL_SOURCE_URL:
+    if (
+        metadata["metadata_version"] != "1.0.0"
+        or metadata["source_url"] != OFFICIAL_SOURCE_URL
+    ):
         raise ValueError("invalid CWRU report metadata provenance")
-    if metadata["file_name"] != name or metadata["experiment_type"] != "seeded_fault_not_run_to_failure":
-        raise ValueError("CWRU report metadata does not match source/experiment semantics")
+    if (
+        metadata["file_name"] != name
+        or metadata["experiment_type"] != "seeded_fault_not_run_to_failure"
+    ):
+        raise ValueError(
+            "CWRU report metadata does not match source/experiment semantics"
+        )
     channel = metadata["channel_variable"]
-    if type(channel) is not str or not 1 <= len(channel) <= 128 or not channel.isascii():
+    if (
+        type(channel) is not str
+        or not 1 <= len(channel) <= 128
+        or not channel.isascii()
+    ):
         raise ValueError("invalid CWRU channel_variable")
     location = metadata["bearing_location"]
     fault = metadata["fault_type"]
@@ -370,14 +410,23 @@ def validate_cwru_report(report: object) -> dict:
         if diameter is not None or metadata["fault_method"] is not None:
             raise ValueError("normal CWRU metadata must not invent a seeded fault")
     else:
-        if type(diameter) is not int or diameter not in _FAULT_DIAMETERS or metadata["fault_method"] != "EDM":
+        if (
+            type(diameter) is not int
+            or diameter not in _FAULT_DIAMETERS
+            or metadata["fault_method"] != "EDM"
+        ):
             raise ValueError("invalid CWRU seeded fault metadata")
     if fault == "outer_race":
         if position not in _OUTER_POSITIONS:
             raise ValueError("outer-race CWRU report needs position metadata")
     elif position is not None:
         raise ValueError("outer-race position is invalid for this CWRU fault type")
-    if type(load) is not int or not 0 <= load <= 3 or type(rate) is not int or rate not in _SAMPLE_RATES:
+    if (
+        type(load) is not int
+        or not 0 <= load <= 3
+        or type(rate) is not int
+        or rate not in _SAMPLE_RATES
+    ):
         raise ValueError("invalid CWRU load or sample rate")
     if rate == 48000 and location != "drive_end":
         raise ValueError("48 kHz CWRU report must be drive-end")
@@ -386,14 +435,26 @@ def validate_cwru_report(report: object) -> dict:
 
     series = report["series"]
     if type(series) is not dict or set(series) != {
-        "sample_count", "mean_native", "rms_native", "peak_to_peak_native",
-        "crest_factor", "sample_rate_hz", "window_duration_s", "value_unit",
+        "sample_count",
+        "mean_native",
+        "rms_native",
+        "peak_to_peak_native",
+        "crest_factor",
+        "sample_rate_hz",
+        "window_duration_s",
+        "value_unit",
     }:
         raise ValueError("CWRU series keys differ from the v1 contract")
     count = series["sample_count"]
     if type(count) is not int or not 1 <= count <= MAX_VECTOR_SAMPLES:
         raise ValueError("invalid CWRU sample_count")
-    for field in ("mean_native", "rms_native", "peak_to_peak_native", "crest_factor", "window_duration_s"):
+    for field in (
+        "mean_native",
+        "rms_native",
+        "peak_to_peak_native",
+        "crest_factor",
+        "window_duration_s",
+    ):
         value = series[field]
         if type(value) not in (int, float) or not isfinite(value):
             raise ValueError(f"non-finite CWRU summary field: {field}")
@@ -404,16 +465,26 @@ def validate_cwru_report(report: object) -> dict:
 
     labels = report["labels"]
     if type(labels) is not dict or set(labels) != {
-        "seeded_fault_type", "seeded_fault_diameter_mils", "run_to_failure",
-        "failure_time", "failure_probability", "remaining_useful_life",
+        "seeded_fault_type",
+        "seeded_fault_diameter_mils",
+        "run_to_failure",
+        "failure_time",
+        "failure_probability",
+        "remaining_useful_life",
     }:
         raise ValueError("CWRU labels keys differ from the v1 contract")
-    if labels["seeded_fault_type"] != fault or labels["seeded_fault_diameter_mils"] != diameter:
+    if (
+        labels["seeded_fault_type"] != fault
+        or labels["seeded_fault_diameter_mils"] != diameter
+    ):
         raise ValueError("CWRU labels do not match explicit metadata")
     if labels["run_to_failure"] is not False or any(
-        labels[key] is not None for key in ("failure_time", "failure_probability", "remaining_useful_life")
+        labels[key] is not None
+        for key in ("failure_time", "failure_probability", "remaining_useful_life")
     ):
-        raise ValueError("CWRU seeded-fault records must not claim run-to-failure/RUL truth")
+        raise ValueError(
+            "CWRU seeded-fault records must not claim run-to-failure/RUL truth"
+        )
 
     rights = report["rights"]
     if rights != {
@@ -433,14 +504,18 @@ def main() -> None:
             "no download or redistribution"
         )
     )
-    parser.add_argument("--input", type=Path, required=True, help="local CWRU .mat file")
+    parser.add_argument(
+        "--input", type=Path, required=True, help="local CWRU .mat file"
+    )
     parser.add_argument(
         "--metadata",
         type=Path,
         required=True,
         help="explicit local CWRU metadata JSON; labels are never inferred from filename",
     )
-    parser.add_argument("--out", type=Path, required=True, help="new summary JSON; no overwrite")
+    parser.add_argument(
+        "--out", type=Path, required=True, help="new summary JSON; no overwrite"
+    )
     args = parser.parse_args()
     try:
         report = inspect_cwru_file(args.input, args.metadata)
