@@ -30,6 +30,7 @@ class ContainerQuickStartContracts(unittest.TestCase):
         self.assertIn('["python", "-m", "motorpulse"]', text)
         self.assertIn('["--port", "8765"]', text)
         self.assertIn("http://127.0.0.1:8765/api/health", text)
+        self.assertNotIn("0.0.0.0", text)
         for forbidden in ("pip install", "apt-get", "apk add", "curl ", "wget ", "EXPOSE "):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, text)
@@ -46,6 +47,7 @@ class ContainerQuickStartContracts(unittest.TestCase):
         ):
             with self.subTest(required=required):
                 self.assertIn(required, text)
+        self.assertNotIn("0.0.0.0", text)
         for forbidden in ("ports:", "volumes:", "devices:", "privileged:", "/var/run/docker.sock"):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, text)
@@ -70,17 +72,18 @@ class ContainerQuickStartContracts(unittest.TestCase):
             "docker compose up --build",
             "http://127.0.0.1:8765",
             "network_mode: host",
-            "Docker Desktop 4.34",
+            "4.34 or later",
             "Enable host networking",
             "native Python",
             "127.0.0.1",
             "no port publishing",
             "shares the host network stack",
             "not required",
+            "does **not** weaken the application",
+            "Do not change the server to `0.0.0.0`",
         ):
             with self.subTest(term=term):
                 self.assertIn(term, text)
-        self.assertNotIn("0.0.0.0", text)
 
     def test_ci_builds_runs_and_checks_local_security_boundary(self):
         text = WORKFLOW.read_text(encoding="utf-8")
