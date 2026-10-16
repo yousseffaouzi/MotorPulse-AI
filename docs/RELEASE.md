@@ -14,6 +14,10 @@ MotorPulse AI has **no RUL model**. The healthy-trained anomaly baseline is synt
 
 The optional container quick start is convenience tooling, not a deployment architecture. It uses host network mode only so MotorPulse can keep its loopback bind; host networking shares the host network stack. Docker is **not required** and native Python remains the primary supported path.
 
+### Candidate preparation evidence
+
+Release-candidate preparation was verified on branch head `f36f7ec1aa94dbcdbffa218a3d87280cc10b5e22` by GitHub Actions run `38843920706`: all seven permanent quality jobs passed, and the supported-Python suite contains **526 tests**. This is review evidence only and does **not complete MP-051**. Final completion still requires explicit approval, integration into `main`, a new exact-`main` seven-gate run, and creating `v0.1.0` from that verified commit.
+
 ## 1. Verify the integrated source
 
 From a clean checkout of the exact candidate commit on `main`:
