@@ -75,6 +75,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - MP-044 implemented: the recorded-history panel can download the currently loaded bounded synthetic page as formula-safe CSV and clone each visible vibration/temperature/RPM chart as a simulation-labelled SVG. Exports are browser-only, add no API route or backend write, never fetch hidden pages, and leave held-out evaluation reports to the existing write-once CLI workflow. Six regression/V8 contracts cover export state, simulation labels, SVG serialization and CSV escaping. GitHub Actions run `38829188216` passed the **498-test** supported-Python matrix plus lint/format, dependency policy and fresh-clone reproducibility.
 
+- MP-014 implemented: added localhost-only standard-library `GET /api/stream` Server-Sent Events carrying atomic read-only synthetic snapshot/status state, with retry metadata and latest-state reconnect semantics but no replay buffer. The dashboard prefers EventSource and automatically retains the existing 1.5-second snapshot/status polling as fallback on unsupported/error/reconnect paths. Six regressions cover headers, non-mutation, explicit-step reconnect, local Host rejection and dashboard fallback contracts. GitHub Actions run `38830266363` passed the **504-test** supported-Python matrix plus lint/format, dependency policy and fresh-clone reproducibility; no CORS/public bind, WebSocket dependency, hardware integration or remote control was added.
+
 ## Milestone 0 — Existing proof of concept
 
 | ID | Status | Priority | Task | Acceptance evidence |
@@ -143,7 +145,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 |---|---|---|---|---|
 | MP-012 | DONE | P1 | Persist telemetry and alerts in SQLite | Versioned migrations, restart and history integration tests |
 | MP-013 | DONE | P1 | Trend charts, filtering and accessible UI | Motor/time selection, temperature and vibration trends; keyboard and responsive tests |
-| MP-014 | TODO | P2 | Optional SSE/WebSocket streaming | Live events and reconnect tested; polling fallback |
+| MP-014 | DONE | P2 | Optional SSE/WebSocket streaming | Live events and reconnect tested; polling fallback |
 | MP-040 | DONE | P1 | History and event REST endpoints | Paginated and filtered reads; documented errors and response schema |
 | MP-041 | DONE | P1 | Simulation controls in UI | Start/pause/reset, seed, scenario, severity, speed; explicit simulated time |
 | MP-042 | DONE | P1 | Explicit alert lifecycle | Transitions, deduplication, reasons, severity and persistence |

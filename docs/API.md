@@ -11,6 +11,7 @@ The default base URL is `http://127.0.0.1:8765`. Use `--port` to select another 
 | GET | `/api/health` | Process/API liveness for the synthetic app | No |
 | GET | `/api/snapshot` | Read the cached current telemetry snapshot without stepping | No |
 | GET | `/api/status` | Read controller state, seed, clocks, tick and optional storage/session status | No |
+| GET | `/api/stream` | Stream read-only latest synthetic snapshot/status state with Server-Sent Events | No |
 | GET | `/api/config` | Read the complete active per-asset synthetic scenario configuration | No |
 | PUT | `/api/config` | Atomically validate and replace all asset scenarios, pause and reset | No |
 | PUT | `/api/runtime` | Atomically replace deterministic seed and clock settings, pause and reset | No |
@@ -44,6 +45,14 @@ Returns the cached v1 synthetic telemetry snapshot. Reads are side-effect free: 
 ### `GET /api/status`
 
 Returns controller state and timing metadata, including `state`, `tick`, `seed`, `start_time_utc`, `simulated_at_utc`, `step_seconds`, and `interval_seconds`. When SQLite persistence is enabled, status also exposes local storage/session metadata. See [RUNTIME_CONTROLS.md](RUNTIME_CONTROLS.md).
+
+### `GET /api/stream`
+
+Returns a long-lived `text/event-stream` response for the local dashboard. Each named `state` event contains one atomic read-only object with `source="simulation"`, the current cached `snapshot`, and matching controller `status`. Opening or reading the stream never advances virtual time, persists a tick, changes a control state, or invokes a simulation action.
+
+The server emits an event immediately and then approximately every 1.5 wall-clock seconds. Frames include `retry: 1500`, `event: state`, and an `id` equal to the current synthetic tick. The `id` is convenience metadata, **not** an event-log cursor: the server does not buffer or replay missed frames. A reconnect reads the latest current state.
+
+The same loopback bind and local `Host` validation apply to the stream. There is no CORS/public-network mode or authentication layer. The packaged browser prefers `EventSource` when available; if EventSource is unavailable, parsing fails, or the connection errors while the browser reconnects, the existing 1.5-second `/api/snapshot` + `/api/status` polling loop remains the fallback.
 
 ### `GET /api/config`
 
