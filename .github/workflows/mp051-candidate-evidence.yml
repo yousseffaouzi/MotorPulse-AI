@@ -1,0 +1,33 @@
+name: MP-051 candidate evidence helper
+
+on:
+  push:
+    branches: [release/v0.1.0-candidate]
+    paths:
+      - '.github/workflows/mp051-candidate-evidence.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: release/v0.1.0-candidate
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Patch candidate evidence
+        run: python scripts/mp051_candidate_evidence.py
+      - name: Verify release-readiness contracts
+        run: python -m unittest discover -s tests -p 'test_release_readiness.py' -v
+      - name: Commit evidence and self-remove
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/TESTING.md TODO.md
+          git rm scripts/mp051_candidate_evidence.py .github/workflows/mp051-candidate-evidence.yml
+          git commit -m 'docs(mp-051): record verified candidate evidence'
+          git push origin HEAD:release/v0.1.0-candidate
