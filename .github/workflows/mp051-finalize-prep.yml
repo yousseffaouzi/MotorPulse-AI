@@ -1,0 +1,65 @@
+name: MP-051 prep finalizer
+
+on:
+  push:
+    branches: [release/mp-051-prep]
+    paths: [.github/workflows/mp051-finalize-prep.yml]
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: release/mp-051-prep
+      - name: Record verified release-prep evidence
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          testing = Path('docs/TESTING.md')
+          text = testing.read_text(encoding='utf-8')
+          old_count = 'The suite contains **492 standard-library unittest test cases**'
+          if text.count(old_count) != 1:
+              raise SystemExit('TESTING suite-count anchor mismatch')
+          text = text.replace(old_count, 'The suite contains **498 standard-library unittest test cases**', 1)
+
+          old_tail = '4 dated benchmark/demo tests from MP-015, and 6 community/onboarding contract tests from MP-050).'
+          new_tail = '4 dated benchmark/demo tests from MP-015, 6 community/onboarding contract tests from MP-050, and 6 release-preparation contract tests from MP-051).'
+          if text.count(old_tail) != 1:
+              raise SystemExit('TESTING test-list anchor mismatch')
+          text = text.replace(old_tail, new_tail, 1)
+
+          anchor = 'Implementation evidence: GitHub Actions run `38822843799` passed all six quality jobs. The complete suite ran **492/492** on Python 3.11, 3.12 and 3.13; changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green.\n'
+          section = '''\n## MP-051: v0.1.0 release preparation\n\nSix standard-library contracts in `tests/test_release_readiness.py` pin the candidate release metadata and, importantly, prevent documentation prep from being mistaken for a published release. They require SemVer candidate `0.1.0` with Alpha status, a dated changelog, reproducible benchmark/demo links, a release procedure that only permits tagging an integrated green `main`, the existing local-first/data-rights/no-RUL boundaries, and an MP-051 tracker row that remains `TODO` until a real tag exists.\n\n`CHANGELOG.md` and `docs/RELEASE.md` now describe the candidate `v0.1.0` contents and exact future verification/tag steps. No Git tag or GitHub Release was created by this preparation branch. Tagging remains blocked until the stacked milestone work is integrated into `main`, the exact integrated commit passes all six permanent quality jobs, and explicit merge/tag approval is given.\n\nPreparation evidence: GitHub Actions run `38828227192` passed all six quality jobs on prep head `6cce4a10fea922721574c41cc1f7bbeee18a1f18`. The complete suite ran **498/498** on Python 3.13 and passed on Python 3.11/3.12 with the existing MP-015 Python-3.13-only byte-regeneration assertion skipped by design; changed-code Ruff/format, dependency policy and fresh-clone reproducibility were also green. MP-051 remains `TODO` because no release tag exists.\n'''
+          if text.count(anchor) != 1:
+              raise SystemExit('TESTING MP-050 evidence anchor mismatch')
+          text = text.replace(anchor, anchor + section, 1)
+          testing.write_text(text, encoding='utf-8')
+
+          todo = Path('TODO.md')
+          text = todo.read_text(encoding='utf-8')
+          if text.count('**Last updated:** 2026-10-15  ') != 1:
+              raise SystemExit('TODO date anchor mismatch')
+          text = text.replace('**Last updated:** 2026-10-15  ', '**Last updated:** 2026-10-16  ', 1)
+          row = '| MP-051 | TODO | P2 | Tag a usable release | SemVer, CHANGELOG, reproducible demo and honest release caveats |'
+          if text.count(row) != 1:
+              raise SystemExit('TODO MP-051 row must remain TODO')
+          anchor = '- MP-050 implemented: added structured bug/feature issue forms, a PR quality/claim/provenance checklist, current contributor guidance and synthetic-only beginner tasks. Six regression contracts require reproducibility fields, protect local-first/security/data boundaries and keep starter work away from already-completed or hardware/real-data milestones. GitHub Actions run `38822843799` passed **492/492** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy and fresh-clone reproducibility.\n'
+          bullet = '\n- MP-051 release preparation verified: candidate package metadata is `0.1.0` Alpha, `CHANGELOG.md` and `docs/RELEASE.md` document the synthetic-only/local-first release boundary and reproducible benchmark, and six regressions require tagging only an integrated green `main`. GitHub Actions run `38828227192` passed the 498-test supported-Python matrix plus lint/format, dependency policy and fresh-clone reproducibility. **MP-051 remains TODO:** no Git tag or GitHub Release exists, and tagging requires integration plus explicit approval.\n'
+          if text.count(anchor) != 1:
+              raise SystemExit('TODO MP-050 bullet anchor mismatch')
+          text = text.replace(anchor, anchor + bullet, 1)
+          todo.write_text(text, encoding='utf-8')
+          PY
+          git diff --check
+          git rm .github/workflows/mp051-finalize-prep.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add docs/TESTING.md TODO.md
+          git commit -m 'docs(mp-051): record release-prep evidence'
+          git push origin HEAD:release/mp-051-prep
