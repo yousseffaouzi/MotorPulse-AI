@@ -1,4 +1,4 @@
-"""MP-051 release-preparation contracts; these tests do not create a Git tag."""
+"""MP-051 release-preparation contracts; prep must never imply a published tag."""
 
 from __future__ import annotations
 
