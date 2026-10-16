@@ -1,4 +1,5 @@
 """Thread-safe, local-only simulation control decoupled from HTTP reads."""
+
 from __future__ import annotations
 
 from copy import deepcopy
@@ -10,7 +11,12 @@ import sqlite3
 from threading import Condition, Thread
 
 from .sim import DEFAULT_START_TIME_UTC, MotorSimulator
-from .scenarios import DEFAULT_ASSETS, AssetScenario, parse_configuration, configuration_dict
+from .scenarios import (
+    DEFAULT_ASSETS,
+    AssetScenario,
+    parse_configuration,
+    configuration_dict,
+)
 from .storage import SQLiteHistory
 
 _LOG = logging.getLogger(__name__)
@@ -28,12 +34,17 @@ class SimulationController:
     Worker scheduling is wall-clock based, but telemetry time is fully virtual.
     """
 
-    def __init__(self, *, seed: int = 42, interval_seconds: float = 1.5,
-                 autostart: bool = True,
-                 start_time_utc: datetime = DEFAULT_START_TIME_UTC,
-                 step_seconds: float = 1.5,
-                 assets: tuple[AssetScenario, ...] = DEFAULT_ASSETS,
-                 database_path: str | Path | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        seed: int = 42,
+        interval_seconds: float = 1.5,
+        autostart: bool = True,
+        start_time_utc: datetime = DEFAULT_START_TIME_UTC,
+        step_seconds: float = 1.5,
+        assets: tuple[AssetScenario, ...] = DEFAULT_ASSETS,
+        database_path: str | Path | None = None,
+    ) -> None:
         if type(seed) is not int:
             raise ValueError("seed must be an integer")
         if not 0 < interval_seconds <= 3600:
@@ -41,18 +52,25 @@ class SimulationController:
         self.seed = seed
         self.interval_seconds = interval_seconds
         self._condition = Condition()
-        self._sim = MotorSimulator(seed=seed, start_time_utc=start_time_utc,
-                                   step_seconds=step_seconds, assets=assets)
+        self._sim = MotorSimulator(
+            seed=seed,
+            start_time_utc=start_time_utc,
+            step_seconds=step_seconds,
+            assets=assets,
+        )
         self.start_time_utc = self._sim.start_time_utc
         self.step_seconds = self._sim.step_seconds
         self._snapshot = self._sim.step()
-        self._storage = SQLiteHistory(database_path) if database_path is not None else None
+        self._storage = (
+            SQLiteHistory(database_path) if database_path is not None else None
+        )
         self._session_id: str | None = None
         self._storage_error: str | None = None
         if self._storage is not None:
             try:
                 self._session_id = self._storage.start_session(
-                    self._snapshot, seed=seed,
+                    self._snapshot,
+                    seed=seed,
                     start_time_utc=self.start_time_utc.isoformat(),
                     step_seconds=self.step_seconds,
                     configuration=configuration_dict(self._sim.assets),
@@ -63,7 +81,9 @@ class SimulationController:
                 raise
         self._running = bool(autostart)
         self._closed = False
-        self._worker = Thread(target=self._run, name="motorpulse-simulator", daemon=True)
+        self._worker = Thread(
+            target=self._run, name="motorpulse-simulator", daemon=True
+        )
         self._worker.start()
 
     def _run(self) -> None:
@@ -82,11 +102,15 @@ class SimulationController:
                     except (sqlite3.Error, OSError, ValueError) as exc:
                         self._running = False
                         self._storage_error = type(exc).__name__
-                        _LOG.error("SQLite persistence failed; simulator paused: %s", exc)
+                        _LOG.error(
+                            "SQLite persistence failed; simulator paused: %s", exc
+                        )
 
     def _require_storage_healthy(self) -> None:
         if self._storage_error is not None:
-            raise ControlConflict("persistence error; restart required before simulation writes")
+            raise ControlConflict(
+                "persistence error; restart required before simulation writes"
+            )
 
     def _advance_locked(self) -> None:
         """Persist a complete tick before publishing any in-memory change."""
@@ -104,6 +128,15 @@ class SimulationController:
         with self._condition:
             return deepcopy(self._snapshot)
 
+    def stream_state(self) -> dict:
+        """Return one atomic, read-only snapshot/status pair for local streaming."""
+        with self._condition:
+            return {
+                "source": "simulation",
+                "snapshot": deepcopy(self._snapshot),
+                "status": self._status_locked(),
+            }
+
     def configuration(self) -> dict:
         with self._condition:
             return configuration_dict(self._sim.assets)
@@ -114,10 +147,12 @@ class SimulationController:
         Validation happens before touching any live simulation state.
         """
         assets = parse_configuration(payload)
-        replacement = MotorSimulator(seed=self.seed,
-                                     start_time_utc=self.start_time_utc,
-                                     step_seconds=self.step_seconds,
-                                     assets=assets)
+        replacement = MotorSimulator(
+            seed=self.seed,
+            start_time_utc=self.start_time_utc,
+            step_seconds=self.step_seconds,
+            assets=assets,
+        )
         first = replacement.step()
         with self._condition:
             if self._closed:
@@ -125,10 +160,12 @@ class SimulationController:
             self._require_storage_healthy()
             if self._storage is not None:
                 self._session_id = self._storage.start_session(
-                    first, seed=self.seed,
+                    first,
+                    seed=self.seed,
                     start_time_utc=self.start_time_utc.isoformat(),
                     step_seconds=self.step_seconds,
-                    configuration=configuration_dict(assets), reason="configure",
+                    configuration=configuration_dict(assets),
+                    reason="configure",
                 )
             self._running = False
             self._sim = replacement
@@ -143,30 +180,49 @@ class SimulationController:
         SQLite session when persistence is enabled. No partial state commits.
         """
         if type(payload) is not dict or set(payload) != {
-            "seed", "step_seconds", "interval_seconds",
+            "seed",
+            "step_seconds",
+            "interval_seconds",
         }:
-            raise ValueError("runtime settings require exactly seed, step_seconds and interval_seconds")
+            raise ValueError(
+                "runtime settings require exactly seed, step_seconds and interval_seconds"
+            )
         seed = payload["seed"]
         if type(seed) is not int or not 0 <= seed <= 2_147_483_647:
             raise ValueError("seed must be an integer from 0 to 2147483647")
         interval = payload["interval_seconds"]
-        if type(interval) not in (int, float) or not isfinite(interval) or not 0.05 <= interval <= 3600:
-            raise ValueError("interval_seconds must be finite and between 0.05 and 3600")
+        if (
+            type(interval) not in (int, float)
+            or not isfinite(interval)
+            or not 0.05 <= interval <= 3600
+        ):
+            raise ValueError(
+                "interval_seconds must be finite and between 0.05 and 3600"
+            )
         step = payload["step_seconds"]
-        if type(step) not in (int, float) or not isfinite(step) or not 0.000001 <= step <= 86400:
-            raise ValueError("step_seconds must be finite and between 0.000001 and 86400")
+        if (
+            type(step) not in (int, float)
+            or not isfinite(step)
+            or not 0.000001 <= step <= 86400
+        ):
+            raise ValueError(
+                "step_seconds must be finite and between 0.000001 and 86400"
+            )
         with self._condition:
             if self._closed:
                 raise ControlConflict("simulation has been closed")
             self._require_storage_healthy()
             replacement = MotorSimulator(
-                seed=seed, start_time_utc=self.start_time_utc,
-                step_seconds=step, assets=self._sim.assets,
+                seed=seed,
+                start_time_utc=self.start_time_utc,
+                step_seconds=step,
+                assets=self._sim.assets,
             )
             first = replacement.step()
             if self._storage is not None:
                 new_session = self._storage.start_session(
-                    first, seed=seed,
+                    first,
+                    seed=seed,
                     start_time_utc=self.start_time_utc.isoformat(),
                     step_seconds=replacement.step_seconds,
                     configuration=configuration_dict(replacement.assets),
@@ -184,19 +240,21 @@ class SimulationController:
 
     def _status_locked(self) -> dict:
         status = {
-                "state": "running" if self._running else "paused",
-                "tick": self._sim.tick,
-                "seed": self.seed,
-                "interval_seconds": self.interval_seconds,
-                "step_seconds": self.step_seconds,
-                "start_time_utc": self.start_time_utc.isoformat(),
-                "simulated_at_utc": self._snapshot["recorded_at_utc"],
-            }
+            "state": "running" if self._running else "paused",
+            "tick": self._sim.tick,
+            "seed": self.seed,
+            "interval_seconds": self.interval_seconds,
+            "step_seconds": self.step_seconds,
+            "start_time_utc": self.start_time_utc.isoformat(),
+            "simulated_at_utc": self._snapshot["recorded_at_utc"],
+        }
         if self._storage is not None:
-            status.update({
-                "storage": "error" if self._storage_error else "ok",
-                "session_id": self._session_id,
-            })
+            status.update(
+                {
+                    "storage": "error" if self._storage_error else "ok",
+                    "session_id": self._session_id,
+                }
+            )
         return status
 
     def status(self) -> dict:
@@ -219,14 +277,17 @@ class SimulationController:
                     raise ControlConflict("pause the simulation before stepping")
                 self._advance_locked()
             elif action == "reset":
-                replacement = MotorSimulator(seed=self.seed,
-                                             start_time_utc=self.start_time_utc,
-                                             step_seconds=self.step_seconds,
-                                             assets=self._sim.assets)
+                replacement = MotorSimulator(
+                    seed=self.seed,
+                    start_time_utc=self.start_time_utc,
+                    step_seconds=self.step_seconds,
+                    assets=self._sim.assets,
+                )
                 first = replacement.step()
                 if self._storage is not None:
                     self._session_id = self._storage.start_session(
-                        first, seed=self.seed,
+                        first,
+                        seed=self.seed,
                         start_time_utc=self.start_time_utc.isoformat(),
                         step_seconds=self.step_seconds,
                         configuration=configuration_dict(replacement.assets),
@@ -243,55 +304,105 @@ class SimulationController:
             raise ControlConflict("history requires --database SQLite persistence")
         return self._storage
 
-    def history_snapshots(self, *, session_id: str | None = None,
-                          limit: int = 50, before_id: int | None = None,
-                          start_utc: str | None = None,
-                          end_utc: str | None = None) -> list[dict]:
+    def history_snapshots(
+        self,
+        *,
+        session_id: str | None = None,
+        limit: int = 50,
+        before_id: int | None = None,
+        start_utc: str | None = None,
+        end_utc: str | None = None,
+    ) -> list[dict]:
         with self._condition:
             return self._history_store().snapshots(
-                session_id=session_id, limit=limit, before_id=before_id,
-                start_utc=start_utc, end_utc=end_utc)
+                session_id=session_id,
+                limit=limit,
+                before_id=before_id,
+                start_utc=start_utc,
+                end_utc=end_utc,
+            )
 
-    def history_events(self, *, session_id: str | None = None,
-                       asset_id: str | None = None, limit: int = 50,
-                       before_id: int | None = None, start_utc: str | None = None,
-                       end_utc: str | None = None) -> list[dict]:
+    def history_events(
+        self,
+        *,
+        session_id: str | None = None,
+        asset_id: str | None = None,
+        limit: int = 50,
+        before_id: int | None = None,
+        start_utc: str | None = None,
+        end_utc: str | None = None,
+    ) -> list[dict]:
         with self._condition:
             return self._history_store().events(
-                session_id=session_id, asset_id=asset_id, limit=limit,
-                before_id=before_id, start_utc=start_utc, end_utc=end_utc)
+                session_id=session_id,
+                asset_id=asset_id,
+                limit=limit,
+                before_id=before_id,
+                start_utc=start_utc,
+                end_utc=end_utc,
+            )
 
-    def history_alerts(self, *, session_id: str | None = None,
-                       asset_id: str | None = None, limit: int = 50,
-                       before_id: int | None = None, start_utc: str | None = None,
-                       end_utc: str | None = None) -> list[dict]:
+    def history_alerts(
+        self,
+        *,
+        session_id: str | None = None,
+        asset_id: str | None = None,
+        limit: int = 50,
+        before_id: int | None = None,
+        start_utc: str | None = None,
+        end_utc: str | None = None,
+    ) -> list[dict]:
         with self._condition:
             return self._history_store().alerts(
-                session_id=session_id, asset_id=asset_id, limit=limit,
-                before_id=before_id, start_utc=start_utc, end_utc=end_utc)
+                session_id=session_id,
+                asset_id=asset_id,
+                limit=limit,
+                before_id=before_id,
+                start_utc=start_utc,
+                end_utc=end_utc,
+            )
 
-    def history_sessions(self, *, limit: int = 50,
-                         before_id: int | None = None) -> list[dict]:
+    def history_sessions(
+        self, *, limit: int = 50, before_id: int | None = None
+    ) -> list[dict]:
         with self._condition:
-            return self._history_store().sessions(
-                limit=limit, before_id=before_id)
+            return self._history_store().sessions(limit=limit, before_id=before_id)
 
-    def history_incidents(self, *, session_id: str | None = None,
-                          asset_id: str | None = None, state: str | None = None,
-                          limit: int = 50, before_id: int | None = None) -> list[dict]:
+    def history_incidents(
+        self,
+        *,
+        session_id: str | None = None,
+        asset_id: str | None = None,
+        state: str | None = None,
+        limit: int = 50,
+        before_id: int | None = None,
+    ) -> list[dict]:
         with self._condition:
             return self._history_store().incidents(
-                session_id=session_id, asset_id=asset_id, state=state,
-                limit=limit, before_id=before_id)
+                session_id=session_id,
+                asset_id=asset_id,
+                state=state,
+                limit=limit,
+                before_id=before_id,
+            )
 
-    def history_transitions(self, *, incident_id: int | None = None,
-                            session_id: str | None = None,
-                            asset_id: str | None = None,
-                            limit: int = 50, before_id: int | None = None) -> list[dict]:
+    def history_transitions(
+        self,
+        *,
+        incident_id: int | None = None,
+        session_id: str | None = None,
+        asset_id: str | None = None,
+        limit: int = 50,
+        before_id: int | None = None,
+    ) -> list[dict]:
         with self._condition:
             return self._history_store().transitions(
-                incident_id=incident_id, session_id=session_id, asset_id=asset_id,
-                limit=limit, before_id=before_id)
+                incident_id=incident_id,
+                session_id=session_id,
+                asset_id=asset_id,
+                limit=limit,
+                before_id=before_id,
+            )
 
     def acknowledge_incident(self, incident_id: int, actor: str) -> dict:
         with self._condition:
