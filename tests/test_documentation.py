@@ -38,6 +38,7 @@ class DocumentationContractTests(unittest.TestCase):
             ("GET", "/api/health"),
             ("GET", "/api/snapshot"),
             ("GET", "/api/status"),
+            ("GET", "/api/stream"),
             ("GET", "/api/config"),
             ("PUT", "/api/config"),
             ("PUT", "/api/runtime"),
@@ -53,7 +54,14 @@ class DocumentationContractTests(unittest.TestCase):
         for method, path in routes:
             with self.subTest(method=method, path=path):
                 self.assertIn(f"| {method} | `{path}` |", api)
-        for contract in ("16384", "64", "unknown_api_endpoint"):
+        for contract in (
+            "16384",
+            "64",
+            "unknown_api_endpoint",
+            "text/event-stream",
+            "polling",
+            "does not buffer or replay missed frames",
+        ):
             with self.subTest(contract=contract):
                 self.assertIn(contract, api)
 
