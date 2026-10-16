@@ -3,6 +3,7 @@
 import argparse
 import json
 import sqlite3
+import time
 from datetime import datetime
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -102,12 +103,39 @@ class Handler(SimpleHTTPRequestHandler):
             head_only=head_only,
         )
 
+    def _sse(self) -> None:
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.end_headers()
+        self.close_connection = True
+        while True:
+            state = self.server.controller.stream_state()
+            payload = json.dumps(
+                state, allow_nan=False, separators=(",", ":")
+            )
+            frame = (
+                "retry: 1500\n"
+                f"id: {state['snapshot']['tick']}\n"
+                "event: state\n"
+                f"data: {payload}\n\n"
+            ).encode("utf-8")
+            try:
+                self.wfile.write(frame)
+                self.wfile.flush()
+            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):
+                return
+            time.sleep(1.5)
+
     def do_GET(self):
         if not self._require_local_host():
             return
         target = urlsplit(self.path)
         path = target.path
-        if path in ROUTES:
+        if path == "/api/stream":
+            self._sse()
+        elif path in ROUTES:
             try:
                 resource = ROUTES[path]
                 params = parse_query(resource, target.query)
