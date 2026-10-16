@@ -70,7 +70,9 @@ class StreamingHTTPTests(unittest.TestCase):
         self.assertEqual(payload["source"], "simulation")
         self.assertEqual(payload["snapshot"], before)
         self.assertEqual(payload["status"]["tick"], before["tick"])
-        self.assertEqual(after, before, "opening a stream must never advance simulation")
+        self.assertEqual(
+            after, before, "opening a stream must never advance simulation"
+        )
 
     def test_disconnect_then_reconnect_observes_explicit_step(self):
         _, first = self._first_event()

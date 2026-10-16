@@ -112,9 +112,7 @@ class Handler(SimpleHTTPRequestHandler):
         self.close_connection = True
         while True:
             state = self.server.controller.stream_state()
-            payload = json.dumps(
-                state, allow_nan=False, separators=(",", ":")
-            )
+            payload = json.dumps(state, allow_nan=False, separators=(",", ":"))
             frame = (
                 "retry: 1500\n"
                 f"id: {state['snapshot']['tick']}\n"
@@ -124,7 +122,12 @@ class Handler(SimpleHTTPRequestHandler):
             try:
                 self.wfile.write(frame)
                 self.wfile.flush()
-            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):
+            except (
+                BrokenPipeError,
+                ConnectionResetError,
+                ConnectionAbortedError,
+                OSError,
+            ):
                 return
             time.sleep(1.5)
 
