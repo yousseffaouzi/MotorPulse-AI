@@ -15,6 +15,11 @@
   const newer = $('history-newer');
   const apply = $('history-apply');
   const latest = $('history-latest');
+  const exportCsvButton = $('history-export-csv');
+  const exportRms = $('history-export-rms');
+  const exportTemp = $('history-export-temp');
+  const exportRpm = $('history-export-rpm');
+  const exportButtons = [exportCsvButton, exportRms, exportTemp, exportRpm];
   const table = $('history-table');
   const NS = 'http://www.w3.org/2000/svg';
   const MAX_POINTS = 100;
@@ -28,6 +33,7 @@
   let cursors = [null];
   let position = 0;
   let currentPage = null;
+  let currentRows = [];
   let token = 0;
   let busy = false;
 
@@ -42,6 +48,66 @@
     for (const field of [sessions, assets, startInput, endInput, limitInput]) field.disabled = active;
     older.disabled = active || !currentPage || !currentPage.has_more;
     newer.disabled = active || position === 0;
+  }
+  function setExportReady(ready) {
+    for (const button of exportButtons) button.disabled = !ready;
+  }
+  function csvCell(value) {
+    let text = value === null || value === undefined ? '' : String(value);
+    if (/^[=+\-@]/.test(text)) text = "'" + text;
+    return '"' + text.replaceAll('"', '""') + '"';
+  }
+  function exportName(suffix) {
+    const safe = value => String(value || 'unknown').replace(/[^A-Za-z0-9._-]+/g, '-').slice(0, 80) || 'unknown';
+    return 'motorpulse-synthetic-history-' + safe(sessions.value) + '-' + safe(assets.value) +
+      '-page-' + (position + 1) + suffix;
+  }
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.rel = 'noopener';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+  function exportCsv() {
+    if (!currentRows.length) return;
+    const lines = [
+      ['MotorPulse AI synthetic simulation export'],
+      ['session_id', sessions.value],
+      ['asset_id', assets.value],
+      ['page', String(position + 1)],
+      [],
+      ['timestamp_utc','rms_g','temperature_c','rpm','sensor_quality','health'],
+    ];
+    for (const row of currentRows) {
+      const event = row.event || {};
+      lines.push([
+        event.timestamp_utc,
+        event.rms_g,
+        event.temperature_c,
+        event.rpm,
+        event.sensor_quality,
+        event.health,
+      ]);
+    }
+    const csv = lines.map(values => values.map(csvCell).join(',')).join('\r\n') + '\r\n';
+    downloadBlob(new Blob([csv], {type:'text/csv;charset=utf-8'}), exportName('.csv'));
+  }
+  function exportSvg(metric) {
+    if (!currentRows.length) return;
+    const source = $(metric.element);
+    const clone = source.cloneNode(true);
+    clone.setAttribute('xmlns', NS);
+    clone.setAttribute('width', '600');
+    clone.setAttribute('height', '200');
+    clone.insertBefore(node('title', {}, 'Synthetic simulation chart — ' + metric.label), clone.firstChild);
+    const markup = new XMLSerializer().serializeToString(clone);
+    downloadBlob(new Blob([markup], {type:'image/svg+xml;charset=utf-8'}),
+      exportName('-' + metric.key.replaceAll('_','-') + '.svg'));
   }
   function appendOption(select, value, text) {
     const option = document.createElement('option');
@@ -181,10 +247,12 @@
     table.replaceChildren(fragment);
   }
   function render(rows, page) {
+    currentRows = rows;
     for(const metric of metrics) draw(metric, rows);
     buildTable(rows);
     currentPage = page;
     const count = rows.length;
+    setExportReady(count > 0);
     const badVibration = rows.filter(row => row.event.sensor_quality !== 'good').length;
     pageLabel.textContent = 'Page ' + (position+1) + ' · ' + count +
       ' readings (newest first in table) · '+ badVibration +
@@ -215,6 +283,8 @@
     } catch(error) {
       if(request===token) {
         currentPage=null;
+        currentRows = [];
+        setExportReady(false);
         for(const metric of metrics) draw(metric,[]);
         buildTable([]);
         pageLabel.textContent='';
@@ -260,6 +330,8 @@
       if(preferred) switchTo(preferred);
       if(!knownSessions.length) {
         resetPage();
+        currentRows = [];
+        setExportReady(false);
         for(const metric of metrics) draw(metric,[]);
         buildTable([]);
         pageLabel.textContent='';
@@ -276,6 +348,8 @@
       assets.replaceChildren();
       knownSessions=[];
       resetPage();
+      currentRows = [];
+      setExportReady(false);
       for(const metric of metrics) draw(metric,[]);
       buildTable([]);
       pageLabel.textContent='';
@@ -312,6 +386,11 @@
     position--;
     if(!await loadPage()) {position=old;setBusy(false);}
   });
+  exportCsvButton.addEventListener('click',exportCsv);
+  exportRms.addEventListener('click',()=>exportSvg(metrics[0]));
+  exportTemp.addEventListener('click',()=>exportSvg(metrics[1]));
+  exportRpm.addEventListener('click',()=>exportSvg(metrics[2]));
+  setExportReady(false);
   latest.addEventListener('click',async()=>{
     if(busy)return;
     startInput.value='';endInput.value='';
