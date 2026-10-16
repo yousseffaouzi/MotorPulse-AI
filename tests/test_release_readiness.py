@@ -47,6 +47,7 @@ class ReleaseReadinessTests(unittest.TestCase):
             "git tag -a v0.1.0",
             "Do not tag a stacked feature branch",
             "explicit approval",
+            "does **not complete MP-051**",
         ):
             with self.subTest(term=term):
                 self.assertIn(term, text)
