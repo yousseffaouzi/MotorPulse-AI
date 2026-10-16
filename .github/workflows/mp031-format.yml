@@ -1,0 +1,51 @@
+name: MP-031 bounded formatter helper
+
+on:
+  push:
+    branches:
+      - feat/mp-031-cwru-adapter
+    paths:
+      - .github/workflows/mp031-format.yml
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: feat/mp-031-cwru-adapter
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Install pinned Ruff
+        run: python -m pip install --disable-pip-version-check ruff==0.17.0
+      - name: Apply bounded mechanical cleanup
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('motorpulse/cwru.py')
+          text = path.read_text(encoding='utf-8')
+          old = 'import hashlib\nimport json\nfrom math import isfinite, sqrt\n'
+          new = 'import hashlib\nfrom math import isfinite, sqrt\n'
+          if text.count(old) != 1:
+              raise SystemExit('unused-import anchor mismatch')
+          path.write_text(text.replace(old, new), encoding='utf-8')
+          PY
+          ruff format motorpulse/cwru.py motorpulse/dataset_cards.py tests/test_cwru.py
+          ruff check --select E4,E7,E9,F motorpulse/cwru.py motorpulse/dataset_cards.py tests/test_cwru.py
+          ruff format --check motorpulse/cwru.py motorpulse/dataset_cards.py tests/test_cwru.py
+          python -m unittest tests.test_cwru -v
+          git diff --check
+      - name: Commit tested mechanical cleanup and self-remove
+        run: |
+          rm .github/workflows/mp031-format.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add motorpulse/cwru.py motorpulse/dataset_cards.py tests/test_cwru.py .github/workflows/mp031-format.yml
+          git diff --cached --check
+          git commit -m 'style(mp-031): format CWRU adapter changes'
+          git push origin HEAD:feat/mp-031-cwru-adapter
