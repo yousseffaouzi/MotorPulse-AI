@@ -18,6 +18,8 @@ There is **no port publishing**. With host networking, the container shares the 
 
 This is a deliberate tradeoff: host networking has less network isolation than Docker's default bridge mode because the container shares the host network stack. The quick-start service therefore also runs non-root, uses a read-only root filesystem, drops all Linux capabilities, enables `no-new-privileges`, mounts no host directories or devices, and does not receive the Docker socket. Build and run only repository code you trust.
 
+Docker's authoritative references for this design are the [host network driver](https://docs.docker.com/engine/network/drivers/host/) and the Compose [`network_mode`](https://docs.docker.com/reference/compose-file/services/#network_mode) service reference. The host-driver documentation explains the shared host network namespace and Docker Desktop support; the Compose reference forbids combining host mode with port mappings.
+
 ## Prerequisites
 
 - Docker Engine on Linux with host networking support; or
