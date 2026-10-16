@@ -12,7 +12,15 @@ HTTP requests must also carry a local **Host header**: `127.0.0.1` or `localhost
 
 The service is **unauthenticated**. Any process or browser context that can reach the user's loopback listener can attempt requests. Loopback binding and Host checks are defense-in-depth for this local research tool; they are not a substitute for authentication, authorization, TLS, origin isolation or a production reverse proxy.
 
-Do not port-forward the listener, publish it from a container, expose it through a tunnel or reverse proxy, or otherwise make it reachable from another machine. A networked or multi-user deployment would require a separate security design and review.
+Do not port-forward the listener, expose it through Docker port publishing, a tunnel or reverse proxy, or otherwise make it reachable from another machine. A networked or multi-user deployment would require a separate security design and review.
+
+### Optional MP-052 container boundary
+
+The checked-in optional container quick start does **not** change MotorPulse to listen on `0.0.0.0` and does not publish a Docker port. `compose.yaml` uses `network_mode: host` so the process can keep the same `127.0.0.1:8765` application bind that MP-049 enforces.
+
+Host networking is a convenience tradeoff, not an added security boundary: the container **shares the host network stack**, so it has less network isolation than Docker's default bridge mode. The supplied service therefore also runs non-root, uses a read-only root filesystem, drops all Linux capabilities, enables `no-new-privileges`, mounts no host directories or devices, and receives no Docker socket. Native Python remains the primary supported path and requires no Docker.
+
+Permanent CI builds and starts this exact configuration on an Ubuntu runner, verifies localhost health/dashboard access, and confirms a non-local `Host: example.com` request is still rejected as `invalid_host_header`. That check demonstrates preservation of the local application contract on the tested CI platform; it is not evidence that arbitrary container/network configurations are safe. See [CONTAINER.md](CONTAINER.md).
 
 ## HTTP request and query limits
 
