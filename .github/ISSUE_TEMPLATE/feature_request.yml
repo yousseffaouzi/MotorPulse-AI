@@ -1,0 +1,55 @@
+name: Feature request
+description: Propose a scoped improvement to the local-first synthetic research lab
+title: "[Feature]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        MotorPulse AI is a local-first, synthetic research project. Proposals must preserve that boundary.
+        No PLC integration, no remote control of physical equipment, and no unsupported industrial guarantee belongs in this scope.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or research need
+      description: Describe the concrete software, reproducibility, documentation or synthetic-research problem.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the smallest change that would address the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Acceptance evidence
+      description: State the tests, documentation, reproducible synthetic output or other evidence that would make the work complete.
+    validations:
+      required: true
+  - type: dropdown
+    id: data
+    attributes:
+      label: Data scope
+      description: What data would this change require?
+      options:
+        - Repository-generated synthetic data only
+        - Handwritten local test fixtures only
+        - Local external data with provenance/rights review required
+        - No data
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Project boundaries
+      options:
+        - label: I will keep default operation local-first and will not add public-network exposure.
+          required: true
+        - label: I will not add real hardware actuation, PLC commands, or remote control.
+          required: true
+        - label: I will not present synthetic metrics as field validation, failure probability, RUL, or an industrial guarantee.
+          required: true
+        - label: I will document provenance and reuse constraints before proposing any external-data-derived artifact for the repository.
+          required: true

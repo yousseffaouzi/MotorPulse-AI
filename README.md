@@ -2,7 +2,7 @@
 
 **Software-first predictive-maintenance lab for industrial motors and rotating equipment.**
 
-> **Status:** pre-alpha simulated prototype. The current alerts are explainable rule-based baselines, **not** a trained predictive-maintenance AI model. All demo measurements are synthetic; no hardware is required.
+> **Status:** `v0.1.0` alpha **release candidate, not published**. MotorPulse AI remains a synthetic research lab: fixed rules and the healthy-trained anomaly baseline are not field-validated predictive-maintenance diagnoses, failure probabilities, or RUL estimates. No hardware is required.
 
 ## What you can run today
 - Reproducible simulated vibration, temperature and RPM signals for three motors.
@@ -13,10 +13,11 @@
 - Deterministic, bounded CSV/JSONL **synthetic** dataset export with sensor labels and a checksummed provenance manifest.
 - Reviewed official IMS bearing-dataset sources and citations, with explicit third-party reuse restrictions and no bundled real data.
 - Optional bounded IMS-style **local-only** ASCII record importer using user-declared sampling metadata and no assumed defect labels.
+- Optional bounded CWRU **local-only** MATLAB-v5 adapter using explicit seeded-fault metadata; no filename-inferred labels, run-to-failure claims, or bundled measurements.
 - Local IMS report integrity/chronology checks, native-rate Hann single-bin amplitude and train-only feature normalization across disjoint runs.
 - Reproducible synthetic and local-only IMS **exploratory quality reports** (numeric distributions, missingness, trends and provenance in JSON or Markdown).
 - Deterministic **train/validation/test split plans** that keep complete source runs together, reject duplicate groups, and offer explicitly exploratory synthetic chronological holdouts with purge gaps.
-- Versioned **dataset cards** for synthetic events and IMS source metadata, with local provenance-bound run cards and explicit licensing limitations.
+- Versioned **dataset cards** for synthetic events, IMS source metadata, and local-only CWRU seeded-fault metadata, with provenance-bound run cards and explicit licensing limitations.
 - First **trained synthetic-only anomaly baseline**: healthy-window standardized distance, training-only 99th-percentile threshold, strict whole-run split provenance and sensor-quality-aware scoring.
 - Held-out synthetic performance reports: shared eligible cohorts, precision/recall/F1, PR average precision, false alarms and scripted fault-episode detection delays.
 - One-command **reproducible synthetic ML experiments**: source runs, dataset cards, split, trained model, held-out metrics, Markdown report and SHA-256 artifact index.
@@ -50,6 +51,10 @@ python -m motorpulse --seed 42 --start-time-utc 2026-01-01T00:00:00Z --step-seco
 ```
 
 See [docs/INSTALL.md](docs/INSTALL.md) for wheel builds, offline options, cross-directory verification, and troubleshooting.
+
+An **optional container** quick start is documented in [docs/CONTAINER.md](docs/CONTAINER.md). The **native Python** workflow above remains the primary supported path, and **No Docker** installation is required to run or develop MotorPulse AI.
+
+Contributor references: [localhost API](docs/API.md), [CLI tutorial](docs/CLI.md), [troubleshooting](docs/TROUBLESHOOTING.md), [architecture](docs/ARCHITECTURE.md), [configuration](docs/CONFIG_FILE.md), [baseline model cards](docs/MODEL_CARDS.md), [local-first security](docs/SECURITY.md), the [dated synthetic benchmark](docs/BENCHMARK.md), [CHANGELOG.md](CHANGELOG.md), and the [release procedure](docs/RELEASE.md).
 
 To **launch with a saved motor configuration**, e.g. a reproducible progressive-fault demo:
 
@@ -112,6 +117,7 @@ Synthetic multi-motor simulator -> Signal features -> Transparent baseline rules
 - `motorpulse/export.py` / `docs/DATASET.md` — dependency-free CSV/JSONL synthetic export, per-run provenance and field dictionary.
 - `docs/DATA_PROVENANCE.md` / `docs/sources/ims-bearings.source.json` — NASA IMS source citation, verification status, license uncertainty, safe user-side acquisition instructions and future validation requirements.
 - `motorpulse/ims.py` / `docs/IMS_INGESTION.md` — bounded, local, user-supplied IMS-style ASCII ingestion and provenance-only reports; no copied real archive data.
+- `motorpulse/cwru.py` / `docs/CWRU_INGESTION.md` — bounded, local, user-supplied CWRU MATLAB-v5 seeded-fault inspection with explicit metadata, summary-only reports and unresolved redistribution rights.
 - `motorpulse/ims_validation.py`, `motorpulse/ims_tone.py` / `docs/IMS_VALIDATION.md` — local data-quality checks, optional native-rate tone analysis and leakage-safe train-only scaling.
 - `motorpulse/eda.py` / `docs/EDA.md` — deterministic exploratory distributions, missingness, trend samples, hashes, and explicit synthetic/IMS source separation.
 - `motorpulse/splits.py` / `docs/SPLITS.md` — train/validation/test split plans with whole-run boundaries, deterministic seeded assignment and synthetic-only chronological purge gaps.
@@ -169,7 +175,7 @@ See [docs/PROGRESSION.md](docs/PROGRESSION.md) for exact ramp equations, validat
 
 ## Python packaging (MP-022)
 
-MotorPulse AI is packaged as **motorpulse-ai 0.1.0.dev0** (development-only metadata; **not published to PyPI**). All runtime modules are standard-library-only; installing or building the wheel needs Python packaging tools. The single source of truth for the dashboard is now `motorpulse/web/index.html`, so it works after installing from a wheel even when launched from another working directory. See [docs/INSTALL.md](docs/INSTALL.md) for instructions and smoke checks.
+MotorPulse AI is packaged as **motorpulse-ai 0.1.0** for this alpha release candidate (**not published to PyPI and not yet tagged**). All runtime modules are standard-library-only; installing or building the wheel needs Python packaging tools. The single source of truth for the dashboard is `motorpulse/web/index.html`, so it works after installing from a wheel even when launched from another working directory. See [docs/INSTALL.md](docs/INSTALL.md) for instructions and smoke checks, and [docs/RELEASE.md](docs/RELEASE.md) for the integrated-`main` verification/tag boundary.
 
 ## Spectral and rolling indicators (MP-023)
 

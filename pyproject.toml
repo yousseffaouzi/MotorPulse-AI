@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "motorpulse-ai"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "Local-first synthetic industrial motor monitoring and condition simulation"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -12,7 +12,7 @@ license = "MIT"
 authors = [{name = "MotorPulse AI contributors"}]
 keywords = ["motor", "vibration", "simulation", "condition-monitoring", "predictive-maintenance"]
 classifiers = [
-  "Development Status :: 2 - Pre-Alpha",
+  "Development Status :: 3 - Alpha",
   "Intended Audience :: Science/Research",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
@@ -32,6 +32,7 @@ Issues = "https://github.com/yousseffaouzi/MotorPulse-AI/issues"
 motorpulse-ai = "motorpulse.__main__:main"
 motorpulse-export = "motorpulse.export:main"
 motorpulse-ims = "motorpulse.ims:main"
+motorpulse-cwru = "motorpulse.cwru:main"
 motorpulse-ims-validate = "motorpulse.ims_validation:main"
 motorpulse-eda = "motorpulse.eda:main"
 motorpulse-split = "motorpulse.splits:main"

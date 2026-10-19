@@ -1,0 +1,72 @@
+{
+  "card_version": "1.0.0",
+  "instance_kind": "template",
+  "run_provenance": null,
+  "card_id": "cwru-seeded-bearing-local-v1",
+  "dataset_type": "user_supplied_local_cwru_seeded_fault",
+  "title": "CWRU Bearing Data Center — Seeded Fault Local-Only Metadata",
+  "creator_or_provider": "Case Western Reserve University Bearing Data Center",
+  "distributor": "Case Western Reserve University Bearing Data Center; MotorPulse AI does not distribute source measurements",
+  "provenance_status": "official_web_metadata_reviewed_no_source_measurements_bundled",
+  "citation": "Case Western Reserve University Bearing Data Center, official bearing test data pages; accessed locally by the user under applicable source terms.",
+  "license": {
+    "code_license": "MIT (MotorPulse AI software only)",
+    "dataset_specific_license": null,
+    "license_status": "unverified",
+    "original_or_derived_redistribution": "unverified; local-only HOLD pending source-specific redistribution terms"
+  },
+  "collection": {
+    "method": "Third-party bearing test-rig experiments with normal conditions and single-point seeded faults created by EDM",
+    "data_origin": "experimental_bearing_measurements_not_generated_by_motorpulse",
+    "sample_rate_hz": "explicit per local metadata: 12000 or documented drive-end 48000",
+    "sample_count": "read from the explicitly selected local MATLAB vector",
+    "window_duration_s": "derived from selected vector length divided by explicit sample rate",
+    "temporal_timestamps": null,
+    "actual_independent_runs": "Do not infer independent run or asset identity from a MATLAB filename alone"
+  },
+  "labels": {
+    "motor_fault": "explicit seeded experiment condition only: normal, inner_race, ball or outer_race",
+    "sensor_quality": null,
+    "health": null,
+    "failure_probability": null,
+    "remaining_useful_life": null,
+    "window_fault_onset": null,
+    "notes": "CWRU fault records are seeded single-point EDM conditions, not run-to-failure trajectories or remaining-useful-life labels."
+  },
+  "measurement_quality": {
+    "missingness": "Not inferred by the adapter; one explicitly named local vector is inspected",
+    "outliers": "No automatic physical-quality interpretation is assigned to summary statistics",
+    "calibration": "Value units remain unknown unless independently verified; MotorPulse does not convert native values to its synthetic g units"
+  },
+  "recommended_splits": "Group related conditions by physical test identity when known. Never treat adjacent slices from one source vector as independent train/test assets; do not use seeded labels as run-to-failure or RUL truth.",
+  "intended_uses": [
+    "Local inspection of user-supplied CWRU MATLAB-v5 bearing records with explicit metadata",
+    "Research on seeded-fault condition classification or feature behavior with source terms reviewed separately",
+    "Generating path-free summary provenance for reproducible local experiments"
+  ],
+  "excluded_uses": [
+    "Publishing original CWRU measurements or derived measurement tables through this repository before redistribution rights are verified",
+    "Inferring fault type, fault size, channel or test condition from filenames without explicit metadata",
+    "Treating seeded fault records as run-to-failure trajectories, failure times or RUL labels",
+    "Claiming transfer to MotorPulse synthetic faults or real industrial predictive-maintenance performance"
+  ],
+  "known_limitations": [
+    "The adapter supports only a bounded MATLAB-v5 real-double vector subset, not arbitrary MAT structures",
+    "Redistribution rights for original or derived CWRU measurements were not established from the official pages reviewed",
+    "MotorPulse does not bundle, download or validate the upstream measurement files",
+    "Physical units, independent-run grouping and downstream label semantics require explicit user review"
+  ],
+  "references": {
+    "source_card": "docs/sources/cwru-bearings.source.json",
+    "provenance_guide": "docs/CWRU_INGESTION.md",
+    "official_home": "https://engineering.case.edu/bearingdatacenter",
+    "official_download": "https://engineering.case.edu/bearingdatacenter/download-data-file"
+  },
+  "publication_status": "local_only_do_not_redistribute",
+  "rights_review": {
+    "status": "hold",
+    "raw_third_party_data_included": false,
+    "derived_publication_cleared": false,
+    "notes": "Official pages provide public download links and experiment metadata, but this project review did not establish an explicit dataset redistribution license."
+  }
+}
