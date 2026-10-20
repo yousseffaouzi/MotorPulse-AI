@@ -2,7 +2,7 @@
 
 **Software-first predictive-maintenance lab for industrial motors and rotating equipment.**
 
-> **Status:** `v0.1.0` alpha **release candidate, not published**. MotorPulse AI remains a synthetic research lab: fixed rules and the healthy-trained anomaly baseline are not field-validated predictive-maintenance diagnoses, failure probabilities, or RUL estimates. No hardware is required.
+> **Status:** [`v0.1.0`](https://github.com/yousseffaouzi/MotorPulse-AI/releases/tag/v0.1.0) alpha **published on 2026-10-20**. MotorPulse AI remains a synthetic research lab: fixed rules and the healthy-trained anomaly baseline are not field-validated predictive-maintenance diagnoses, failure probabilities, or RUL estimates. No hardware is required.
 
 ## What you can run today
 - Reproducible simulated vibration, temperature and RPM signals for three motors.
@@ -175,7 +175,7 @@ See [docs/PROGRESSION.md](docs/PROGRESSION.md) for exact ramp equations, validat
 
 ## Python packaging (MP-022)
 
-MotorPulse AI is packaged as **motorpulse-ai 0.1.0** for this alpha release candidate (**not published to PyPI and not yet tagged**). All runtime modules are standard-library-only; installing or building the wheel needs Python packaging tools. The single source of truth for the dashboard is `motorpulse/web/index.html`, so it works after installing from a wheel even when launched from another working directory. See [docs/INSTALL.md](docs/INSTALL.md) for instructions and smoke checks, and [docs/RELEASE.md](docs/RELEASE.md) for the integrated-`main` verification/tag boundary.
+MotorPulse AI is packaged as **motorpulse-ai 0.1.0** for the published alpha GitHub release (**tagged as `v0.1.0`; not published to PyPI**). All runtime modules are standard-library-only; installing or building the wheel needs Python packaging tools. The single source of truth for the dashboard is `motorpulse/web/index.html`, so it works after installing from a wheel even when launched from another working directory. See [docs/INSTALL.md](docs/INSTALL.md) for instructions and smoke checks, and [docs/RELEASE.md](docs/RELEASE.md) for the published release record and verification boundary.
 
 ## Spectral and rolling indicators (MP-023)
 
