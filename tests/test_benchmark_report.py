@@ -15,8 +15,14 @@ GENERATOR = ROOT / "scripts" / "generate_benchmark_report.py"
 BENCHMARK_DATE = "2026-10-15"
 
 # The committed snapshot is generated on Python 3.13 only. All supported
-# runtimes still validate its static claims; 3.13 additionally proves exact bytes.
+# runtimes still validate its static claims; 3.13 additionally proves exact
+# generated content. Repository attributes pin the committed artifacts to LF,
+# while the comparison also tolerates an already-existing Windows CRLF checkout.
 # The generated demo is an SVG summary artifact, not a claim that a hosted video exists.
+
+
+def _normalized_checkout_bytes(path: Path) -> bytes:
+    return path.read_bytes().replace(b"\r\n", b"\n")
 
 
 class BenchmarkReportTests(unittest.TestCase):
@@ -91,8 +97,12 @@ class BenchmarkReportTests(unittest.TestCase):
                 check=False,
             )
             self.assertEqual(cp.returncode, 0, cp.stderr)
-            self.assertEqual(markdown.read_bytes(), REPORT.read_bytes())
-            self.assertEqual(svg.read_bytes(), DEMO.read_bytes())
+            markdown_bytes = markdown.read_bytes()
+            svg_bytes = svg.read_bytes()
+            self.assertNotIn(b"\r\n", markdown_bytes)
+            self.assertNotIn(b"\r\n", svg_bytes)
+            self.assertEqual(markdown_bytes, _normalized_checkout_bytes(REPORT))
+            self.assertEqual(svg_bytes, _normalized_checkout_bytes(DEMO))
 
 
 if __name__ == "__main__":
