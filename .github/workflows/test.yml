@@ -30,6 +30,19 @@ jobs:
           PYTHONWARNINGS: error::SyntaxWarning
         run: python -m unittest discover -s tests -v
 
+  windows-tests:
+    name: Tests (Windows, Python 3.13)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Run unit, API, and integration tests
+        env:
+          PYTHONWARNINGS: error::SyntaxWarning
+        run: python -m unittest discover -s tests -v
+
   lint-format:
     name: Lint and format changed Python
     runs-on: ubuntu-latest
