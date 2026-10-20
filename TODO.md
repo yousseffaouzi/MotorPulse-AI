@@ -1,6 +1,6 @@
 # MotorPulse AI — Master TODO & Development Roadmap
 
-**Last updated:** 2026-10-16
+**Last updated:** 2026-10-20
 **Scope:** Open-source, software-first industrial motor condition monitoring and predictive-maintenance **simulation**. No hardware, PLC control, remote deployment, or operational maintenance decisions in this phase.
 
 ## v1 definition of done
@@ -81,7 +81,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - MP-052 implemented: added an **optional** Docker/Compose quick start without changing the MP-049 application bind. The image uses Python 3.13 slim, copies only the runtime package, installs no Python/OS dependencies, runs as non-root, and the supplied Compose service is read-only, drops all capabilities, enables `no-new-privileges`, mounts no host paths/devices/socket, and uses `network_mode: host` with **no port publishing** so MotorPulse continues listening on `127.0.0.1`. Six repository contracts keep native Python primary and pin the container/security/docs surface. GitHub Actions run `38842870063` passed **520/520** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy, fresh-clone reproducibility and the new live container build/run smoke, which verified localhost health/dashboard access and MP-049 `invalid_host_header` rejection. Host networking shares the host network stack and is an optional convenience, not a public deployment mode or security boundary.
 
-- MP-051 release-candidate preparation verified: package metadata is `0.1.0` / Alpha, `CHANGELOG.md` and `docs/RELEASE.md` carry the synthetic-only/security/data-rights caveats, and six readiness contracts keep the milestone incomplete until an actual tag exists. GitHub Actions run `38843920706` passed the **526-test** supported-Python matrix plus Ruff/format, dependency policy, fresh-clone reproducibility and the optional-container smoke on candidate head `f36f7ec1aa94dbcdbffa218a3d87280cc10b5e22`. **MP-051 intentionally remains TODO**: after explicit approval, `v0.1.0` must be created only from the exact integrated green `main` commit; no merge, tag or GitHub Release is claimed by candidate verification.
+- MP-051 completed: the intended release tree was integrated into `main` at `42311ffb2e26d3f75484076bb86a3e607275cde1`, then GitHub Actions run `39336825312` passed **all seven permanent quality jobs** with the **526-test** supported-Python matrix before publication. The annotated immutable-by-project-policy tag `v0.1.0` points to that exact commit, and the public non-prerelease GitHub Release was published on 2026-10-20. Synthetic-only, localhost/security, no-RUL, no-hardware/control, optional-container and IMS/CWRU redistribution caveats remain unchanged.
 
 ## Milestone 0 — Existing proof of concept
 
@@ -171,7 +171,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-048 | DONE | P1 | Model cards and failure modes | Source dataset, intended use, validation and limitations for each baseline |
 | MP-049 | DONE | P1 | Secure local-first defaults | Localhost-only; validate file paths/inputs; no unsafe controls or industrial guarantees |
 | MP-050 | DONE | P2 | Community and issue templates | Issue/PR templates, contributor instructions and beginner tasks |
-| MP-051 | TODO | P2 | Tag a usable release | SemVer, CHANGELOG, reproducible demo and honest release caveats |
+| MP-051 | DONE | P2 | Tag a usable release | SemVer, CHANGELOG, reproducible demo and honest release caveats |
 | MP-052 | DONE | P2 | Optional containerized quick start | Simple Dockerfile/Compose; native Python remains supported |
 | MP-016 | ON HOLD | P3 | Real sensors, PLC, edge and remote deployment | Separate later phase after software evaluation and security approval |
 
