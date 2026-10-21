@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import difflib
 import subprocess
 import sys
 import unittest
@@ -23,6 +24,23 @@ BENCHMARK_DATE = "2026-10-15"
 
 def _normalized_checkout_bytes(path: Path) -> bytes:
     return path.read_bytes().replace(b"\r\n", b"\n")
+
+
+def _assert_generated_matches(
+    case: unittest.TestCase, generated: bytes, committed_path: Path
+) -> None:
+    committed = _normalized_checkout_bytes(committed_path)
+    if generated == committed:
+        return
+    diff = "".join(
+        difflib.unified_diff(
+            committed.decode("utf-8").splitlines(keepends=True),
+            generated.decode("utf-8").splitlines(keepends=True),
+            fromfile=f"committed/{committed_path.name}",
+            tofile=f"generated/{committed_path.name}",
+        )
+    )
+    case.fail("generated artifact differs from committed snapshot:\n" + diff)
 
 
 class BenchmarkReportTests(unittest.TestCase):
@@ -101,8 +119,8 @@ class BenchmarkReportTests(unittest.TestCase):
             svg_bytes = svg.read_bytes()
             self.assertNotIn(b"\r\n", markdown_bytes)
             self.assertNotIn(b"\r\n", svg_bytes)
-            self.assertEqual(markdown_bytes, _normalized_checkout_bytes(REPORT))
-            self.assertEqual(svg_bytes, _normalized_checkout_bytes(DEMO))
+            _assert_generated_matches(self, markdown_bytes, REPORT)
+            _assert_generated_matches(self, svg_bytes, DEMO)
 
 
 if __name__ == "__main__":
