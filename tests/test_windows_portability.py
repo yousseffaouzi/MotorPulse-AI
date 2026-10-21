@@ -14,6 +14,8 @@ import os
 import sqlite3
 import unittest
 
+from motorpulse.export import _canonical_source_bytes
+
 _ORIGINAL_CONNECT = sqlite3.connect
 
 
@@ -32,6 +34,13 @@ def _closing_connect(*args, **kwargs):
 
 if os.name == "nt":
     sqlite3.connect = _closing_connect
+
+
+class CrossPlatformSourceHashTests(unittest.TestCase):
+    def test_source_hash_bytes_normalize_crlf_and_cr_to_lf(self):
+        self.assertEqual(_canonical_source_bytes(b"alpha\r\nbeta\r\n"), b"alpha\nbeta\n")
+        self.assertEqual(_canonical_source_bytes(b"alpha\rbeta\r"), b"alpha\nbeta\n")
+        self.assertEqual(_canonical_source_bytes(b"alpha\nbeta\n"), b"alpha\nbeta\n")
 
 
 class WindowsSQLiteFixtureTests(unittest.TestCase):
