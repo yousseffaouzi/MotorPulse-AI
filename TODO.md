@@ -1,6 +1,6 @@
 # MotorPulse AI — Master TODO & Development Roadmap
 
-**Last updated:** 2026-10-20
+**Last updated:** 2026-10-21
 **Scope:** Open-source, software-first industrial motor condition monitoring and predictive-maintenance **simulation**. No hardware, PLC control, remote deployment, or operational maintenance decisions in this phase.
 
 ## v1 definition of done
@@ -82,6 +82,10 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 - MP-052 implemented: added an **optional** Docker/Compose quick start without changing the MP-049 application bind. The image uses Python 3.13 slim, copies only the runtime package, installs no Python/OS dependencies, runs as non-root, and the supplied Compose service is read-only, drops all capabilities, enables `no-new-privileges`, mounts no host paths/devices/socket, and uses `network_mode: host` with **no port publishing** so MotorPulse continues listening on `127.0.0.1`. Six repository contracts keep native Python primary and pin the container/security/docs surface. GitHub Actions run `38842870063` passed **520/520** tests on Python 3.11/3.12/3.13 plus lint/format, dependency policy, fresh-clone reproducibility and the new live container build/run smoke, which verified localhost health/dashboard access and MP-049 `invalid_host_header` rejection. Host networking shares the host network stack and is an optional convenience, not a public deployment mode or security boundary.
 
 - MP-051 completed: the intended release tree was integrated into `main` at `42311ffb2e26d3f75484076bb86a3e607275cde1`, then GitHub Actions run `39336825312` passed **all seven permanent quality jobs** with the **526-test** supported-Python matrix before publication. The annotated immutable-by-project-policy tag `v0.1.0` points to that exact commit, and the public non-prerelease GitHub Release was published on 2026-10-20. Synthetic-only, localhost/security, no-RUL, no-hardware/control, optional-container and IMS/CWRU redistribution caveats remain unchanged.
+
+- MP-053 implemented: Windows reproducibility hardening added a permanent Windows Python 3.13 full-suite gate, Windows-safe SQLite migration/storage test-fixture cleanup, LF/CRLF-stable benchmark generation, and line-ending-canonical MotorPulse source provenance. PR #72 Quality Gates run `39520517680` passed **all eight permanent quality jobs** with the **528-test** full-suite baseline. Production runtime behavior, dependencies, security boundaries, model claims and external-data policy were unchanged.
+
+- MP-054 is **IN PROGRESS**: prepare the `v0.1.1` reproducibility patch release by bumping package metadata, updating changelog/release contracts and preserving the immutable `v0.1.0` evidence. The candidate must be merged before an exact integrated-`main` eight-gate verification; no `v0.1.1` tag is created from the preparation branch.
 
 ## Milestone 0 — Existing proof of concept
 
@@ -173,6 +177,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-050 | DONE | P2 | Community and issue templates | Issue/PR templates, contributor instructions and beginner tasks |
 | MP-051 | DONE | P2 | Tag a usable release | SemVer, CHANGELOG, reproducible demo and honest release caveats |
 | MP-052 | DONE | P2 | Optional containerized quick start | Simple Dockerfile/Compose; native Python remains supported |
+| MP-053 | DONE | P1 | Harden Windows test reproducibility | Windows Python 3.13 full-suite gate; LF/CRLF-stable benchmark/provenance and fixture cleanup regressions |
+| MP-054 | IN PROGRESS | P2 | Prepare v0.1.1 patch release | Version/changelog/release contracts; exact-main eight-gate verification before tag |
 | MP-016 | ON HOLD | P3 | Real sensors, PLC, edge and remote deployment | Separate later phase after software evaluation and security approval |
 
 **Exit criteria:** Fresh-clone setup and evaluation verified; tagged release and community documentation available.
@@ -185,7 +191,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 3. `MP-012 → MP-040 → MP-041 → MP-013`: persistent end-to-end monitoring.
 4. `MP-027 → MP-009 → MP-028 → MP-030 → MP-032`: documented public data.
 5. `MP-023 → MP-034 → MP-010 → MP-011 → MP-033 → MP-037 → MP-048`: reproducible ML benchmark.
-6. `MP-045 → MP-046 → MP-047 → MP-049 → MP-015 → MP-051`: release readiness.
+6. `MP-045 → MP-046 → MP-047 → MP-049 → MP-015 → MP-051 → MP-053 → MP-054`: release readiness and patch hardening.
 
 Parallel work is possible after the telemetry/clock contract: UI prototypes, dataset provenance review, signal analysis, and documentation.
 
