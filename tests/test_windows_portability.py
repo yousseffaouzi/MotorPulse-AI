@@ -37,7 +37,6 @@ class WindowsSQLiteFixtureTests(unittest.TestCase):
     def test_raw_sqlite_context_closes_on_windows(self):
         if os.name != "nt":
             self.skipTest("Windows-only sqlite fixture behavior")
-        connection = None
         with sqlite3.connect(":memory:") as connection:
             self.assertEqual(connection.execute("SELECT 1").fetchone()[0], 1)
         with self.assertRaises(sqlite3.ProgrammingError):
