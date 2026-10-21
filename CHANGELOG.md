@@ -2,6 +2,24 @@
 
 All notable project changes are documented here. MotorPulse AI follows semantic versioning for packaged releases.
 
+## [0.1.1] - 2026-10-21
+
+Patch-release candidate focused on Windows test reproducibility and checkout-independent synthetic provenance. This entry describes the intended `v0.1.1` contents; the tag must not be created until the release-prep work is merged and the exact integrated `main` commit passes the permanent quality gates.
+
+### Fixed
+
+- Added a permanent Windows Python 3.13 full-suite quality gate alongside the Linux 3.11/3.12/3.13 matrix; MP-053 PR run `39520517680` passed all eight quality jobs with **528 tests** on the supported full-suite jobs.
+- Fixed Windows-only SQLite temporary-file cleanup failures in migration/storage test fixtures without changing production `SQLiteHistory` behavior.
+- Canonicalized MotorPulse Python source line endings before source-provenance hashing so equivalent LF and CRLF checkouts produce the same synthetic export/run identity.
+- Pinned deterministic benchmark Markdown/SVG and MotorPulse Python source files to LF where required for portable byte-stable provenance and generation checks.
+
+### Boundaries
+
+- No runtime or optional dependencies were added.
+- No network exposure, authentication, hardware/PLC, actuator, remote-control, field-validation, RUL, or model-claim boundary changed.
+- NASA IMS and CWRU redistribution restrictions remain unchanged; no third-party raw or derived measurements are added.
+- The published `v0.1.0` tag remains immutable on its original release commit and is not moved or recreated by this patch release.
+
 ## [0.1.0] - 2026-10-16
 
 First usable research release candidate for the local-first MotorPulse AI synthetic motor-monitoring lab.
