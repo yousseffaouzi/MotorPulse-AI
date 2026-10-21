@@ -46,12 +46,17 @@ SOURCE_FILES = ("export.py", "sim.py", "scenarios.py", "signals.py",
                 "spectral.py", "schema.py", "config_file.py")
 
 
+def _canonical_source_bytes(data: bytes) -> bytes:
+    """Normalize text-file line endings before provenance hashing."""
+    return data.replace(b"\r\n", b"\n").replace(b"\r", b"\n")
+
+
 def _model_source_sha256() -> str:
     directory = Path(__file__).resolve().parent
     h = hashlib.sha256()
     for filename in SOURCE_FILES:
         h.update(filename.encode("utf-8") + b"\0")
-        h.update((directory / filename).read_bytes())
+        h.update(_canonical_source_bytes((directory / filename).read_bytes()))
     return h.hexdigest()
 
 
