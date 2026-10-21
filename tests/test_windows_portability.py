@@ -7,6 +7,7 @@ leave a Windows file handle alive long enough for TemporaryDirectory cleanup to
 fail with WinError 32. The full-suite test harness makes those raw fixture
 connections close on context-manager exit on Windows only.
 """
+
 from __future__ import annotations
 
 import os
