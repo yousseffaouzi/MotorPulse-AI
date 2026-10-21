@@ -103,8 +103,12 @@ class ReleaseReadinessTests(unittest.TestCase):
             "reproducible demo and honest release caveats |"
         )
         self.assertIn(completed, todo)
-        self.assertIn("| MP-053 | DONE | P1 | Harden Windows test reproducibility |", todo)
-        self.assertIn("| MP-054 | IN PROGRESS | P2 | Prepare v0.1.1 patch release |", todo)
+        self.assertIn(
+            "| MP-053 | DONE | P1 | Harden Windows test reproducibility |", todo
+        )
+        self.assertIn(
+            "| MP-054 | IN PROGRESS | P2 | Prepare v0.1.1 patch release |", todo
+        )
         self.assertNotIn("| MP-051 | TODO |", todo)
         self.assertIn("v0.1.0", todo)
         self.assertIn("42311ffb2e26d3f75484076bb86a3e607275cde1", todo)
