@@ -3,6 +3,7 @@
 No third-party runtime dependencies, network access, or hardware integration.
 Files contain simulated data, never validated machine diagnoses.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -24,26 +25,69 @@ MAX_EXPORT_TICKS = 1000
 MAX_DATA_BYTES = 64 * 1024 * 1024
 EXPORT_FORMATS = ("csv", "jsonl", "both")
 EXPORT_FIELDS = (
-    "export_id", "schema_version", "tick", "recorded_at_utc",
-    "event_id", "asset_id", "name", "scenario", "severity", "source",
-    "timestamp_utc", "sample_rate_hz", "sample_count", "window_duration_s",
-    "shaft_frequency_hz", "units", "rpm", "temperature_c", "load_factor",
-    "sensor_quality", "sensor_quality_reasons", "sensor_drift_g",
-    "rms_g", "peak_to_peak_g", "crest_factor", "spectral_window",
-    "spectral_bin_hz", "dominant_frequency_hz", "shaft_1x_amplitude_g",
-    "shaft_2x_amplitude_g", "band_80_400_rms_g", "health", "reasons",
-    "rolling_window_ticks", "rolling_observations", "rolling_valid_observations",
-    "rolling_rms_mean_g", "rolling_temperature_mean_c", "configured_scenario",
-    "configured_severity", "onset_tick", "duration_ticks", "progression",
-    "start_severity", "ramp_ticks", "ramp_fraction", "fault_phase",
+    "export_id",
+    "schema_version",
+    "tick",
+    "recorded_at_utc",
+    "event_id",
+    "asset_id",
+    "name",
+    "scenario",
+    "severity",
+    "source",
+    "timestamp_utc",
+    "sample_rate_hz",
+    "sample_count",
+    "window_duration_s",
+    "shaft_frequency_hz",
+    "units",
+    "rpm",
+    "temperature_c",
+    "load_factor",
+    "sensor_quality",
+    "sensor_quality_reasons",
+    "sensor_drift_g",
+    "rms_g",
+    "peak_to_peak_g",
+    "crest_factor",
+    "spectral_window",
+    "spectral_bin_hz",
+    "dominant_frequency_hz",
+    "shaft_1x_amplitude_g",
+    "shaft_2x_amplitude_g",
+    "band_80_400_rms_g",
+    "health",
+    "reasons",
+    "rolling_window_ticks",
+    "rolling_observations",
+    "rolling_valid_observations",
+    "rolling_rms_mean_g",
+    "rolling_temperature_mean_c",
+    "configured_scenario",
+    "configured_severity",
+    "onset_tick",
+    "duration_ticks",
+    "progression",
+    "start_severity",
+    "ramp_ticks",
+    "ramp_fraction",
+    "fault_phase",
     "operating_config",
 )
-NESTED_FIELDS = frozenset(("units", "reasons", "sensor_quality_reasons",
-                           "operating_config"))
+NESTED_FIELDS = frozenset(
+    ("units", "reasons", "sensor_quality_reasons", "operating_config")
+)
 # Hash the simulator and its generating dependencies, not just a fixed
 # development-package version which can span many source revisions.
-SOURCE_FILES = ("export.py", "sim.py", "scenarios.py", "signals.py",
-                "spectral.py", "schema.py", "config_file.py")
+SOURCE_FILES = (
+    "export.py",
+    "sim.py",
+    "scenarios.py",
+    "signals.py",
+    "spectral.py",
+    "schema.py",
+    "config_file.py",
+)
 
 
 def _canonical_source_bytes(data: bytes) -> bytes:
@@ -62,8 +106,13 @@ def _model_source_sha256() -> str:
 
 def _canonical_json(value: Any) -> str:
     """Stable UTF-8 JSON, with no NaN or nonstandard numeric tokens."""
-    return json.dumps(value, ensure_ascii=False, allow_nan=False,
-                      sort_keys=True, separators=(",", ":"))
+    return json.dumps(
+        value,
+        ensure_ascii=False,
+        allow_nan=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
 
 
 def _sha256(data: bytes) -> str:
@@ -72,6 +121,7 @@ def _sha256(data: bytes) -> str:
 
 class _HashedWriter:
     """Accept CSV/JSONL strings, enforce a byte limit, and hash exact bytes."""
+
     def __init__(self, binary_file: Any):
         self.binary_file = binary_file
         self.digest = hashlib.sha256()
@@ -122,17 +172,23 @@ def export_dataset(
         raise ValueError(f"ticks must be an integer in [1, {MAX_EXPORT_TICKS}]")
     if file_format not in EXPORT_FORMATS:
         raise ValueError("format must be csv, jsonl or both")
-    sim = MotorSimulator(seed=seed, assets=assets, start_time_utc=start_time_utc,
-                         step_seconds=step_seconds)
+    sim = MotorSimulator(
+        seed=seed,
+        assets=assets,
+        start_time_utc=start_time_utc,
+        step_seconds=step_seconds,
+    )
     last_time = sim.timestamp_for_tick(ticks)  # Check clock overflow before writing.
     config = configuration_dict(sim.assets)
     config_sha = _sha256(_canonical_json(config).encode("utf-8"))
     model_source_sha = _model_source_sha256()
     identity = {
-        "config_sha256": config_sha, "model_source_sha256": model_source_sha,
+        "config_sha256": config_sha,
+        "model_source_sha256": model_source_sha,
         "seed": sim.seed,
         "start_time_utc": sim.start_time_utc.isoformat(),
-        "step_seconds": sim.step_seconds, "ticks": ticks,
+        "step_seconds": sim.step_seconds,
+        "ticks": ticks,
         "schema_version": SCHEMA_VERSION,
     }
     export_id = "sim-" + _sha256(_canonical_json(identity).encode("utf-8"))[:24]
@@ -143,9 +199,13 @@ def export_dataset(
         raise ValueError(f"parent directory does not exist: {target.parent}")
     target.mkdir(exist_ok=False)
     try:
-        filenames = (["events.csv"] if file_format == "csv" else
-                     ["events.jsonl"] if file_format == "jsonl" else
-                     ["events.csv", "events.jsonl"])
+        filenames = (
+            ["events.csv"]
+            if file_format == "csv"
+            else ["events.jsonl"]
+            if file_format == "jsonl"
+            else ["events.csv", "events.jsonl"]
+        )
         with ExitStack() as stack:
             sinks = {}
             for filename in filenames:
@@ -169,10 +229,14 @@ def export_dataset(
                         **asset,
                     }
                     if set(payload) != set(EXPORT_FIELDS):
-                        raise ValueError("telemetry fields changed: update EXPORT_FIELDS and dictionary")
+                        raise ValueError(
+                            "telemetry fields changed: update EXPORT_FIELDS and dictionary"
+                        )
                     event = {k: payload[k] for k in EXPORT_FIELDS}
                     if csv_writer is not None:
-                        csv_writer.writerow([_csv_cell(k, event[k]) for k in EXPORT_FIELDS])
+                        csv_writer.writerow(
+                            [_csv_cell(k, event[k]) for k in EXPORT_FIELDS]
+                        )
                     if "events.jsonl" in sinks:
                         sinks["events.jsonl"].write(_canonical_json(event) + "\n")
                     num_records += 1
@@ -207,9 +271,19 @@ def export_dataset(
                 "health": "uncalibrated heuristic / unavailable / suspect, not a failure probability",
             },
         }
-        with (target / "manifest.json").open("x", encoding="utf-8", newline="\n") as output:
-            output.write(json.dumps(manifest, ensure_ascii=False, sort_keys=True, indent=2,
-                                    allow_nan=False) + "\n")
+        with (target / "manifest.json").open(
+            "x", encoding="utf-8", newline="\n"
+        ) as output:
+            output.write(
+                json.dumps(
+                    manifest,
+                    ensure_ascii=False,
+                    sort_keys=True,
+                    indent=2,
+                    allow_nan=False,
+                )
+                + "\n"
+            )
         return manifest
     except BaseException:
         # This path was created by this call; leave no misleading partial export.
@@ -219,29 +293,51 @@ def export_dataset(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Export reproducible SYNTHETIC motor feature records; not field data")
-    parser.add_argument("--out-dir", type=Path, required=True,
-                        help="new output directory; existing paths are never overwritten")
-    parser.add_argument("--ticks", type=int, required=True,
-                        help=f"number of virtual ticks, 1–{MAX_EXPORT_TICKS}")
+        description="Export reproducible SYNTHETIC motor feature records; not field data"
+    )
+    parser.add_argument(
+        "--out-dir",
+        type=Path,
+        required=True,
+        help="new output directory; existing paths are never overwritten",
+    )
+    parser.add_argument(
+        "--ticks",
+        type=int,
+        required=True,
+        help=f"number of virtual ticks, 1–{MAX_EXPORT_TICKS}",
+    )
     parser.add_argument("--format", choices=EXPORT_FORMATS, default="both")
-    parser.add_argument("--config", type=Path,
-                        help="optional validated local JSON motor scenario config")
+    parser.add_argument(
+        "--config",
+        type=Path,
+        help="optional validated local JSON motor scenario config",
+    )
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--start-time-utc", type=parse_start_time_utc,
-                        default=DEFAULT_START_TIME_UTC)
+    parser.add_argument(
+        "--start-time-utc", type=parse_start_time_utc, default=DEFAULT_START_TIME_UTC
+    )
     parser.add_argument("--step-seconds", type=float, default=1.5)
     args = parser.parse_args()
     try:
-        assets = load_config_file(args.config) if args.config is not None else DEFAULT_ASSETS
-        result = export_dataset(args.out_dir, ticks=args.ticks, file_format=args.format,
-                                seed=args.seed, assets=assets,
-                                start_time_utc=args.start_time_utc,
-                                step_seconds=args.step_seconds)
+        assets = (
+            load_config_file(args.config) if args.config is not None else DEFAULT_ASSETS
+        )
+        result = export_dataset(
+            args.out_dir,
+            ticks=args.ticks,
+            file_format=args.format,
+            seed=args.seed,
+            assets=assets,
+            start_time_utc=args.start_time_utc,
+            step_seconds=args.step_seconds,
+        )
     except (OSError, ValueError) as exc:
         parser.error(str(exc))
-    print(f"Exported {result['events']} synthetic events to {args.out_dir} "
-          f"(export_id={result['export_id']})")
+    print(
+        f"Exported {result['events']} synthetic events to {args.out_dir} "
+        f"(export_id={result['export_id']})"
+    )
 
 
 if __name__ == "__main__":
