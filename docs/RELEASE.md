@@ -1,3 +1,31 @@
+# MotorPulse AI release record and procedure
+
+## v0.1.1 patch-release candidate
+
+MotorPulse AI `v0.1.1` is being prepared as a narrowly scoped reproducibility patch on top of the published `v0.1.0` research release. It does not add product capability or broaden the scientific/security boundary.
+
+### Candidate evidence before release
+
+MP-053 was merged into `main` specifically to harden Windows reproducibility:
+
+- MP-053 pull request: `#72`
+- Verified MP-053 head: `0aa56a6ffa560013205bf621484a0268f502ff97`
+- MP-053 tree: `3119a0ed72e7f350f8317136f39d1afdd525184b`
+- MP-053 PR Quality Gates run: `39520517680` / run number `217`
+- PR quality result: **all eight quality jobs passed**
+- Full-suite baseline: **528 tests**, including the permanent Windows Python 3.13 gate and Linux Python 3.11/3.12/3.13 jobs
+- Merge commit on `main`: `76cd2421dbfc2c5d0f77528b41474d363f3bfecc`
+
+The MP-053 changes make SQLite test-fixture cleanup Windows-safe, make benchmark generation LF/CRLF-stable, canonicalize MotorPulse source line endings before synthetic provenance hashing, and add the permanent Windows Python 3.13 full-suite gate. Production runtime behavior, dependencies, external-data policy, and the local-only security boundary are unchanged.
+
+The package metadata for this candidate is `0.1.1` with the Alpha classifier. **Do not create `v0.1.1` from this preparation branch.** Merge the release-prep PR first, run the permanent quality workflow on the exact integrated `main` commit, verify all eight jobs are green, and only then create the annotated `v0.1.1` tag after explicit approval.
+
+The permanent quality set for `v0.1.1` is eight jobs: Linux Python 3.11, 3.12 and 3.13; Windows Python 3.13; changed-code Ruff/format; dependency policy; fresh-clone reproducibility; and the optional container quick-start build/run security smoke.
+
+The published `v0.1.0` tag remains immutable. Never move, delete-and-recreate, force-update, or otherwise rewrite it to include MP-053 or MP-054.
+
+---
+
 # MotorPulse AI v0.1.0 release record
 
 MotorPulse AI `v0.1.0` is the first published alpha research release of the local-first synthetic motor-monitoring lab. It remains a **synthetic-only** research artifact. It is not field performance evidence, a production monitoring service, an industrial safety system, a real-machine maintenance recommendation, a calibrated failure-probability model, or a remaining-useful-life product.
@@ -18,7 +46,7 @@ The release was completed only after the intended work was integrated into `main
 - Published at: `2026-10-20T23:24:54Z`
 - Release state: public, non-draft, non-prerelease
 
-The package metadata remains `0.1.0` with the Alpha classifier. This GitHub release does **not** imply publication to PyPI.
+The package metadata for the published release was `0.1.0` with the Alpha classifier. This GitHub release does **not** imply publication to PyPI.
 
 The project treats the published `v0.1.0` tag as immutable. Never move, delete-and-recreate, force-update, or otherwise rewrite the tag. Post-release documentation or tracker commits belong after the tag on a normal branch/PR and do not change the released source snapshot.
 
@@ -44,6 +72,8 @@ python -m unittest discover -s tests -v
 ```
 
 For `v0.1.0`, the expected suite was **526 standard-library tests** on each supported Python version: 3.11, 3.12 and 3.13. GitHub Actions had to show **all seven quality jobs** green: the three Python matrix jobs, changed-code Ruff/format, dependency policy, fresh-clone reproducibility, and the optional container quick-start build/run security smoke.
+
+For `v0.1.1`, the expected suite is **528 tests** and the permanent workflow must show **all eight quality jobs** green, including Windows Python 3.13.
 
 Confirm `pyproject.toml` contains the intended semantic version and development classifier. Verify no unintended Python runtime or optional dependencies were introduced.
 
@@ -98,7 +128,7 @@ git tag -a v0.1.0 -m "MotorPulse AI v0.1.0"
 git push origin v0.1.0
 ```
 
-That procedure is historical evidence, not an instruction to recreate the tag. If source changes after a future version is verified, rerun all seven gates and tag the new verified commit instead; never move or force-rewrite a published release tag.
+That procedure is historical evidence, not an instruction to recreate the tag. If source changes after a future version is verified, rerun all permanent gates and tag the new verified commit instead; never move or force-rewrite a published release tag.
 
 ## 6. GitHub Release notes
 
