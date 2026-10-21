@@ -38,7 +38,9 @@ if os.name == "nt":
 
 class CrossPlatformSourceHashTests(unittest.TestCase):
     def test_source_hash_bytes_normalize_crlf_and_cr_to_lf(self):
-        self.assertEqual(_canonical_source_bytes(b"alpha\r\nbeta\r\n"), b"alpha\nbeta\n")
+        self.assertEqual(
+            _canonical_source_bytes(b"alpha\r\nbeta\r\n"), b"alpha\nbeta\n"
+        )
         self.assertEqual(_canonical_source_bytes(b"alpha\rbeta\r"), b"alpha\nbeta\n")
         self.assertEqual(_canonical_source_bytes(b"alpha\nbeta\n"), b"alpha\nbeta\n")
 
