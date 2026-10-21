@@ -10,16 +10,16 @@
 <text x="360" y="180" font-size="18" font-weight="700" text-anchor="middle">Model</text>
 <text x="590" y="180" font-size="18" font-weight="700" text-anchor="middle">Rules</text>
 <text x="70" y="220" font-size="20">Precision</text>
-<text x="360" y="220" font-size="20" text-anchor="middle">1</text>
+<text x="360" y="220" font-size="20" text-anchor="middle">0.947368</text>
 <text x="590" y="220" font-size="20" text-anchor="middle">1</text>
 <text x="70" y="268" font-size="20">Recall</text>
 <text x="360" y="268" font-size="20" text-anchor="middle">1</text>
 <text x="590" y="268" font-size="20" text-anchor="middle">0.777778</text>
 <text x="70" y="316" font-size="20">F1</text>
-<text x="360" y="316" font-size="20" text-anchor="middle">1</text>
+<text x="360" y="316" font-size="20" text-anchor="middle">0.972973</text>
 <text x="590" y="316" font-size="20" text-anchor="middle">0.875</text>
 <text x="70" y="364" font-size="20">FPR</text>
-<text x="360" y="364" font-size="20" text-anchor="middle">0</text>
+<text x="360" y="364" font-size="20" text-anchor="middle">0.02</text>
 <text x="590" y="364" font-size="20" text-anchor="middle">0</text>
 <line x1="70" y1="420" x2="690" y2="420" stroke="#20242a"/>
 <text x="70" y="452" font-size="16" font-weight="700">Not field performance · synthetic-only · no failure probability or RUL</text>
