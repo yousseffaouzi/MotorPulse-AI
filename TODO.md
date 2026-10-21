@@ -105,7 +105,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 |---|---|---|---|---|
 | MP-006 | DONE | P0 | Define versioned telemetry, asset, sensor, feature and event schemas | schema_version, event_id, asset_id, UTC timestamp, units, source, scenario, sampling metadata, examples and validation tests |
 | MP-007 | DONE | P0 | Configurable fault scenario library | Healthy, imbalance, bearing wear, misalignment, overload; severity and duration parameters; deterministic tests |
-| MP-017 | DONE | P0 | Separate simulation progression from snapshot reads | GET snapshot is read-only; explicit controls; concurrency-safe tests |
+| MP-017 | DONE | P0 | Separate simulation progression from snapshot reads | GET snapshot is read-only; explicit step/start/pause/reset; integration tests |
 | MP-018 | DONE | P0 | Reproducible simulated clock and replay | Same seed and configuration reproduce timestamps and measurements, independent of wall clock |
 | MP-019 | DONE | P0 | Physically defined waveform sampling | Sampling rate in Hz, sample count, units, window duration; documented waveform assumptions |
 | MP-020 | DONE | P0 | Progressive fault and degradation timelines | Configurable onset/growth across ticks; replayable healthy → degradation → alert transitions |
@@ -182,6 +182,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-016 | ON HOLD | P3 | Real sensors, PLC, edge and remote deployment | Separate later phase after software evaluation and security approval |
 
 **Exit criteria:** Fresh-clone setup and evaluation verified; tagged release and community documentation available.
+
 
 ## Dependencies / suggested order
 
