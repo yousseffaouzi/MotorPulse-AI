@@ -1,2 +1,3 @@
+motorpulse/*.py text eol=lf
 docs/BENCHMARK.md text eol=lf
 docs/demo/benchmark-summary.svg text eol=lf
