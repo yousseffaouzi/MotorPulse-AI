@@ -1,4 +1,4 @@
-# Install MotorPulse AI locally — MP-022
+# Install MotorPulse AI locally MP-022
 
 MotorPulse AI is a **software-only synthetic motor simulation**, not industrial safety equipment. Python **3.11+** is required. The application needs **no external runtime packages**, sensors, cloud account, database, or Docker. Python packaging tools are needed **at build/install time**, as specified in `pyproject.toml`.
 
