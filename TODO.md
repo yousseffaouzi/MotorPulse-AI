@@ -87,7 +87,9 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 
 - MP-054 completed: release preparation was merged into `main` at `8d8e4c9f9855f18de0e78937efffead5521753e1`; exact-`main` Quality Gates run `39524346340` / run #221 passed **all eight permanent quality jobs** with the **528-test** baseline before publication. Annotated tag object `2f8176f54364c0da7f57ce6698aa4906d781d4df` points `v0.1.1` to that exact commit, and GitHub Release `429574626` was published public/non-prerelease at `2026-10-30T23:13:21Z`. The `v0.1.0` and `v0.1.1` tags remain immutable by project policy.
 
-- MP-055 is **IN PROGRESS**: finalize post-release bookkeeping so README/changelog/release records, readiness contracts and the roadmap consistently identify `v0.1.1` as the latest published alpha release without changing runtime behavior or either immutable release tag.
+- MP-055 completed: post-release bookkeeping now records the published `v0.1.1` evidence consistently across README, changelog, release documentation, readiness contracts and this roadmap without changing runtime behavior or either immutable release tag.
+
+- MP-056 completed: portable model-artifact provenance now records the Python major/minor series instead of the patch version, so CPython 3.13 patch upgrades do not perturb checksummed artifacts when model/data/split/preprocessing and producer code are unchanged. PR #79 Quality Gates run `41145370302` / run #229 passed all eight permanent jobs with the **529-test** suite; the corrected benchmark artifact SHA is `c10cfff19ae2c897b111e69595a34347280c107cf6c6d121bc77067b4ceb266f`. No release tag, model semantics, dependency, safety, data-rights or RUL boundary changed.
 
 ## Milestone 0 — Existing proof of concept
 
@@ -181,7 +183,8 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-052 | DONE | P2 | Optional containerized quick start | Simple Dockerfile/Compose; native Python remains supported |
 | MP-053 | DONE | P1 | Harden Windows test reproducibility | Windows Python 3.13 full-suite gate; LF/CRLF-stable benchmark/provenance and fixture cleanup regressions |
 | MP-054 | DONE | P2 | Prepare v0.1.1 patch release | Version/changelog/release contracts; exact-main eight-gate verification before tag |
-| MP-055 | IN PROGRESS | P2 | Finalize v0.1.1 post-release bookkeeping | Published tag/run/release evidence; README/changelog/release/tracker consistency |
+| MP-055 | DONE | P2 | Finalize v0.1.1 post-release bookkeeping | Published tag/run/release evidence; README/changelog/release/tracker consistency |
+| MP-056 | DONE | P1 | Stabilize portable artifacts across Python patch upgrades | Same-major/minor patch releases produce identical portable artifacts; 529-test eight-gate verification |
 | MP-016 | ON HOLD | P3 | Real sensors, PLC, edge and remote deployment | Separate later phase after software evaluation and security approval |
 
 **Exit criteria:** Fresh-clone setup and evaluation verified; tagged release and community documentation available.
@@ -194,7 +197,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 3. `MP-012 → MP-040 → MP-041 → MP-013`: persistent end-to-end monitoring.
 4. `MP-027 → MP-009 → MP-028 → MP-030 → MP-032`: documented public data.
 5. `MP-023 → MP-034 → MP-010 → MP-011 → MP-033 → MP-037 → MP-048`: reproducible ML benchmark.
-6. `MP-045 → MP-046 → MP-047 → MP-049 → MP-015 → MP-051 → MP-053 → MP-054 → MP-055`: release readiness, patch hardening and post-release bookkeeping.
+6. `MP-045 → MP-046 → MP-047 → MP-049 → MP-015 → MP-051 → MP-053 → MP-054 → MP-056 → MP-055`: release readiness, patch hardening, portability fix and post-release bookkeeping.
 
 Parallel work is possible after the telemetry/clock contract: UI prototypes, dataset provenance review, signal analysis, and documentation.
 
