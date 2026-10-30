@@ -232,7 +232,7 @@ def build_model_artifact(plan: dict, manifests: Sequence[str | Path], model: dic
         "training_groups": sorted(plan["partitions"]["train"]["group_ids"]),
         "source_runs": _source_rows(plan,sources),
         "runtime": {
-            "python_version": ".".join(platform.python_version().split(".")[:2]),
+            "python_version": ".".join(map(str, sys.version_info[:2])),
             "implementation": platform.python_implementation(),
             "producer": "motorpulse.model_artifact",
             "producer_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
