@@ -80,7 +80,7 @@ The v1 artifact (`artifact_version="1.0.0"`) has **strict, exact top-level field
 | `processor_sha256` | MP-034 training-only fitted feature processor digest; full processor also embedded in model |
 | `split_plan_sha256`, `training_groups` | Source-run split identity and complete set of training groups |
 | `source_runs` | Sorted, path-free per-run group IDs, source data/config/model-code SHA-256, MP-032 dataset-card IDs and train/validation/test membership |
-| `runtime` | Python version/implementation, producer source SHA-256, no runtime dependencies, portability warning |
+| `runtime` | Python major/minor series and implementation, producer source SHA-256, no runtime dependencies, portability warning |
 | `artifact_sha256` | Canonical digest of all artifact fields except itself; tampering detection, **not a signature** |
 
 There is **no pickle, eval, arbitrary dynamic import, executable model graph or downloaded code**. Loading uses the existing strict UTF-8 JSON parser: duplicate keys and nonfinite JSON values are refused; files must be regular, non-symlinked, and **no larger than 512 KiB**. Saving a model is exclusive-create, with a rollback of the newly created partial file on a write failure.
@@ -94,7 +94,7 @@ File hashes only demonstrate **bit-level integrity against supplied references**
 - The embedded feature processor records exactly the training groups, their source digests, **healthy + sensor-good eligibility count**, means, population deviations and engineering scale floors. Feature identities and fixed exclusion list prevent fault truth, rule outputs, source IDs or timestamps from silently entering the model vector.
 - Repeated generator runs are rejected by the split planner. Validation and test groups are **not** used to fit normalization, thresholds or feature selection. Missing/outlier sensor windows remain **unscorable**.
 - The source-run metadata includes MP-032 dataset-card identities and code/config provenance. **Real IMS bearing labels remain unverified**, and original/derived archive redistribution is not authorized by NASA hosting alone.
-- Artifacts include no absolute source paths and no volatile wall-clock creation time. Given the same inputs and Python runtime, the artifact bytes are designed to replay deterministically independent of output path and input manifest order. Cross-Python floating-point equality is **not guaranteed**; runtime/source code provenance is recorded for review.
+- Artifacts include no absolute source paths and no volatile wall-clock creation time. Given the same inputs, producer code, implementation and Python **major/minor** runtime, the artifact bytes are designed to replay deterministically independent of output path, input manifest order, and Python patch-level upgrades within that series. Cross-major/minor floating-point equality is **not guaranteed**; runtime/source code provenance is recorded for review.
 - MP-033 experiments retain their legacy `trained-model.json` for compatibility. A loaded artifact is verified **before** MP-011 evaluation; the shared anomaly-vs-rule eligibility policy is unchanged.
 
 ## 4. Regression checks
@@ -104,7 +104,7 @@ python -m unittest discover -s tests -p 'test_model_artifact.py' -v
 python -m unittest discover -s tests -v
 ```
 
-The **19 new tests** cover strict save/load replay, path-independent reproducibility, source validation after file changes, split mismatch, unsupported versions, source-card forgery, model/processor tampering (including recomputed checksums), invalid units/coefficients/threshold, JSON parser rejection, size limits, non-overwrite, installed CLI and MP-033/MP-011 integration.
+The original **19 MP-035 tests** cover strict save/load replay, path-independent reproducibility, source validation after file changes, split mismatch, unsupported versions, source-card forgery, model/processor tampering (including recomputed checksums), invalid units/coefficients/threshold, JSON parser rejection, size limits, non-overwrite, installed CLI and MP-033/MP-011 integration. MP-056 adds a focused regression proving that two patch releases in the same Python major/minor series produce the same portable artifact and artifact SHA.
 
 All tests use synthetic MotorPulse exports created in temporary directories. This is software research tooling, **not** validation for real rotating machinery or physical Remaining Useful Life prediction.
 

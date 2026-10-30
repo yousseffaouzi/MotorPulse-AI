@@ -101,7 +101,7 @@ Evaluation SHA-256: `7e47c4127aacb7f33b91c5a651b945b1fb0882f13ae3ad1985ffb400539
 - Experiment config SHA-256: `a5f456e4adc331571538080ce17dba178b39268cec742c78b04c5d9eda732ee5`
 - Split plan SHA-256: `f3b68ca3d938392d7b7549261b64ec3fdb48da4a45b66654c6969d33fee1708c`
 - Trained model SHA-256: `18ef5ceef2351ced6cc54dd084db7355ad8525fe383b11830698bbf4fa3a06b9`
-- Portable artifact SHA-256: `e124d54bd7f047eb1b6956c5744fee1df7077c89337b0cd65da864250d628005`
+- Portable artifact SHA-256: `c10cfff19ae2c897b111e69595a34347280c107cf6c6d121bc77067b4ceb266f`
 - Feature pipeline SHA-256: `4408502f8f62355d401875daa888c8b831bf0af0558a15c38ad8efb78c190920`
 - Runtime dependencies recorded by the experiment: none.
 - Source data: locally generated MotorPulse synthetic feature events only; no
