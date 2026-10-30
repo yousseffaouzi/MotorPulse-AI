@@ -2,9 +2,16 @@
 
 All notable project changes are documented here. MotorPulse AI follows semantic versioning for packaged releases.
 
-## [0.1.1] - 2026-10-21
+## [0.1.1] - 2026-10-30
 
-Patch-release candidate focused on Windows test reproducibility and checkout-independent synthetic provenance. This entry describes the intended `v0.1.1` contents; the tag must not be created until the release-prep work is merged and the exact integrated `main` commit passes the permanent quality gates.
+Published reproducibility patch focused on Windows test reliability and checkout-independent synthetic provenance. The release adds no product capability and does not broaden MotorPulse AI's scientific, security, hardware, or external-data boundary.
+
+### Verification
+
+- Annotated tag `v0.1.1` uses tag object `2f8176f54364c0da7f57ce6698aa4906d781d4df` and points to exact release commit `8d8e4c9f9855f18de0e78937efffead5521753e1`.
+- Exact integrated-`main` Quality Gates run `39524346340` / run number `221` passed **all eight permanent quality jobs** with the **528-test** full-suite baseline, including Windows Python 3.13 and Linux Python 3.11/3.12/3.13.
+- GitHub Release ID `429574626` was published at `2026-10-30T23:13:21Z` as public, non-draft, and non-prerelease.
+- This GitHub release does **not** imply publication to PyPI.
 
 ### Fixed
 
@@ -19,6 +26,7 @@ Patch-release candidate focused on Windows test reproducibility and checkout-ind
 - No network exposure, authentication, hardware/PLC, actuator, remote-control, field-validation, RUL, or model-claim boundary changed.
 - NASA IMS and CWRU redistribution restrictions remain unchanged; no third-party raw or derived measurements are added.
 - The published `v0.1.0` tag remains immutable on its original release commit and is not moved or recreated by this patch release.
+- The published `v0.1.1` tag is likewise immutable by project policy and must not be moved, deleted-and-recreated, or force-updated by later bookkeeping.
 
 ## [0.1.0] - 2026-10-16
 

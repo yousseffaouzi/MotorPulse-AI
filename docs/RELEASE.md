@@ -1,10 +1,25 @@
 # MotorPulse AI release record and procedure
 
-## v0.1.1 patch-release candidate
+## Published v0.1.1 evidence
 
-MotorPulse AI `v0.1.1` is being prepared as a narrowly scoped reproducibility patch on top of the published `v0.1.0` research release. It does not add product capability or broaden the scientific/security boundary.
+MotorPulse AI `v0.1.1` is the published reproducibility patch on top of the `v0.1.0` alpha research release. It hardens Windows test behavior and checkout-independent synthetic provenance without adding product capability or broadening the scientific/security boundary.
 
-### Candidate evidence before release
+The release was completed only after the release-preparation work was integrated and the exact intended release commit passed all eight permanent quality jobs.
+
+- Release tag: annotated `v0.1.1`
+- Annotated tag object: `2f8176f54364c0da7f57ce6698aa4906d781d4df`
+- Tagged commit: `8d8e4c9f9855f18de0e78937efffead5521753e1`
+- Exact-`main` GitHub Actions run: `39524346340` / run number `221`
+- Quality result: **all eight quality jobs passed**
+- Full-suite baseline: **528 tests**, including Windows Python 3.13 and Linux Python 3.11/3.12/3.13
+- GitHub Release ID: `429574626`
+- GitHub Release: <https://github.com/yousseffaouzi/MotorPulse-AI/releases/tag/v0.1.1>
+- Published at: `2026-10-30T23:13:21Z`
+- Release state: public, non-draft, non-prerelease
+
+The package metadata for the published release is `0.1.1` with the Alpha classifier. This GitHub release does **not** imply publication to PyPI.
+
+### v0.1.1 preparation evidence
 
 MP-053 was merged into `main` specifically to harden Windows reproducibility:
 
@@ -14,15 +29,15 @@ MP-053 was merged into `main` specifically to harden Windows reproducibility:
 - MP-053 PR Quality Gates run: `39520517680` / run number `217`
 - PR quality result: **all eight quality jobs passed**
 - Full-suite baseline: **528 tests**, including the permanent Windows Python 3.13 gate and Linux Python 3.11/3.12/3.13 jobs
-- Merge commit on `main`: `76cd2421dbfc2c5d0f77528b41474d363f3bfecc`
+- MP-053 merge commit on `main`: `76cd2421dbfc2c5d0f77528b41474d363f3bfecc`
+
+MP-054 release preparation then updated package metadata, changelog/release contracts, roadmap evidence and readiness tests. PR `#74` passed all eight permanent jobs before merge, then the exact integrated release commit `8d8e4c9f9855f18de0e78937efffead5521753e1` passed the manually dispatched exact-`main` run `39524346340` before the tag was created.
 
 The MP-053 changes make SQLite test-fixture cleanup Windows-safe, make benchmark generation LF/CRLF-stable, canonicalize MotorPulse source line endings before synthetic provenance hashing, and add the permanent Windows Python 3.13 full-suite gate. Production runtime behavior, dependencies, external-data policy, and the local-only security boundary are unchanged.
 
-The package metadata for this candidate is `0.1.1` with the Alpha classifier. **Do not create `v0.1.1` from this preparation branch.** Merge the release-prep PR first, run the permanent quality workflow on the exact integrated `main` commit, verify all eight jobs are green, and only then create the annotated `v0.1.1` tag after explicit approval.
-
 The permanent quality set for `v0.1.1` is eight jobs: Linux Python 3.11, 3.12 and 3.13; Windows Python 3.13; changed-code Ruff/format; dependency policy; fresh-clone reproducibility; and the optional container quick-start build/run security smoke.
 
-The published `v0.1.0` tag remains immutable. Never move, delete-and-recreate, force-update, or otherwise rewrite it to include MP-053 or MP-054.
+The project treats both published `v0.1.0` and `v0.1.1` tags as immutable. Never move, delete-and-recreate, force-update, or otherwise rewrite either tag. Post-release documentation or tracker commits belong after the tag on a normal branch/PR and do not change the released source snapshot.
 
 ---
 
@@ -55,6 +70,8 @@ The project treats the published `v0.1.0` tag as immutable. Never move, delete-a
 **Do not tag a stacked feature branch.** A release tag may only be created from the exact intended integrated `main` commit after that exact commit passes the permanent quality gates and after explicit approval to tag/release.
 
 For `v0.1.0`, this boundary was satisfied by commit `42311ffb2e26d3f75484076bb86a3e607275cde1` and GitHub Actions run `39336825312`. Candidate-branch verification was review evidence only; the milestone became complete only when the annotated tag and GitHub Release actually existed.
+
+For `v0.1.1`, this boundary was satisfied by commit `8d8e4c9f9855f18de0e78937efffead5521753e1` and GitHub Actions run `39524346340`. The tag was created only after that exact integrated commit passed all eight permanent quality jobs.
 
 The packaged server stays bound to `127.0.0.1`. It has no authentication layer because it is not intended for network exposure. No PLC integration, no remote control, no actuator path and no physical-equipment command is part of this release.
 
@@ -146,4 +163,4 @@ The release must not attach third-party raw/derived datasets or claim validation
 
 ## 7. Post-release bookkeeping
 
-After publication, update release-status documentation and the roadmap through a normal branch and pull request. These bookkeeping commits are intentionally **after** the immutable release tag and must not be used to move or recreate `v0.1.0`.
+After publication, update release-status documentation and the roadmap through a normal branch and pull request. These bookkeeping commits are intentionally **after** the immutable release tags and must not be used to move or recreate either `v0.1.0` or `v0.1.1`.
