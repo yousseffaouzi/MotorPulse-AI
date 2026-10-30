@@ -26,15 +26,9 @@ class PythonPatchArtifactReproTests(unittest.TestCase):
             plan = group_split(manifests, source_type="synthetic", seed=42)
             model = train_baseline(plan, manifests)
 
-            with patch(
-                "motorpulse.model_artifact.platform.python_version",
-                return_value="3.13.16",
-            ):
+            with patch("motorpulse.model_artifact.sys.version_info", (3, 13, 16)):
                 first = build_model_artifact(plan, manifests, model)
-            with patch(
-                "motorpulse.model_artifact.platform.python_version",
-                return_value="3.13.17",
-            ):
+            with patch("motorpulse.model_artifact.sys.version_info", (3, 13, 17)):
                 second = build_model_artifact(plan, manifests, model)
 
             self.assertEqual(first, second)
