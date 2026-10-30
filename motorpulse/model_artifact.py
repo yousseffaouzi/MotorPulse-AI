@@ -214,8 +214,7 @@ def validate_model_artifact(artifact: Any) -> None:
         or (
             train.get("split_plan_sha256") != artifact["split_plan_sha256"]
             or params.get("split_plan_sha256") != artifact["split_plan_sha256"]
-            or params.get("training_windows")
-            != train.get("healthy_good_sensor_events")
+            or params.get("training_windows") != train.get("healthy_good_sensor_events")
             or type(params.get("training_windows")) is not int
             or params["training_windows"] < 8
         )
