@@ -2,7 +2,7 @@
 
 **Software-first predictive-maintenance lab for industrial motors and rotating equipment.**
 
-> **Status:** [`v0.1.0`](https://github.com/yousseffaouzi/MotorPulse-AI/releases/tag/v0.1.0) alpha **published on 2026-10-20**. MotorPulse AI remains a synthetic research lab: fixed rules and the healthy-trained anomaly baseline are not field-validated predictive-maintenance diagnoses, failure probabilities, or RUL estimates. No hardware is required.
+> **Status:** [`v0.1.1`](https://github.com/yousseffaouzi/MotorPulse-AI/releases/tag/v0.1.1) alpha **published on 2026-10-30**. MotorPulse AI remains a synthetic research lab: fixed rules and the healthy-trained anomaly baseline are not field-validated predictive-maintenance diagnoses, failure probabilities, or RUL estimates. No hardware is required.
 
 ## What you can run today
 - Reproducible simulated vibration, temperature and RPM signals for three motors.
@@ -175,7 +175,7 @@ See [docs/PROGRESSION.md](docs/PROGRESSION.md) for exact ramp equations, validat
 
 ## Python packaging (MP-022)
 
-MotorPulse AI is packaged as **motorpulse-ai 0.1.0** for the published alpha GitHub release (**tagged as `v0.1.0`; not published to PyPI**). All runtime modules are standard-library-only; installing or building the wheel needs Python packaging tools. The single source of truth for the dashboard is `motorpulse/web/index.html`, so it works after installing from a wheel even when launched from another working directory. See [docs/INSTALL.md](docs/INSTALL.md) for instructions and smoke checks, and [docs/RELEASE.md](docs/RELEASE.md) for the published release record and verification boundary.
+MotorPulse AI is packaged as **motorpulse-ai 0.1.1** for the published alpha GitHub release (**tagged as `v0.1.1`; not published to PyPI**). All runtime modules are standard-library-only; installing or building the wheel needs Python packaging tools. The single source of truth for the dashboard is `motorpulse/web/index.html`, so it works after installing from a wheel even when launched from another working directory. See [docs/INSTALL.md](docs/INSTALL.md) for instructions and smoke checks, and [docs/RELEASE.md](docs/RELEASE.md) for the published release record and verification boundary.
 
 ## Spectral and rolling indicators (MP-023)
 
@@ -357,7 +357,6 @@ The `motorpulse-calibrate` CLI chooses a **separate, validation-only decision th
 python -m motorpulse.experiment --config docs/examples/robustness-experiment-v1.json --out-dir /tmp/mp038-exp
 python -m motorpulse.calibration --experiment-dir /tmp/mp038-exp --target-fpr 0.05 --out-json /tmp/mp038-report.json --out-md /tmp/mp038-report.md
 ```
-
 The report contains a validation-only operating-point tradeoff curve, explicit allowed/achieved validation false-alarm counts, held-out synthetic test metrics, source/processor/model fingerprints and abstention counts. An empirical validation FPR **does not guarantee future or real-world alarm rates**, physical failure probability, diagnosis or RUL. See [docs/CALIBRATION.md](docs/CALIBRATION.md).
 
 ## RUL research: failure evidence and censoring gate (MP-039)
