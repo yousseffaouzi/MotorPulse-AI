@@ -107,7 +107,7 @@ class ReleaseReadinessTests(unittest.TestCase):
         self.assertNotIn("release candidate, not published", readme.lower())
         self.assertNotIn("not yet tagged", readme.lower())
 
-    def test_tracker_records_053_054_and_055_without_rewriting_010(self):
+    def test_tracker_records_053_through_056_without_rewriting_010(self):
         todo = (ROOT / "TODO.md").read_text(encoding="utf-8")
         completed = (
             "| MP-051 | DONE | P2 | Tag a usable release | SemVer, CHANGELOG, "
@@ -119,18 +119,28 @@ class ReleaseReadinessTests(unittest.TestCase):
         )
         self.assertIn("| MP-054 | DONE | P2 | Prepare v0.1.1 patch release |", todo)
         self.assertIn(
-            "| MP-055 | IN PROGRESS | P2 | Finalize v0.1.1 post-release bookkeeping |",
+            "| MP-055 | DONE | P2 | Finalize v0.1.1 post-release bookkeeping |",
+            todo,
+        )
+        self.assertIn(
+            "| MP-056 | DONE | P1 | Stabilize portable artifacts across Python patch upgrades |",
             todo,
         )
         self.assertNotIn("| MP-051 | TODO |", todo)
+        self.assertNotIn("| MP-055 | IN PROGRESS |", todo)
         self.assertIn("v0.1.0", todo)
         self.assertIn("42311ffb2e26d3f75484076bb86a3e607275cde1", todo)
         self.assertIn("39336825312", todo)
         self.assertIn("39520517680", todo)
         self.assertIn("39524346340", todo)
+        self.assertIn("41145370302", todo)
         self.assertIn("2f8176f54364c0da7f57ce6698aa4906d781d4df", todo)
         self.assertIn("8d8e4c9f9855f18de0e78937efffead5521753e1", todo)
         self.assertIn("429574626", todo)
+        self.assertIn(
+            "c10cfff19ae2c897b111e69595a34347280c107cf6c6d121bc77067b4ceb266f",
+            todo,
+        )
 
 
 if __name__ == "__main__":
