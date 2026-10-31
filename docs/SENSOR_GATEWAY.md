@@ -46,7 +46,7 @@ Reports contain raw-file SHA-256 plus a canonical frame SHA-256. The canonical d
 
 The existing synthetic feature pipeline assumes a **1024 Hz, 1024-sample (1 second)** vibration window and good vibration/temperature/RPM channels. `current_pipeline_sampling_compatible()` reports whether a physical frame matches only those sampling and quality prerequisites.
 
-That result is **not authorization to run the synthetic anomaly model on physical data**. Before any field scoring or training, a later milestone must implement and validate physical feature extraction, sensor calibration/transfer-function handling, asset-disjoint train/validation/test provenance, labeling/evidence policy, and real-world model evaluation. Synthetic held-out metrics cannot be reused as physical performance evidence.
+That result is **not authorization to run the synthetic anomaly model on physical data**. MP-058 now implements offline, non-diagnostic feature extraction for compatible frames; see [PHYSICAL_FEATURES.md](PHYSICAL_FEATURES.md). Sensor calibration/transfer-function handling, asset-disjoint train/validation/test provenance, labeling/evidence policy, physical model training/scoring, and real-world evaluation remain separate future gates. Synthetic held-out metrics cannot be reused as physical performance evidence.
 
 ## Intended ESP32 path
 
@@ -55,12 +55,12 @@ A future hardware prototype can follow this staged path:
 1. ESP32 samples an accelerometer and reads temperature/RPM sensors.
 2. A host-side capture process adds/verifies UTC time and writes capture-v1 JSONL.
 3. `motorpulse.sensor_gateway` validates provenance, ordering, channel quality, and file integrity offline.
-4. A separate future feature-extraction step converts verified raw acceleration windows to the same documented feature definitions used by research code.
+4. `motorpulse.physical_features` converts compatible verified windows into provenance-bound, non-diagnostic feature rows and explicitly abstains on incompatible/poor-quality frames.
 5. Only after dataset review and leakage-resistant splits may a physical-data model be trained/evaluated.
 6. Live dashboard ingestion, device networking, PLC interaction, actuation, remote deployment, and maintenance decisions remain separate security/safety projects.
 
 ## Security and safety boundary
 
-MP-057 adds **no device listener and no control channel**. The main MotorPulse server remains localhost-only and unauthenticated because it is still a local research application. Do not port-forward it or connect physical control equipment to the current API.
+MP-057 and MP-058 add **no device listener and no control channel**. The main MotorPulse server remains localhost-only and unauthenticated because it is still a local research application. Do not port-forward it or connect physical control equipment to the current API.
 
 Any future live device/network path requires a dedicated threat model, authenticated device identity, transport security, replay/ordering protection, rate/size limits, failure isolation, operational logging, and explicit review before implementation. Any PLC or actuator path additionally requires independent machine-safety engineering; it must not reuse the research dashboard control API as an industrial control interface.
