@@ -95,14 +95,14 @@ def _verify_feature_file(path: str | Path, card: dict[str, Any]) -> dict[str, An
         {row["device_id"] for row in rows} == {card["device_id"]},
         "physical feature device does not match run card",
     )
-    sampling = sorted(
-        {(row["sample_rate_hz"], row["sample_count"]) for row in rows}
-    )
+    sampling = sorted({(row["sample_rate_hz"], row["sample_count"]) for row in rows})
     expected_sampling = sorted(
         (item["sample_rate_hz"], item["sample_count"])
         for item in card["sampling_contracts"]
     )
-    _require(sampling == expected_sampling, "physical feature sampling contract changed")
+    _require(
+        sampling == expected_sampling, "physical feature sampling contract changed"
+    )
     provenance = {
         json.dumps(
             row["provenance"],
