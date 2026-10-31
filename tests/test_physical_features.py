@@ -159,7 +159,8 @@ class PhysicalFeatureCaptureTests(unittest.TestCase):
 
             feature_bytes = features.read_bytes()
             self.assertEqual(
-                feature_bytes, b"".join(canonical_feature_bytes(row) + b"\n" for row in rows)
+                feature_bytes,
+                b"".join(canonical_feature_bytes(row) + b"\n" for row in rows),
             )
             written_row = json.loads(feature_bytes.decode("utf-8"))
             self.assertNotIn("acceleration_g", written_row)
@@ -170,7 +171,9 @@ class PhysicalFeatureCaptureTests(unittest.TestCase):
             self.assertFalse(report["claims"]["training_authorized"])
             self.assertFalse(report["claims"]["model_scoring_authorized"])
             with self.assertRaisesRegex(ValueError, "refusing to overwrite"):
-                write_feature_outputs(rows, report, features, root / "other-report.json")
+                write_feature_outputs(
+                    rows, report, features, root / "other-report.json"
+                )
 
     def test_cli_writes_both_outputs_and_refuses_same_path(self):
         with TemporaryDirectory() as tmp:
