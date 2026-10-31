@@ -60,13 +60,17 @@ def _abstention_reasons(frame: dict[str, Any]) -> list[str]:
         quality = frame["quality"][channel]
         if quality != "good":
             reasons.append(f"{channel} quality is {quality}")
+    rpm = frame["rpm"]
+    if frame["quality"]["rpm"] == "good" and rpm == 0:
+        reasons.append("rpm must be positive for shaft-referenced spectral features")
     return reasons
 
 
 def extract_frame_features(frame: dict[str, Any]) -> dict[str, Any]:
     """Derive one provenance-preserving feature row without model scoring."""
     validate_sensor_frame(frame)
-    ready = current_pipeline_sampling_compatible(frame)
+    rpm = frame["rpm"]
+    ready = current_pipeline_sampling_compatible(frame) and rpm != 0
     reasons = [] if ready else _abstention_reasons(frame)
     result: dict[str, Any] = {
         "feature_version": FEATURE_VERSION,
@@ -82,7 +86,7 @@ def extract_frame_features(frame: dict[str, Any]) -> dict[str, Any]:
         "units": dict(frame["units"]),
         "quality": dict(frame["quality"]),
         "temperature_c": frame["temperature_c"],
-        "rpm": frame["rpm"],
+        "rpm": rpm,
         "provenance": dict(frame["provenance"]),
         "input_frame_sha256": hashlib.sha256(canonical_frame_bytes(frame)).hexdigest(),
         "feature_status": "extracted" if ready else "abstained",
@@ -95,7 +99,6 @@ def extract_frame_features(frame: dict[str, Any]) -> dict[str, Any]:
 
     samples = frame["acceleration_g"]
     assert isinstance(samples, list)
-    rpm = frame["rpm"]
     assert isinstance(rpm, (int, float))
     result.update(_time_domain_features(samples))
     result.update(spectral_features(samples, rpm, sample_rate_hz=frame["sample_rate_hz"]))
