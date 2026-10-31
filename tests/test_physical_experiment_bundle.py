@@ -95,7 +95,9 @@ def _review_request(index: int) -> dict:
     }
 
 
-def _cohort(root: Path) -> tuple[dict, list[dict], list[dict], dict, list[Path], list[Path], list[Path]]:
+def _cohort(
+    root: Path,
+) -> tuple[dict, list[dict], list[dict], dict, list[Path], list[Path], list[Path]]:
     cards: list[dict] = []
     reviews: list[dict] = []
     feature_paths: list[Path] = []
@@ -153,7 +155,10 @@ class PhysicalExperimentBundleTests(unittest.TestCase):
             self.assertTrue(bundle["bundle_id"].startswith("physical-bundle:"))
             self.assertEqual(len(bundle["source_files"]), 3)
             self.assertEqual(
-                sum(len(bundle["partitions"][name]) for name in ("train", "validation", "test")),
+                sum(
+                    len(bundle["partitions"][name])
+                    for name in ("train", "validation", "test")
+                ),
                 3,
             )
             for field in (
@@ -184,10 +189,14 @@ class PhysicalExperimentBundleTests(unittest.TestCase):
     def test_byte_level_change_after_audit_invalidates_bundle(self):
         with TemporaryDirectory() as tmp:
             split, cards, reviews, readiness, features, _, _ = _cohort(Path(tmp))
-            bundle = create_experiment_bundle(readiness, split, cards, reviews, features)
+            bundle = create_experiment_bundle(
+                readiness, split, cards, reviews, features
+            )
             path = features[0]
             original = path.read_text(encoding="utf-8")
-            path.write_text(original.rstrip("\n") + "  \n", encoding="utf-8", newline="\n")
+            path.write_text(
+                original.rstrip("\n") + "  \n", encoding="utf-8", newline="\n"
+            )
             with self.assertRaisesRegex(ValueError, "bundle does not match sources"):
                 validate_experiment_bundle(
                     bundle,
@@ -214,7 +223,9 @@ class PhysicalExperimentBundleTests(unittest.TestCase):
     def test_missing_or_duplicate_feature_file_fails_closed(self):
         with TemporaryDirectory() as tmp:
             split, cards, reviews, readiness, features, _, _ = _cohort(Path(tmp))
-            with self.assertRaisesRegex(ValueError, "exactly one physical feature file"):
+            with self.assertRaisesRegex(
+                ValueError, "exactly one physical feature file"
+            ):
                 create_experiment_bundle(
                     readiness,
                     split,
@@ -243,7 +254,9 @@ class PhysicalExperimentBundleTests(unittest.TestCase):
     def test_cli_is_write_once_and_metadata_only(self):
         with TemporaryDirectory() as tmp:
             root = Path(tmp)
-            split, cards, reviews, readiness, features, card_paths, review_paths = _cohort(root)
+            split, cards, reviews, readiness, features, card_paths, review_paths = (
+                _cohort(root)
+            )
             split_path = root / "split.json"
             readiness_path = root / "readiness.json"
             split_path.write_text(json.dumps(split), encoding="utf-8")
@@ -272,9 +285,7 @@ class PhysicalExperimentBundleTests(unittest.TestCase):
 
     def test_documentation_keeps_bundle_audit_only(self):
         root = Path(__file__).resolve().parents[1]
-        text = (root / "docs/PHYSICAL_EXPERIMENT_BUNDLE.md").read_text(
-            encoding="utf-8"
-        )
+        text = (root / "docs/PHYSICAL_EXPERIMENT_BUNDLE.md").read_text(encoding="utf-8")
         for phrase in (
             "exact feature bytes",
             "metadata-only",
