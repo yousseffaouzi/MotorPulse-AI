@@ -170,9 +170,16 @@ def _validate_split_plan(plan: Any, cards: Sequence[dict[str, Any]]) -> dict[str
         type(plan) is dict and set(plan) == _SPLIT_KEYS,
         "physical split plan fields differ from MP-059 contract",
     )
-    _require(plan["split_version"] == SPLIT_VERSION, "unsupported physical split version")
-    _require(plan["policy"] == "whole_physical_asset_grouped", "invalid physical split policy")
-    _require(plan["dataset_type"] == DATASET_TYPE, "physical split dataset type mismatch")
+    _require(
+        plan["split_version"] == SPLIT_VERSION, "unsupported physical split version"
+    )
+    _require(
+        plan["policy"] == "whole_physical_asset_grouped",
+        "invalid physical split policy",
+    )
+    _require(
+        plan["dataset_type"] == DATASET_TYPE, "physical split dataset type mismatch"
+    )
     _require(
         type(plan["seed"]) is int and 0 <= plan["seed"] <= 2**32 - 1,
         "physical split seed is invalid",
@@ -199,7 +206,9 @@ def _validate_split_plan(plan: Any, cards: Sequence[dict[str, Any]]) -> dict[str
         and plan["model_scoring_authorized"] is False,
         "MP-059 split cannot authorize training or scoring",
     )
-    expected_hash = _sha({key: value for key, value in plan.items() if key != "plan_sha256"})
+    expected_hash = _sha(
+        {key: value for key, value in plan.items() if key != "plan_sha256"}
+    )
     _require(
         plan["plan_sha256"] == expected_hash,
         "physical split plan SHA-256 does not match canonical content",
@@ -214,8 +223,12 @@ def _validate_split_plan(plan: Any, cards: Sequence[dict[str, Any]]) -> dict[str
     card_ids = [card["card_id"] for card in cards]
     session_ids = [card["session_id"] for card in cards]
     feature_hashes = [card["features_sha256"] for card in cards]
-    _require(len(card_ids) == len(set(card_ids)), "duplicate physical run card identity")
-    _require(len(session_ids) == len(set(session_ids)), "duplicate physical session identity")
+    _require(
+        len(card_ids) == len(set(card_ids)), "duplicate physical run card identity"
+    )
+    _require(
+        len(session_ids) == len(set(session_ids)), "duplicate physical session identity"
+    )
     _require(
         len(feature_hashes) == len(set(feature_hashes)),
         "duplicate physical feature content across sessions",
@@ -240,10 +253,16 @@ def _validate_split_plan(plan: Any, cards: Sequence[dict[str, Any]]) -> dict[str
     ]
     _require(
         type(plan["sources"]) is list
-        and all(type(source) is dict and set(source) == _SOURCE_KEYS for source in plan["sources"]),
+        and all(
+            type(source) is dict and set(source) == _SOURCE_KEYS
+            for source in plan["sources"]
+        ),
         "physical split sources differ from MP-059 contract",
     )
-    _require(plan["sources"] == expected_sources, "physical split sources do not match supplied cards")
+    _require(
+        plan["sources"] == expected_sources,
+        "physical split sources do not match supplied cards",
+    )
 
     partitions = plan["partitions"]
     _require(
@@ -264,7 +283,9 @@ def _validate_split_plan(plan: Any, cards: Sequence[dict[str, Any]]) -> dict[str
         partition_card_ids = partition["card_ids"]
         partition_sessions = partition["session_ids"]
         _require(
-            type(asset_ids) is list and asset_ids and len(asset_ids) == len(set(asset_ids)),
+            type(asset_ids) is list
+            and asset_ids
+            and len(asset_ids) == len(set(asset_ids)),
             f"{partition_name} asset IDs must be nonempty and unique",
         )
         _require(
@@ -288,15 +309,24 @@ def _validate_split_plan(plan: Any, cards: Sequence[dict[str, Any]]) -> dict[str
             "physical session appears in multiple partitions",
         )
         for asset_id in asset_ids:
-            _require(asset_id not in asset_partition, "physical asset leaks across partitions")
+            _require(
+                asset_id not in asset_partition,
+                "physical asset leaks across partitions",
+            )
             asset_partition[asset_id] = partition_name
-        selected = [cards_by_id[card_id] for card_id in partition_card_ids if card_id in cards_by_id]
+        selected = [
+            cards_by_id[card_id]
+            for card_id in partition_card_ids
+            if card_id in cards_by_id
+        ]
         _require(
             len(selected) == len(partition_card_ids),
             f"{partition_name} references unknown run card",
         )
         _require(
-            sorted(card["asset_id"] for card in selected if card["asset_id"] in asset_ids),
+            sorted(
+                card["asset_id"] for card in selected if card["asset_id"] in asset_ids
+            ),
             f"{partition_name} has no matching asset/card membership",
         )
         _require(
@@ -304,15 +334,20 @@ def _validate_split_plan(plan: Any, cards: Sequence[dict[str, Any]]) -> dict[str
             f"{partition_name} asset IDs do not match card membership",
         )
         _require(
-            sorted(card["session_id"] for card in selected) == sorted(partition_sessions),
+            sorted(card["session_id"] for card in selected)
+            == sorted(partition_sessions),
             f"{partition_name} session IDs do not match card membership",
         )
         expected_counts = {
             "assets": len(asset_ids),
             "sessions": len(selected),
             "records": sum(card["records"] for card in selected),
-            "extracted_records": sum(card["extracted_records"] for card in selected),
-            "abstained_records": sum(card["abstained_records"] for card in selected),
+            "extracted_records": sum(
+                card["extracted_records"] for card in selected
+            ),
+            "abstained_records": sum(
+                card["abstained_records"] for card in selected
+            ),
         }
         for field, expected in expected_counts.items():
             _require(
@@ -322,15 +357,22 @@ def _validate_split_plan(plan: Any, cards: Sequence[dict[str, Any]]) -> dict[str
         seen_cards.update(partition_card_ids)
         seen_sessions.update(partition_sessions)
 
-    _require(seen_cards == set(card_ids), "physical split does not cover every supplied run card")
-    _require(seen_sessions == set(session_ids), "physical split does not cover every supplied session")
+    _require(
+        seen_cards == set(card_ids),
+        "physical split does not cover every supplied run card",
+    )
+    _require(
+        seen_sessions == set(session_ids),
+        "physical split does not cover every supplied session",
+    )
     _require(
         set(asset_partition) == {card["asset_id"] for card in cards},
         "physical split does not cover every supplied asset",
     )
     for card in cards:
         _require(
-            card["card_id"] in partitions[asset_partition[card["asset_id"]]]["card_ids"],
+            card["card_id"]
+            in partitions[asset_partition[card["asset_id"]]]["card_ids"],
             "physical card partition conflicts with its asset partition",
         )
     return asset_partition
@@ -347,7 +389,8 @@ def assess_training_readiness(
     _require(target_mode in TARGET_MODES, "unsupported physical target mode")
     asset_partition = _validate_split_plan(split_plan, run_cards)
     _require(
-        type(review_manifests) in (list, tuple) and len(review_manifests) == len(run_cards),
+        type(review_manifests) in (list, tuple)
+        and len(review_manifests) == len(run_cards),
         "need exactly one physical evidence review per run card",
     )
     cards_by_id = {card["card_id"]: card for card in run_cards}
@@ -355,10 +398,19 @@ def assess_training_readiness(
     for review in review_manifests:
         _require(type(review) is dict, "physical evidence review must be an object")
         run_card_id = review.get("run_card_id")
-        _require(run_card_id in cards_by_id, "physical evidence review references unknown run card")
-        _require(run_card_id not in reviews_by_card, "duplicate physical evidence review for run card")
+        _require(
+            run_card_id in cards_by_id,
+            "physical evidence review references unknown run card",
+        )
+        _require(
+            run_card_id not in reviews_by_card,
+            "duplicate physical evidence review for run card",
+        )
         validate_review_manifest(review, cards_by_id[run_card_id])
-        _require(review["review_version"] == REVIEW_VERSION, "physical evidence review version mismatch")
+        _require(
+            review["review_version"] == REVIEW_VERSION,
+            "physical evidence review version mismatch",
+        )
         reviews_by_card[run_card_id] = review
     _require(
         set(reviews_by_card) == set(cards_by_id),
@@ -425,8 +477,12 @@ def assess_training_readiness(
                 "assets": split_plan["partitions"][name]["assets"],
                 "sessions": split_plan["partitions"][name]["sessions"],
                 "records": split_plan["partitions"][name]["records"],
-                "extracted_records": split_plan["partitions"][name]["extracted_records"],
-                "abstained_records": split_plan["partitions"][name]["abstained_records"],
+                "extracted_records": split_plan["partitions"][name][
+                    "extracted_records"
+                ],
+                "abstained_records": split_plan["partitions"][name][
+                    "abstained_records"
+                ],
             }
             for name in PARTITIONS
         },
@@ -454,7 +510,9 @@ def validate_readiness_assessment(assessment: Any) -> None:
         assessment["readiness_version"] == READINESS_VERSION,
         "unsupported physical readiness version",
     )
-    _require(assessment["target_mode"] in TARGET_MODES, "unsupported physical target mode")
+    _require(
+        assessment["target_mode"] in TARGET_MODES, "unsupported physical target mode"
+    )
     blockers = assessment["blockers"]
     _require(
         type(blockers) is list
