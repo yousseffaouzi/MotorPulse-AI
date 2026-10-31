@@ -1,11 +1,10 @@
 # Physical offline training (MP-066)
 
-MP-066 adds the first trainer that may fit a model from local physical feature
-rows. It is intentionally narrow: training is permitted only after the **complete
-MP-065 approval chain** revalidates against the exact MP-064 request, separate
-human-decision artifact, MP-063 preregistration and protocol, MP-062 bundle,
-MP-061 readiness assessment, MP-059 split, run cards, evidence reviews, and the
-exact MP-058 feature-file bytes.
+MP-066 adds the first trainer that may fit a model from local physical feature rows.
+It is intentionally narrow: training is permitted only after the **complete MP-065 approval chain**
+revalidates against the exact MP-064 request, separate human-decision artifact,
+MP-063 preregistration and protocol, MP-062 bundle, MP-061 readiness assessment,
+MP-059 split, run cards, evidence reviews, and the exact MP-058 feature-file bytes.
 
 A copied approval record is not sufficient. The trainer revalidates all of those
 sources before it reads rows for fitting.
@@ -66,10 +65,10 @@ MP-066 does not create, infer, or repair human approval. It accepts only the
 separate decision already required by MP-065 and revalidates that decision
 against the exact MP-064 challenge and full upstream source chain.
 
-Repository tests use synthetic physical-style fixtures. Their fixture decisions
-are non-operational and authorize no real dataset, device, person, or deployment.
-A generic message such as `continue`, a green CI run, or generation of a request
-does not become approval.
+Repository tests use synthetic physical-style fixtures. Their fixture decisions are non-operational
+and authorize no real dataset, device, person, or deployment. A generic message
+such as `continue`, a green CI run, or generation of a request does not become
+approval.
 
 ## Offline CLI
 
