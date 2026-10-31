@@ -16,7 +16,7 @@ from statistics import fmean
 from typing import Any, Sequence
 
 from .feature_pipeline import FEATURES, UNITS as FEATURE_UNITS
-from .physical_dataset import PARTITIONS, PUBLICATION_STATUS, _read_features
+from .physical_dataset import PUBLICATION_STATUS, _read_features
 from .physical_experiment_preregistration import MODEL_FAMILY
 from .physical_training_approval_record import validate_approval_record
 from .physical_training_approval_request import _require, _sha
@@ -213,7 +213,11 @@ def _fit_parameters(
     _require(
         all(
             isfinite(value)
-            for value in centers + population_std + effective_scales + scores + [threshold]
+            for value in centers
+            + population_std
+            + effective_scales
+            + scores
+            + [threshold]
         ),
         "physical training produced non-finite statistics",
     )
@@ -421,8 +425,14 @@ def validate_physical_model(
         model["physical_model_version"] == PHYSICAL_MODEL_VERSION,
         "unsupported physical model artifact version",
     )
-    _require(model["training_authorized"] is True, "physical model lost training authorization")
-    _require(model["training_completed"] is True, "physical model training completion changed")
+    _require(
+        model["training_authorized"] is True,
+        "physical model lost training authorization",
+    )
+    _require(
+        model["training_completed"] is True,
+        "physical model training completion changed",
+    )
     for field in (
         "redistribution_cleared",
         "model_scoring_authorized",
@@ -474,7 +484,9 @@ def train_files(
     feature_paths: Sequence[str | Path],
     protocol_path: str | Path,
 ) -> dict[str, Any]:
-    approval_record = _read_json(approval_record_path, "physical training approval record")
+    approval_record = _read_json(
+        approval_record_path, "physical training approval record"
+    )
     request = _read_json(request_path, "physical training approval request")
     decision = _read_json(decision_path, "physical training human decision")
     preregistration = _read_json(
@@ -530,9 +542,15 @@ def main(argv: list[str] | None = None) -> int:
             "scoring, diagnosis, RUL, publication, or deployment"
         )
     )
-    parser.add_argument("--approval-record", required=True, help="MP-065 approval JSON")
-    parser.add_argument("--request", required=True, help="MP-064 approval request JSON")
-    parser.add_argument("--decision", required=True, help="exact separate human decision JSON")
+    parser.add_argument(
+        "--approval-record", required=True, help="MP-065 approval JSON"
+    )
+    parser.add_argument(
+        "--request", required=True, help="MP-064 approval request JSON"
+    )
+    parser.add_argument(
+        "--decision", required=True, help="exact separate human decision JSON"
+    )
     parser.add_argument("--preregistration", required=True, help="MP-063 JSON")
     parser.add_argument("--bundle", required=True, help="MP-062 bundle JSON")
     parser.add_argument("--readiness", required=True, help="MP-061 readiness JSON")
