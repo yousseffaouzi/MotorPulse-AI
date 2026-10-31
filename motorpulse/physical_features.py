@@ -101,7 +101,9 @@ def extract_frame_features(frame: dict[str, Any]) -> dict[str, Any]:
     assert isinstance(samples, list)
     assert isinstance(rpm, (int, float))
     result.update(_time_domain_features(samples))
-    result.update(spectral_features(samples, rpm, sample_rate_hz=frame["sample_rate_hz"]))
+    result.update(
+        spectral_features(samples, rpm, sample_rate_hz=frame["sample_rate_hz"])
+    )
     return result
 
 
@@ -223,7 +225,9 @@ def main(argv: list[str] | None = None) -> int:
         description="Extract non-diagnostic features from an offline physical capture"
     )
     parser.add_argument("capture", help="validated MP-057 JSONL capture")
-    parser.add_argument("--out-features", required=True, help="write-once feature JSONL")
+    parser.add_argument(
+        "--out-features", required=True, help="write-once feature JSONL"
+    )
     parser.add_argument("--out-report", required=True, help="write-once summary JSON")
     args = parser.parse_args(argv)
     rows, report = extract_capture(args.capture)
