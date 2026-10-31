@@ -168,6 +168,15 @@ class SensorCaptureTests(unittest.TestCase):
             canonical_frame_bytes(frame), canonical_frame_bytes(reversed_frame)
         )
 
+    def test_documented_example_is_valid_and_not_pipeline_compatible(self):
+        root = Path(__file__).resolve().parents[1]
+        report = validate_capture(root / "docs/examples/sensor-frame-v1.jsonl")
+        self.assertEqual(report["records"], 1)
+        self.assertEqual(report["current_pipeline_sampling_compatible_frames"], 0)
+        self.assertTrue(report["claims"]["physical_measurement"])
+        self.assertFalse(report["claims"]["field_calibrated"])
+        self.assertFalse(report["claims"]["diagnosis"])
+
 
 if __name__ == "__main__":
     unittest.main()
