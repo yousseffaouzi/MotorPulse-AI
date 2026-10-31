@@ -119,7 +119,9 @@ class PhysicalEvidenceRequestTests(unittest.TestCase):
     def test_categories_are_independent_and_never_authorize_training(self):
         card = _card()
         manifest = create_review_manifest(card, _request())
-        self.assertEqual(manifest["categories"]["calibration"]["review_status"], "reviewed")
+        self.assertEqual(
+            manifest["categories"]["calibration"]["review_status"], "reviewed"
+        )
         self.assertEqual(
             manifest["categories"]["label_failure"]["review_status"], "not_reviewed"
         )
@@ -148,14 +150,14 @@ class PhysicalEvidenceRequestTests(unittest.TestCase):
                 )
             ],
         }
-        with self.assertRaisesRegex(ValueError, "origin is not independently acceptable"):
+        with self.assertRaisesRegex(
+            ValueError, "origin is not independently acceptable"
+        ):
             validate_review_request(request)
 
     def test_expired_or_future_evidence_fails_closed(self):
         expired = _request()
-        expired["calibration"]["evidence"][0]["expires_at_utc"] = (
-            "2026-10-15T00:00:00Z"
-        )
+        expired["calibration"]["evidence"][0]["expires_at_utc"] = "2026-10-15T00:00:00Z"
         with self.assertRaisesRegex(ValueError, "expired at review time"):
             validate_review_request(expired)
 
@@ -176,7 +178,9 @@ class PhysicalEvidenceRequestTests(unittest.TestCase):
                 origin="external_record",
             )
         ]
-        with self.assertRaisesRegex(ValueError, "not_reviewed status cannot carry evidence"):
+        with self.assertRaisesRegex(
+            ValueError, "not_reviewed status cannot carry evidence"
+        ):
             validate_review_request(request)
 
 
