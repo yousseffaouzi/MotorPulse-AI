@@ -42,4 +42,6 @@ The built-in validator checks v1 required fields, finite nonmissing numeric read
 
 ## Limitations
 
-The synthetic base frequency now follows motor RPM / 60 (1×); a 2× component and optional illustrative 4.8× repeating bearing impulses are available. These models are **not** calibrated to real bearing geometry, sensor transfer functions, actual vibration velocity, or measured industrial loads. The generator does not implement anti-alias filtering for the pulse harmonics. Thresholds in `motorpulse/sim.py` are examples only. No dataset interchange/streaming or external-device schema is promised yet.
+The synthetic base frequency now follows motor RPM / 60 (1×); a 2× component and optional illustrative 4.8× repeating bearing impulses are available. These models are **not** calibrated to real bearing geometry, sensor transfer functions, actual vibration velocity, or measured industrial loads. The generator does not implement anti-alias filtering for the pulse harmonics. Thresholds in `motorpulse/sim.py` are examples only.
+
+MP-057 adds a separate **offline physical-sensor capture schema and validator** for already-captured JSONL files; see [SENSOR_GATEWAY.md](SENSOR_GATEWAY.md). It is not part of `/api/snapshot`, does not stream from devices, does not open serial/network/PLC connections, and does not authorize the synthetic anomaly model or demo rules for physical-machine decisions.
