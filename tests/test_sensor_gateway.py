@@ -37,9 +37,7 @@ def _frame(
         "units": dict(CANONICAL_UNITS),
         "quality": {"vibration": "good", "temperature": "good", "rpm": "good"},
         "acceleration_g": (
-            [0.1, -0.1, 0.2, -0.2]
-            if sample_count == 4
-            else [0.0] * sample_count
+            [0.1, -0.1, 0.2, -0.2] if sample_count == 4 else [0.0] * sample_count
         ),
         "temperature_c": 31.25,
         "rpm": 1498.0,
