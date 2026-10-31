@@ -334,9 +334,7 @@ def create_run_card(
         feature_digest == report["features_sha256"],
         "feature JSONL SHA-256 does not match report",
     )
-    _require(
-        len(rows) == report["records"], "feature row count does not match report"
-    )
+    _require(len(rows) == report["records"], "feature row count does not match report")
 
     status_counts = Counter(row["feature_status"] for row in rows)
     _require(
@@ -345,12 +343,8 @@ def create_run_card(
     )
     assets = {row["asset_id"] for row in rows}
     devices = {row["device_id"] for row in rows}
-    _require(
-        len(assets) == 1, "one physical run card must contain exactly one asset"
-    )
-    _require(
-        len(devices) == 1, "one physical run card must contain exactly one device"
-    )
+    _require(len(assets) == 1, "one physical run card must contain exactly one asset")
+    _require(len(devices) == 1, "one physical run card must contain exactly one device")
     frame_hashes = [row["input_frame_sha256"] for row in rows]
     _require(
         len(frame_hashes) == len(set(frame_hashes)),
@@ -395,9 +389,7 @@ def create_run_card(
         "one physical session must use one sensor/firmware provenance contract",
     )
     provenance = rows[0]["provenance"]
-    sampling = sorted(
-        {(row["sample_rate_hz"], row["sample_count"]) for row in rows}
-    )
+    sampling = sorted({(row["sample_rate_hz"], row["sample_count"]) for row in rows})
     body = {
         "card_version": CARD_VERSION,
         "dataset_type": DATASET_TYPE,
@@ -479,9 +471,7 @@ def validate_run_card(card: Any) -> None:
         card["calibration_status"] == "unverified",
         "MP-059 cannot promote calibration status",
     )
-    _require(
-        card["label_status"] == "unknown", "MP-059 cannot promote physical labels"
-    )
+    _require(card["label_status"] == "unknown", "MP-059 cannot promote physical labels")
     _require(
         card["failure_evidence_status"] == "unknown",
         "MP-059 cannot promote failure evidence",
@@ -512,8 +502,7 @@ def _ratios(value: Sequence[float]) -> tuple[float, float, float]:
     )
     _require(
         all(
-            type(part) in (int, float) and isfinite(part) and part > 0
-            for part in value
+            type(part) in (int, float) and isfinite(part) and part > 0 for part in value
         ),
         "ratios must be positive finite numbers",
     )
@@ -591,9 +580,7 @@ def asset_split(
     start = 0
     for name, amount in zip(PARTITIONS, amounts):
         selected_assets = ordered_assets[start : start + amount]
-        selected_cards = [
-            card for asset in selected_assets for card in groups[asset]
-        ]
+        selected_cards = [card for asset in selected_assets for card in groups[asset]]
         partitions[name] = {
             "asset_ids": sorted(selected_assets),
             "card_ids": sorted(card["card_id"] for card in selected_cards),
