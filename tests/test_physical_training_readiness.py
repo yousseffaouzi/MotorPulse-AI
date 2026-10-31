@@ -89,7 +89,9 @@ def _evidence(
     }
 
 
-def _request(index: int, *, calibration: bool = True, rights: bool = True, label: bool = False) -> dict:
+def _request(
+    index: int, *, calibration: bool = True, rights: bool = True, label: bool = False
+) -> dict:
     return {
         "review_version": "1.0.0",
         "reviewer_id": f"reviewer-{index}",
@@ -187,7 +189,9 @@ class PhysicalTrainingReadinessTests(unittest.TestCase):
             assessment = assess_training_readiness(plan, cards, reviews)
             self.assertEqual(assessment["training_readiness"], "ready_for_review")
             self.assertEqual(assessment["blockers"], [])
-            self.assertFalse(assessment["evidence_policy"]["label_failure_review_required"])
+            self.assertFalse(
+                assessment["evidence_policy"]["label_failure_review_required"]
+            )
             for field in (
                 "redistribution_cleared",
                 "training_authorized",
@@ -291,7 +295,9 @@ class PhysicalTrainingReadinessTests(unittest.TestCase):
                 assess_training_readiness(plan, cards, mutated)
 
             duplicated = [reviews[0], reviews[1], reviews[1]]
-            with self.assertRaisesRegex(ValueError, "duplicate physical evidence review"):
+            with self.assertRaisesRegex(
+                ValueError, "duplicate physical evidence review"
+            ):
                 assess_training_readiness(plan, cards, duplicated)
 
     def test_assessment_is_deterministic_across_input_order(self):
