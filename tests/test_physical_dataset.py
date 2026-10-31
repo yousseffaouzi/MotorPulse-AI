@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import hashlib
 import json
 from math import pi, sin
 from pathlib import Path
@@ -111,7 +112,9 @@ class PhysicalRunCardTests(unittest.TestCase):
             self.assertEqual(card["calibration_status"], "unverified")
             self.assertEqual(card["label_status"], "unknown")
             self.assertEqual(card["failure_evidence_status"], "unknown")
-            self.assertEqual(card["publication_status"], "local_only_do_not_redistribute")
+            self.assertEqual(
+                card["publication_status"], "local_only_do_not_redistribute"
+            )
             self.assertFalse(card["redistribution_cleared"])
             self.assertFalse(card["training_authorized"])
             self.assertFalse(card["model_scoring_authorized"])
@@ -208,8 +211,13 @@ class PhysicalAssetSplitTests(unittest.TestCase):
                 for session_id in partition["session_ids"]:
                     self.assertNotIn(session_id, session_partitions)
                     session_partitions[session_id] = partition_name
-            self.assertEqual(set(asset_partitions), {"PHYS-MTR-A", "PHYS-MTR-B", "PHYS-MTR-C", "PHYS-MTR-D"})
-            self.assertEqual(session_partitions["session-a-1"], session_partitions["session-a-2"])
+            self.assertEqual(
+                set(asset_partitions),
+                {"PHYS-MTR-A", "PHYS-MTR-B", "PHYS-MTR-C", "PHYS-MTR-D"},
+            )
+            self.assertEqual(
+                session_partitions["session-a-1"], session_partitions["session-a-2"]
+            )
 
     def test_split_is_deterministic_and_input_order_independent(self):
         with TemporaryDirectory() as tmp:
@@ -226,8 +234,6 @@ class PhysicalAssetSplitTests(unittest.TestCase):
             card_b = json.loads(paths[2].read_text(encoding="utf-8"))
             card_b["session_id"] = "session-a-1"
             body = {key: value for key, value in card_b.items() if key != "card_id"}
-            import hashlib
-
             canonical = json.dumps(
                 body,
                 sort_keys=True,
@@ -235,16 +241,22 @@ class PhysicalAssetSplitTests(unittest.TestCase):
                 allow_nan=False,
                 separators=(",", ":"),
             )
-            card_b["card_id"] = "physical-run:" + hashlib.sha256(canonical.encode()).hexdigest()[:24]
+            card_b["card_id"] = (
+                "physical-run:" + hashlib.sha256(canonical.encode()).hexdigest()[:24]
+            )
             duplicate_session = root / "duplicate-session.json"
             duplicate_session.write_text(json.dumps(card_b), encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "duplicate physical acquisition session"):
+            with self.assertRaisesRegex(
+                ValueError, "duplicate physical acquisition session"
+            ):
                 asset_split([paths[0], paths[1], duplicate_session, paths[3], paths[4]])
 
             original = json.loads(paths[2].read_text(encoding="utf-8"))
             same_features = deepcopy(original)
             same_features["session_id"] = "session-b-2"
-            body = {key: value for key, value in same_features.items() if key != "card_id"}
+            body = {
+                key: value for key, value in same_features.items() if key != "card_id"
+            }
             canonical = json.dumps(
                 body,
                 sort_keys=True,
@@ -252,11 +264,24 @@ class PhysicalAssetSplitTests(unittest.TestCase):
                 allow_nan=False,
                 separators=(",", ":"),
             )
-            same_features["card_id"] = "physical-run:" + hashlib.sha256(canonical.encode()).hexdigest()[:24]
+            same_features["card_id"] = (
+                "physical-run:" + hashlib.sha256(canonical.encode()).hexdigest()[:24]
+            )
             duplicate_features = root / "duplicate-features.json"
             duplicate_features.write_text(json.dumps(same_features), encoding="utf-8")
-            with self.assertRaisesRegex(ValueError, "duplicate physical feature content"):
-                asset_split([paths[0], paths[1], paths[2], duplicate_features, paths[3], paths[4]])
+            with self.assertRaisesRegex(
+                ValueError, "duplicate physical feature content"
+            ):
+                asset_split(
+                    [
+                        paths[0],
+                        paths[1],
+                        paths[2],
+                        duplicate_features,
+                        paths[3],
+                        paths[4],
+                    ]
+                )
 
     def test_requires_three_distinct_assets(self):
         with TemporaryDirectory() as tmp:
