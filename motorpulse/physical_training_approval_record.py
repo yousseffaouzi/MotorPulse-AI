@@ -28,9 +28,7 @@ DECISION_ACTION = "approve_offline_training_only"
 APPROVAL_STATE = "approved_for_offline_training_only"
 REVIEWER_IDENTITY_ASSURANCE = "self_asserted_not_authenticated"
 DECISION_SIGNATURE_ASSURANCE = "none"
-_UTC_TIMESTAMP = re.compile(
-    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z$"
-)
+_UTC_TIMESTAMP = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z$")
 _DECISION_KEYS = frozenset(
     {
         "approval_decision_version",
@@ -124,8 +122,7 @@ def validate_human_decision(decision: Any, request: dict[str, Any]) -> None:
         "physical training decision request SHA-256 does not match",
     )
     _require(
-        decision["approval_challenge_sha256"]
-        == request["approval_challenge_sha256"],
+        decision["approval_challenge_sha256"] == request["approval_challenge_sha256"],
         "physical training decision challenge does not match",
     )
     _require(
@@ -136,9 +133,7 @@ def validate_human_decision(decision: Any, request: dict[str, Any]) -> None:
     _strict_utc_timestamp(decision["decided_at_utc"])
 
 
-def _build_record(
-    request: dict[str, Any], decision: dict[str, Any]
-) -> dict[str, Any]:
+def _build_record(request: dict[str, Any], decision: dict[str, Any]) -> dict[str, Any]:
     validate_human_decision(decision, request)
     core = {
         "approval_record_version": APPROVAL_RECORD_VERSION,
