@@ -94,9 +94,7 @@ class PhysicalOfflineTrainerTests(unittest.TestCase):
                 protocol,
             )
             self.assertTrue(model["model_id"].startswith("physical-model:"))
-            self.assertEqual(
-                model["model_family"], "standardized_distance_baseline_v1"
-            )
+            self.assertEqual(model["model_family"], "standardized_distance_baseline_v1")
             self.assertTrue(model["training_authorized"])
             self.assertTrue(model["training_completed"])
             self.assertEqual(model["training"]["partition"], "train")
@@ -436,9 +434,7 @@ class PhysicalOfflineTrainerTests(unittest.TestCase):
                 main(args)
 
         root = Path(__file__).resolve().parents[1]
-        text = (root / "docs/PHYSICAL_OFFLINE_TRAINING.md").read_text(
-            encoding="utf-8"
-        )
+        text = (root / "docs/PHYSICAL_OFFLINE_TRAINING.md").read_text(encoding="utf-8")
         for phrase in (
             "complete MP-065 approval chain",
             "train partition only",
