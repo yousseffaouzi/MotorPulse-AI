@@ -129,12 +129,8 @@ def _partition_summary(bundle: dict[str, Any]) -> dict[str, dict[str, int]]:
         summary[partition] = {
             "files": len(entries),
             "records": sum(entry["records"] for entry in entries),
-            "extracted_records": sum(
-                entry["extracted_records"] for entry in entries
-            ),
-            "abstained_records": sum(
-                entry["abstained_records"] for entry in entries
-            ),
+            "extracted_records": sum(entry["extracted_records"] for entry in entries),
+            "abstained_records": sum(entry["abstained_records"] for entry in entries),
         }
     return summary
 
@@ -179,9 +175,7 @@ def _build_preregistration(
         "validation_role": "review_only_no_fit",
         "test_role": "final_only_no_fit",
         "seed": normalized_protocol["seed"],
-        "minimum_extracted_records": normalized_protocol[
-            "minimum_extracted_records"
-        ],
+        "minimum_extracted_records": normalized_protocol["minimum_extracted_records"],
     }
     body = {
         "preregistration_version": PREREGISTRATION_VERSION,
@@ -254,8 +248,7 @@ def validate_preregistration(
 ) -> None:
     """Recompute the preregistration and reject source/protocol mutation."""
     _require(
-        type(preregistration) is dict
-        and set(preregistration) == _PREREGISTRATION_KEYS,
+        type(preregistration) is dict and set(preregistration) == _PREREGISTRATION_KEYS,
         "physical experiment preregistration fields differ from v1 contract",
     )
     _require(
