@@ -130,8 +130,7 @@ def _build_request(
     }
     challenge_sha256 = _sha(challenge)
     approval_phrase = (
-        f"APPROVE OFFLINE TRAINING REQUEST {request_id} "
-        f"CHALLENGE {challenge_sha256}"
+        f"APPROVE OFFLINE TRAINING REQUEST {request_id} CHALLENGE {challenge_sha256}"
     )
     return {
         "request_id": request_id,
