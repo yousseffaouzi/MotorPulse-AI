@@ -265,9 +265,7 @@ def _validate_section(
             not raw_evidence,
             f"{name} not_reviewed status cannot carry evidence",
         )
-    evidence = [
-        _validate_evidence(name, item, reviewed_at) for item in raw_evidence
-    ]
+    evidence = [_validate_evidence(name, item, reviewed_at) for item in raw_evidence]
     ids = [item["evidence_id"] for item in evidence]
     _require(
         len(ids) == len(set(ids)),
