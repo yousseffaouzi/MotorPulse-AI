@@ -342,12 +342,8 @@ def _validate_split_plan(plan: Any, cards: Sequence[dict[str, Any]]) -> dict[str
             "assets": len(asset_ids),
             "sessions": len(selected),
             "records": sum(card["records"] for card in selected),
-            "extracted_records": sum(
-                card["extracted_records"] for card in selected
-            ),
-            "abstained_records": sum(
-                card["abstained_records"] for card in selected
-            ),
+            "extracted_records": sum(card["extracted_records"] for card in selected),
+            "abstained_records": sum(card["abstained_records"] for card in selected),
         }
         for field, expected in expected_counts.items():
             _require(
