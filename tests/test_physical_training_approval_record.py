@@ -141,8 +141,9 @@ class PhysicalTrainingApprovalRecordTests(unittest.TestCase):
             for phrase in ("continue", "great work, continue", "APPROVE"):
                 forged = deepcopy(decision)
                 forged["human_affirmation"] = phrase
-                with self.subTest(phrase=phrase), self.assertRaisesRegex(
-                    ValueError, "exact MP-064 approval phrase"
+                with (
+                    self.subTest(phrase=phrase),
+                    self.assertRaisesRegex(ValueError, "exact MP-064 approval phrase"),
                 ):
                     create_approval_record(
                         request,
@@ -181,8 +182,9 @@ class PhysicalTrainingApprovalRecordTests(unittest.TestCase):
             for field, value, message in changes:
                 forged = deepcopy(decision)
                 forged[field] = value
-                with self.subTest(field=field), self.assertRaisesRegex(
-                    ValueError, message
+                with (
+                    self.subTest(field=field),
+                    self.assertRaisesRegex(ValueError, message),
                 ):
                     create_approval_record(
                         request,
@@ -216,8 +218,9 @@ class PhysicalTrainingApprovalRecordTests(unittest.TestCase):
             for reviewer in ("", " reviewer", "reviewer\n"):
                 forged = deepcopy(decision)
                 forged["reviewer_assertion"] = reviewer
-                with self.subTest(reviewer=reviewer), self.assertRaisesRegex(
-                    ValueError, "reviewer_assertion"
+                with (
+                    self.subTest(reviewer=reviewer),
+                    self.assertRaisesRegex(ValueError, "reviewer_assertion"),
                 ):
                     create_approval_record(
                         request,
@@ -238,8 +241,9 @@ class PhysicalTrainingApprovalRecordTests(unittest.TestCase):
             ):
                 forged = deepcopy(decision)
                 forged["decided_at_utc"] = timestamp
-                with self.subTest(timestamp=timestamp), self.assertRaisesRegex(
-                    ValueError, "decided_at_utc"
+                with (
+                    self.subTest(timestamp=timestamp),
+                    self.assertRaisesRegex(ValueError, "decided_at_utc"),
                 ):
                     create_approval_record(
                         request,
@@ -307,8 +311,9 @@ class PhysicalTrainingApprovalRecordTests(unittest.TestCase):
             ):
                 forged = deepcopy(record)
                 forged[field] = True
-                with self.subTest(field=field), self.assertRaisesRegex(
-                    ValueError, f"keep {field}=false"
+                with (
+                    self.subTest(field=field),
+                    self.assertRaisesRegex(ValueError, f"keep {field}=false"),
                 ):
                     validate_approval_record(
                         forged,
@@ -473,9 +478,7 @@ class PhysicalTrainingApprovalRecordTests(unittest.TestCase):
                 args.extend(["--review", str(path)])
             for path in features:
                 args.extend(["--feature", str(path)])
-            args.extend(
-                ["--protocol", str(paths["protocol"]), "--out", str(output)]
-            )
+            args.extend(["--protocol", str(paths["protocol"]), "--out", str(output)])
             self.assertEqual(main(args), 0)
             saved = json.loads(output.read_text(encoding="utf-8"))
             self.assertTrue(saved["training_authorized"])
