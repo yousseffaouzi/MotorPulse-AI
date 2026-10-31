@@ -213,7 +213,9 @@ class PhysicalTrainingApprovalRequestTests(unittest.TestCase):
                 preregistration,
             ) = _sources(Path(tmp), blocked_protocol)
             self.assertEqual(preregistration["authorization_state"], "blocked")
-            with self.assertRaisesRegex(ValueError, "requires an MP-063 preregistration"):
+            with self.assertRaisesRegex(
+                ValueError, "requires an MP-063 preregistration"
+            ):
                 create_approval_request(
                     preregistration,
                     bundle,
