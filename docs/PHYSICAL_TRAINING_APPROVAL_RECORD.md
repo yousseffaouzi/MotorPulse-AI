@@ -2,7 +2,7 @@
 
 MP-065 records a narrow authorization for one exact MP-064 request **only after** a separately authored human decision is supplied. It revalidates the MP-064 request and the complete MP-063/062/061/059/060/058 source chain before it can derive an approval record.
 
-MP-065 does **not** create the human decision, does not train a model, and does not treat CI success, request generation, request display, or a generic instruction such as `continue` as approval.
+MP-065 does **not** create the human decision and does not train a model. CI success, request generation, or request display is not approval. A generic instruction such as `continue` is not approval.
 
 ## Separate human decision artifact
 
