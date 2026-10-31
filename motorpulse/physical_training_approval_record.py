@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime
-import hashlib
 import json
 from pathlib import Path
 import re
@@ -17,7 +16,6 @@ from typing import Any, Sequence
 
 from .physical_training_approval_request import (
     REQUESTED_CAPABILITY,
-    _canonical_bytes,
     _require,
     _sha,
     validate_approval_request,
