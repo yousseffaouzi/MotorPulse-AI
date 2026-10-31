@@ -12,7 +12,7 @@ Reviewing one category does not imply anything about either of the other two.
 
 ## Why evidence is separate from the signal
 
-Motor vibration, temperature, RPM, anomaly scores, threshold alarms, or other derived features are not acceptable ground truth merely because they look abnormal. MP-060 therefore rejects `signal_inference` or model-output style origins for physical label/failure evidence.
+Motor vibration, temperature, RPM, anomaly scores, threshold alarms, or other derived features are not acceptable ground truth merely because they look abnormal. **Signal-derived inference is not evidence.** MP-060 therefore rejects `signal_inference` or model-output style origins for physical label/failure evidence.
 
 A machine-state or failure claim must point to independent evidence such as an inspection, maintenance record, controlled test record, or observed failure record. The evidence metadata can say that such a record was reviewed; it does not embed the record or automatically make the dataset suitable for model training.
 
