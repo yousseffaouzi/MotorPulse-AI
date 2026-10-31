@@ -542,12 +542,8 @@ def main(argv: list[str] | None = None) -> int:
             "scoring, diagnosis, RUL, publication, or deployment"
         )
     )
-    parser.add_argument(
-        "--approval-record", required=True, help="MP-065 approval JSON"
-    )
-    parser.add_argument(
-        "--request", required=True, help="MP-064 approval request JSON"
-    )
+    parser.add_argument("--approval-record", required=True, help="MP-065 approval JSON")
+    parser.add_argument("--request", required=True, help="MP-064 approval request JSON")
     parser.add_argument(
         "--decision", required=True, help="exact separate human decision JSON"
     )
