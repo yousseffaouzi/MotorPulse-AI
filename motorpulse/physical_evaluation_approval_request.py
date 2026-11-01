@@ -381,7 +381,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--review", action="append", required=True, dest="reviews")
     parser.add_argument("--feature", action="append", required=True, dest="features")
     parser.add_argument("--protocol", required=True, help="MP-063 protocol JSON")
-    parser.add_argument("--out", required=True, help="write-once evaluation request JSON")
+    parser.add_argument(
+        "--out", required=True, help="write-once evaluation request JSON"
+    )
     args = parser.parse_args(argv)
     request = request_files(
         args.model,
