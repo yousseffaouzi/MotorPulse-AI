@@ -83,9 +83,7 @@ _RECORD_KEYS = frozenset(
 )
 
 
-def validate_evaluation_human_decision(
-    decision: Any, request: dict[str, Any]
-) -> None:
+def validate_evaluation_human_decision(decision: Any, request: dict[str, Any]) -> None:
     """Validate a separately authored decision against one exact MP-067 request."""
     _require(
         type(decision) is dict and set(decision) == _DECISION_KEYS,
@@ -120,9 +118,7 @@ def validate_evaluation_human_decision(
     _strict_utc_timestamp(decision["decided_at_utc"])
 
 
-def _build_record(
-    request: dict[str, Any], decision: dict[str, Any]
-) -> dict[str, Any]:
+def _build_record(request: dict[str, Any], decision: dict[str, Any]) -> dict[str, Any]:
     validate_evaluation_human_decision(decision, request)
     core = {
         "evaluation_approval_record_version": EVALUATION_APPROVAL_RECORD_VERSION,
@@ -132,9 +128,7 @@ def _build_record(
         "model_id": request["model_id"],
         "model_sha256": request["model_sha256"],
         "training_approval_record_id": request["training_approval_record_id"],
-        "training_approval_record_sha256": request[
-            "training_approval_record_sha256"
-        ],
+        "training_approval_record_sha256": request["training_approval_record_sha256"],
         "preregistration_id": request["preregistration_id"],
         "source_bundle_id": request["source_bundle_id"],
         "split_plan_sha256": request["split_plan_sha256"],
@@ -326,8 +320,12 @@ def approval_files(
     feature_paths: Sequence[str | Path],
     protocol_path: str | Path,
 ) -> dict[str, Any]:
-    request = _read_json(evaluation_request_path, "physical evaluation approval request")
-    decision = _read_json(evaluation_decision_path, "physical evaluation human decision")
+    request = _read_json(
+        evaluation_request_path, "physical evaluation approval request"
+    )
+    decision = _read_json(
+        evaluation_decision_path, "physical evaluation human decision"
+    )
     model = _read_json(model_path, "physical model artifact")
     training_approval_record = _read_json(
         training_approval_record_path, "physical training approval record"
@@ -365,9 +363,7 @@ def approval_files(
     )
 
 
-def write_evaluation_approval_record(
-    path: str | Path, record: dict[str, Any]
-) -> None:
+def write_evaluation_approval_record(path: str | Path, record: dict[str, Any]) -> None:
     destination = Path(path)
     _require(
         not destination.exists() and not destination.is_symlink(),
@@ -396,7 +392,9 @@ def main(argv: list[str] | None = None) -> int:
             "physical validation-scoring approval; this command performs no scoring"
         )
     )
-    parser.add_argument("--evaluation-request", required=True, help="MP-067 request JSON")
+    parser.add_argument(
+        "--evaluation-request", required=True, help="MP-067 request JSON"
+    )
     parser.add_argument(
         "--evaluation-decision",
         required=True,
