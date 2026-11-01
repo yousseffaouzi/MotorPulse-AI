@@ -124,7 +124,9 @@ class PhysicalValidationScorerTests(unittest.TestCase):
             validation_ids = set(split["partitions"]["validation"]["card_ids"])
             train_ids = set(split["partitions"]["train"]["card_ids"])
             test_ids = set(split["partitions"]["test"]["card_ids"])
-            self.assertTrue(result["result_id"].startswith("physical-validation-result:"))
+            self.assertTrue(
+                result["result_id"].startswith("physical-validation-result:")
+            )
             self.assertEqual(result["result_kind"], "review_only_anomaly_scores")
             self.assertEqual(result["partition"], "validation")
             self.assertEqual(result["model_id"], model["model_id"])
@@ -132,9 +134,7 @@ class PhysicalValidationScorerTests(unittest.TestCase):
                 result["evaluation_approval_record_id"],
                 record["evaluation_approval_record_id"],
             )
-            self.assertEqual(
-                {row["card_id"] for row in result["rows"]}, validation_ids
-            )
+            self.assertEqual({row["card_id"] for row in result["rows"]}, validation_ids)
             self.assertFalse(
                 {row["card_id"] for row in result["rows"]} & (train_ids | test_ids)
             )
