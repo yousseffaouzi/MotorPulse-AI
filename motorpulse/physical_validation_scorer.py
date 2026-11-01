@@ -154,7 +154,9 @@ def _result_rows(
                 "review_flag": score > threshold,
             }
         )
-    rows.sort(key=lambda item: (item["card_id"], item["sequence"], item["input_frame_sha256"]))
+    rows.sort(
+        key=lambda item: (item["card_id"], item["sequence"], item["input_frame_sha256"])
+    )
     return rows
 
 
@@ -185,7 +187,9 @@ def _abstained_rows(
                     "review_flag": None,
                 }
             )
-    rows.sort(key=lambda item: (item["card_id"], item["sequence"], item["input_frame_sha256"]))
+    rows.sort(
+        key=lambda item: (item["card_id"], item["sequence"], item["input_frame_sha256"])
+    )
     expected = sum(
         entry["abstained_records"] for entry in bundle["partitions"][PARTITION]
     )
@@ -223,7 +227,11 @@ def _build_result(
     abstained_rows = _abstained_rows(bundle, split_plan, run_cards, feature_paths)
     rows = sorted(
         scored_rows + abstained_rows,
-        key=lambda item: (item["card_id"], item["sequence"], item["input_frame_sha256"]),
+        key=lambda item: (
+            item["card_id"],
+            item["sequence"],
+            item["input_frame_sha256"],
+        ),
     )
     threshold = float(model["calibration"]["threshold"])
     flagged = sum(row["review_flag"] is True for row in scored_rows)
@@ -361,7 +369,9 @@ def validate_physical_validation_result(
         result["physical_validation_result_version"] == VALIDATION_RESULT_VERSION,
         "unsupported physical validation result version",
     )
-    _require(result["result_kind"] == RESULT_KIND, "physical validation result kind changed")
+    _require(
+        result["result_kind"] == RESULT_KIND, "physical validation result kind changed"
+    )
     _require(result["partition"] == PARTITION, "MP-069 may score validation only")
     _require(
         type(result["rows"]) is list
@@ -461,7 +471,9 @@ def score_files(
     training_decision = _read_json(
         training_decision_path, "physical training human decision"
     )
-    preregistration = _read_json(preregistration_path, "physical experiment preregistration")
+    preregistration = _read_json(
+        preregistration_path, "physical experiment preregistration"
+    )
     bundle = _read_json(bundle_path, "physical experiment bundle")
     readiness = _read_json(readiness_path, "physical readiness assessment")
     split_plan = _read_json(split_path, "physical split plan")
@@ -531,7 +543,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--review", action="append", required=True, dest="reviews")
     parser.add_argument("--feature", action="append", required=True, dest="features")
     parser.add_argument("--protocol", required=True)
-    parser.add_argument("--out", required=True, help="write-once validation result JSON")
+    parser.add_argument(
+        "--out", required=True, help="write-once validation result JSON"
+    )
     args = parser.parse_args(argv)
     result = score_files(
         args.evaluation_approval_record,
