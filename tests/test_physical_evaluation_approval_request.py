@@ -97,7 +97,9 @@ class PhysicalEvaluationApprovalRequestTests(unittest.TestCase):
                 features,
                 protocol,
             )
-            self.assertTrue(request["request_id"].startswith("physical-evaluation-request:"))
+            self.assertTrue(
+                request["request_id"].startswith("physical-evaluation-request:")
+            )
             self.assertEqual(request["model_id"], model["model_id"])
             self.assertEqual(request["model_sha256"], _sha(model))
             self.assertEqual(
@@ -159,7 +161,9 @@ class PhysicalEvaluationApprovalRequestTests(unittest.TestCase):
             ) = _evaluation_sources(Path(tmp))
             forged = deepcopy(model)
             forged["calibration"]["threshold"] += 1.0
-            with self.assertRaisesRegex(ValueError, "does not match exact approved sources"):
+            with self.assertRaisesRegex(
+                ValueError, "does not match exact approved sources"
+            ):
                 create_evaluation_approval_request(
                     forged,
                     approval_record,
