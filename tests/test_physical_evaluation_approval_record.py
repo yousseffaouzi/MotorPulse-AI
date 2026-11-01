@@ -53,9 +53,7 @@ def _approved_evaluation_sources(root: Path):
         "evaluation_approval_decision_version": "1.0.0",
         "evaluation_request_id": evaluation_request["request_id"],
         "evaluation_request_sha256": _sha(evaluation_request),
-        "approval_challenge_sha256": evaluation_request[
-            "approval_challenge_sha256"
-        ],
+        "approval_challenge_sha256": evaluation_request["approval_challenge_sha256"],
         "decision": "approve_validation_scoring_only",
         "human_affirmation": evaluation_request["approval_phrase"],
         "reviewer_assertion": "test-fixture-reviewer-not-real-approval",
@@ -130,7 +128,8 @@ class PhysicalEvaluationApprovalRecordTests(unittest.TestCase):
                 record["approved_capability"], "offline_validation_scoring_only"
             )
             self.assertEqual(
-                record["approved_operations"], evaluation_request["requested_operations"]
+                record["approved_operations"],
+                evaluation_request["requested_operations"],
             )
             self.assertTrue(record["training_completed"])
             self.assertTrue(record["validation_scoring_authorized"])
