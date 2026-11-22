@@ -83,7 +83,9 @@ def _build_record(request: dict[str, Any], decision: dict[str, Any]) -> dict[str
         "validation_result_id": request["validation_result_id"],
         "validation_result_sha256": request["validation_result_sha256"],
         "evaluation_approval_record_id": request["evaluation_approval_record_id"],
-        "evaluation_approval_record_sha256": request["evaluation_approval_record_sha256"],
+        "evaluation_approval_record_sha256": request[
+            "evaluation_approval_record_sha256"
+        ],
         "model_id": request["model_id"],
         "model_sha256": request["model_sha256"],
         "preregistration_id": request["preregistration_id"],
