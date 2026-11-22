@@ -1,8 +1,11 @@
 # Physical final-test scoring approval boundary (MP-070)
 
 MP-070 adds a **pending request only** for the first physical final-test scoring
-step. It does not read or score test rows and it does not grant permission to do
-so.
+step. It does not score test rows and it does not grant permission to do so.
+
+Integrity verification reads and validates all approved feature files, including
+test files, to check the exact source bytes. No test values enter model fitting,
+threshold derivation, or anomaly scoring.
 
 The request is bound to the **exact MP-069 validation result** and revalidates that
 result against the complete MP-068/067/066/065/064/063/062/061/059/060/058
@@ -17,12 +20,15 @@ MP-070 requests only:
 
 The MP-066 model, preprocessing center/scales, and train-derived threshold remain
 frozen. The training partition remains frozen and unscored. The completed
-validation result is frozen and may not be rescored. There is **no refit or recalibration**.
+validation result is frozen. There is **no refit or recalibration** of the accepted
+artifacts. Revalidation deterministically recomputes the original train-only fit
+and validation-only scores in memory to verify exact equality; this is integrity
+replay, not a new experiment or permission to alter either artifact.
 
 The test partition can be scored only after a later, separately authored human
 decision accepts the exact MP-070 challenge. Until then,
 `test_scoring_authorized = false`, `test_scoring_completed = false`, and
-`test_rows_consumed = 0`.
+`test_rows_consumed = 0` (for scoring, not source-file verification).
 
 ## Approval boundary
 

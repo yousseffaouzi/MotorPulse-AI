@@ -5,6 +5,10 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import patch
+
+from motorpulse import physical_offline_trainer, physical_validation_scorer
+from motorpulse.physical_dataset import _read_features
 
 from motorpulse.physical_final_test_approval_request import (
     REQUESTED_OPERATIONS,
@@ -124,6 +128,50 @@ class PhysicalFinalTestApprovalRequestTests(unittest.TestCase):
             rendered = json.dumps(request, sort_keys=True)
             self.assertNotIn("acceleration_g", rendered)
             self.assertNotIn(str(Path(tmp)), rendered)
+
+    def test_integrity_replay_does_not_use_test_rows_for_model_calculations(self):
+        with TemporaryDirectory() as tmp:
+            sources = _final_request_sources(Path(tmp))
+            split, cards, _, _, features = sources[:5]
+            card_by_digest = {
+                card["features_sha256"]: card["card_id"] for card in cards
+            }
+            hashes = {name: set() for name in ("train", "validation", "test")}
+            for path in features:
+                rows, digest = _read_features(path)
+                card_id = card_by_digest[digest]
+                for partition, values in hashes.items():
+                    if card_id in split["partitions"][partition]["card_ids"]:
+                        values.update(
+                            row["input_frame_sha256"]
+                            for row in rows
+                            if row["feature_status"] == "extracted"
+                        )
+            self.assertTrue(all(hashes.values()))
+            self.assertFalse(hashes["test"] & (hashes["train"] | hashes["validation"]))
+            with (
+                patch.object(
+                    physical_offline_trainer,
+                    "_vector",
+                    wraps=physical_offline_trainer._vector,
+                ) as train_vector,
+                patch.object(
+                    physical_validation_scorer,
+                    "_vector",
+                    wraps=physical_validation_scorer._vector,
+                ) as validation_vector,
+            ):
+                request = _request(sources)
+            for mock, partition in (
+                (train_vector, "train"),
+                (validation_vector, "validation"),
+            ):
+                observed = {
+                    call.args[0]["input_frame_sha256"] for call in mock.call_args_list
+                }
+                self.assertEqual(observed, hashes[partition])
+            self.assertEqual(request["test_rows_consumed"], 0)
+            self.assertFalse(request["test_scoring_authorized"])
 
     def test_tampered_validation_result_is_rejected(self):
         with TemporaryDirectory() as tmp:
@@ -339,7 +387,8 @@ class PhysicalFinalTestApprovalRequestTests(unittest.TestCase):
         )
         for phrase in (
             "pending request only",
-            "does not read or score test rows",
+            "does not score test rows",
+            "Integrity verification reads and validates all approved feature files",
             "exact MP-069 validation result",
             "Validation success is not test approval",
             "generic `continue` is not approval",
