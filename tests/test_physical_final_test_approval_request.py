@@ -129,9 +129,7 @@ class PhysicalFinalTestApprovalRequestTests(unittest.TestCase):
         with TemporaryDirectory() as tmp:
             sources = list(_final_request_sources(Path(tmp)))
             forged = deepcopy(sources[17])
-            scored = next(
-                row for row in forged["rows"] if row["status"] == "scored"
-            )
+            scored = next(row for row in forged["rows"] if row["status"] == "scored")
             scored["review_flag"] = not scored["review_flag"]
             sources[17] = forged
             with self.assertRaisesRegex(

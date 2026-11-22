@@ -27,8 +27,7 @@ decision accepts the exact MP-070 challenge. Until then,
 
 ## Approval boundary
 
-Generating or displaying this request is not approval. Validation success is not
-test approval. A green CI run is not approval. A generic `continue` is not approval.
+Generating or displaying this request is not approval. Validation success is not test approval. A green CI run is not approval. A generic `continue` is not approval.
 The deterministic challenge hash and exact phrase exist so a later milestone can
 require a separately authored decision bound to this exact validation result,
 model, and final-test scope.
