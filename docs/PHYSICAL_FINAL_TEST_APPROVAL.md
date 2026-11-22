@@ -17,8 +17,7 @@ MP-070 requests only:
 
 The MP-066 model, preprocessing center/scales, and train-derived threshold remain
 frozen. The training partition remains frozen and unscored. The completed
-validation result is frozen and may not be rescored. There is **no refit or
-recalibration**.
+validation result is frozen and may not be rescored. There is **no refit or recalibration**.
 
 The test partition can be scored only after a later, separately authored human
 decision accepts the exact MP-070 challenge. Until then,
@@ -27,7 +26,9 @@ decision accepts the exact MP-070 challenge. Until then,
 
 ## Approval boundary
 
-Generating or displaying this request is not approval. Validation success is not test approval. A green CI run is not approval. A generic `continue` is not approval.
+Generating or displaying this request is not approval.
+Validation success is not test approval. A green CI run is not approval.
+A generic `continue` is not approval.
 The deterministic challenge hash and exact phrase exist so a later milestone can
 require a separately authored decision bound to this exact validation result,
 model, and final-test scope.
