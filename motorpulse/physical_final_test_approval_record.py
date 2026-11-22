@@ -39,9 +39,7 @@ _DECISION_KEYS = frozenset(
 )
 
 
-def validate_final_test_human_decision(
-    decision: Any, request: dict[str, Any]
-) -> None:
+def validate_final_test_human_decision(decision: Any, request: dict[str, Any]) -> None:
     """Check an externally supplied decision; this does not authenticate consent."""
     _require(
         type(decision) is dict and set(decision) == _DECISION_KEYS,
@@ -85,9 +83,7 @@ def _build_record(request: dict[str, Any], decision: dict[str, Any]) -> dict[str
         "validation_result_id": request["validation_result_id"],
         "validation_result_sha256": request["validation_result_sha256"],
         "evaluation_approval_record_id": request["evaluation_approval_record_id"],
-        "evaluation_approval_record_sha256": request[
-            "evaluation_approval_record_sha256"
-        ],
+        "evaluation_approval_record_sha256": request["evaluation_approval_record_sha256"],
         "model_id": request["model_id"],
         "model_sha256": request["model_sha256"],
         "preregistration_id": request["preregistration_id"],
@@ -167,6 +163,11 @@ def create_final_test_approval_record(
         review_manifests,
         feature_paths,
         protocol,
+    )
+    _require(
+        request["training_completed"] is True
+        and type(request["test_rows_consumed"]) is int,
+        "final-test request completion fields must have exact JSON types",
     )
     return _build_record(request, decision)
 

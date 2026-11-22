@@ -31,7 +31,9 @@ def _fixture(root):
         "decided_at_utc": "2026-11-22T20:00:00Z",
     }
     # Exact MP-070 API order; source fixture remains entirely synthetic.
-    chain = tuple(sources[i] for i in (17, 16, 14, 15, 13, 12, 10, 11, 9, 7, 3, 0, 1, 2, 4, 8))
+    chain = tuple(
+        sources[i] for i in (17, 16, 14, 15, 13, 12, 10, 11, 9, 7, 3, 0, 1, 2, 4, 8)
+    )
     return request, decision, chain, sources
 
 
@@ -42,13 +44,17 @@ class PhysicalFinalTestApprovalRecordTests(unittest.TestCase):
             record = create_final_test_approval_record(request, decision, *chain)
             validate_final_test_approval_record(record, request, decision, *chain)
             self.assertEqual(record["final_test_request_sha256"], _sha(request))
-            self.assertEqual(record["validation_result_sha256"], request["validation_result_sha256"])
+            self.assertEqual(
+                record["validation_result_sha256"], request["validation_result_sha256"]
+            )
             self.assertEqual(record["model_sha256"], request["model_sha256"])
             self.assertEqual(record["decision_sha256"], _sha(decision))
             self.assertTrue(record["test_scoring_authorized"])
             self.assertFalse(record["test_scoring_completed"])
             self.assertEqual(record["test_rows_consumed"], 0)
-            self.assertEqual(record["reviewer_identity_assurance"], "self_asserted_not_authenticated")
+            self.assertEqual(
+                record["reviewer_identity_assurance"], "self_asserted_not_authenticated"
+            )
             self.assertEqual(record["decision_signature_assurance"], "none")
             for key in (
                 "train_scoring_authorized",
@@ -82,6 +88,18 @@ class PhysicalFinalTestApprovalRecordTests(unittest.TestCase):
                 with self.subTest(key=key), self.assertRaises(ValueError):
                     create_final_test_approval_record(request, forged, *chain)
 
+    def test_request_type_substitution_is_rejected(self):
+        with TemporaryDirectory() as tmp:
+            request, decision, chain, _ = _fixture(Path(tmp))
+            for key, value in (
+                ("training_completed", 1),
+                ("test_rows_consumed", False),
+            ):
+                forged = {**request, key: value}
+                bound = {**decision, "final_test_request_sha256": _sha(forged)}
+                with self.subTest(key=key), self.assertRaises(ValueError):
+                    create_final_test_approval_record(forged, bound, *chain)
+
     def test_record_edits_cannot_expand_scope(self):
         with TemporaryDirectory() as tmp:
             request, decision, chain, _ = _fixture(Path(tmp))
@@ -96,7 +114,9 @@ class PhysicalFinalTestApprovalRecordTests(unittest.TestCase):
             ):
                 forged = {**record, key: value}
                 with self.subTest(key=key), self.assertRaises(ValueError):
-                    validate_final_test_approval_record(forged, request, decision, *chain)
+                    validate_final_test_approval_record(
+                        forged, request, decision, *chain
+                    )
 
     def test_changed_validation_and_feature_bytes_rejected(self):
         with TemporaryDirectory() as tmp:
@@ -152,11 +172,17 @@ class PhysicalFinalTestApprovalRecordTests(unittest.TestCase):
             protocol = root / "protocol.json"
             protocol.write_text(json.dumps(chain[15]), encoding="utf-8")
             output = root / "final-test-approval.json"
-            for name, entries in (("card", sources[5]), ("review", sources[6]), ("feature", sources[4])):
+            for name, entries in (
+                ("card", sources[5]),
+                ("review", sources[6]),
+                ("feature", sources[4]),
+            ):
                 for path in entries:
                     args.extend((f"--{name}", str(path)))
             args.extend(("--protocol", str(protocol), "--out", str(output)))
-            record = approval_files(*paths, sources[5], sources[6], sources[4], protocol)
+            record = approval_files(
+                *paths, sources[5], sources[6], sources[4], protocol
+            )
             self.assertEqual(main(args), 0)
             self.assertEqual(json.loads(output.read_text(encoding="utf-8")), record)
             with self.assertRaisesRegex(ValueError, "refusing to overwrite"):
