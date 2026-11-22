@@ -9,7 +9,9 @@ from unittest.mock import patch
 
 from motorpulse import physical_final_test_scorer as scorer
 from motorpulse.physical_dataset import _read_features
-from motorpulse.physical_final_test_approval_record import create_final_test_approval_record
+from motorpulse.physical_final_test_approval_record import (
+    create_final_test_approval_record,
+)
 from motorpulse.physical_training_approval_request import _sha
 from test_physical_final_test_approval_record import _fixture
 
@@ -43,14 +45,20 @@ class PhysicalFinalTestScorerTests(unittest.TestCase):
                     self.assertIsNone(row["score"])
                     self.assertIsNone(row["review_flag"])
                 else:
-                    self.assertEqual(row["review_flag"], row["score"] > result["threshold"])
+                    self.assertEqual(
+                        row["review_flag"], row["score"] > result["threshold"]
+                    )
             self.assertEqual(
                 result["counts"]["test_rows_scored"],
-                sum(entry["extracted_records"] for entry in bundle["partitions"]["test"]),
+                sum(
+                    entry["extracted_records"] for entry in bundle["partitions"]["test"]
+                ),
             )
             self.assertEqual(
                 result["counts"]["test_rows_abstained"],
-                sum(entry["abstained_records"] for entry in bundle["partitions"]["test"]),
+                sum(
+                    entry["abstained_records"] for entry in bundle["partitions"]["test"]
+                ),
             )
             for key in (
                 "score_is_failure_probability",
@@ -65,7 +73,9 @@ class PhysicalFinalTestScorerTests(unittest.TestCase):
             ):
                 self.assertIs(result[key], False)
             self.assertNotIn(tmp, json.dumps(result))
-            scorer.validate_physical_final_test_result(result, record, request, decision, *chain)
+            scorer.validate_physical_final_test_result(
+                result, record, request, decision, *chain
+            )
 
     def test_no_test_calculation_before_approval(self):
         with TemporaryDirectory() as tmp:
@@ -80,7 +90,10 @@ class PhysicalFinalTestScorerTests(unittest.TestCase):
                     )
                 with self.assertRaises(ValueError):
                     scorer.score_physical_final_test(
-                        record, request, {**decision, "human_affirmation": "continue"}, *chain
+                        record,
+                        request,
+                        {**decision, "human_affirmation": "continue"},
+                        *chain,
                     )
                 score.assert_not_called()
 
@@ -108,7 +121,9 @@ class PhysicalFinalTestScorerTests(unittest.TestCase):
     def test_snapshots_are_shared_across_validation_and_scoring(self):
         with TemporaryDirectory() as tmp:
             record, request, decision, chain, sources = _approved(Path(tmp))
-            expected = scorer.score_physical_final_test(record, request, decision, *chain)
+            expected = scorer.score_physical_final_test(
+                record, request, decision, *chain
+            )
             original = sources[4][0]
             real_validate = scorer.validate_final_test_approval_record
 
@@ -117,9 +132,13 @@ class PhysicalFinalTestScorerTests(unittest.TestCase):
                 original.write_bytes(original.read_bytes() + b" ")
 
             with patch.object(
-                scorer, "validate_final_test_approval_record", side_effect=mutate_original
+                scorer,
+                "validate_final_test_approval_record",
+                side_effect=mutate_original,
             ):
-                actual = scorer.score_physical_final_test(record, request, decision, *chain)
+                actual = scorer.score_physical_final_test(
+                    record, request, decision, *chain
+                )
             self.assertEqual(actual, expected)
             with self.assertRaises(ValueError):
                 scorer.score_physical_final_test(record, request, decision, *chain)
@@ -145,20 +164,27 @@ class PhysicalFinalTestScorerTests(unittest.TestCase):
                                 model["preprocessing"]["effective_scales"],
                             )
             with patch.object(scorer, "_vector", wraps=scorer._vector) as vector:
-                first = scorer.score_physical_final_test(record, request, decision, *chain)
+                first = scorer.score_physical_final_test(
+                    record, request, decision, *chain
+                )
             self.assertEqual(
                 {call.args[0]["input_frame_sha256"] for call in vector.call_args_list},
                 expected_hashes,
             )
             self.assertEqual(
-                {row["input_frame_sha256"]: row["score"] for row in first["rows"] if row["status"] == "scored"},
+                {
+                    row["input_frame_sha256"]: row["score"]
+                    for row in first["rows"]
+                    if row["status"] == "scored"
+                },
                 expected_scores,
             )
             changed = list(chain)
             for index in (12, 13, 14):
                 changed[index] = list(reversed(changed[index]))
             self.assertEqual(
-                first, scorer.score_physical_final_test(record, request, decision, *changed)
+                first,
+                scorer.score_physical_final_test(record, request, decision, *changed),
             )
 
     def test_snapshot_limits_and_cleanup(self):
@@ -178,12 +204,21 @@ class PhysicalFinalTestScorerTests(unittest.TestCase):
             root = Path(tmp)
             record, request, decision, chain, sources = _approved(root)
             names = (
-                "final-test-approval-record", "final-test-request",
-                "final-test-decision", "validation-result",
-                "evaluation-approval-record", "evaluation-request",
-                "evaluation-decision", "model", "training-approval-record",
-                "training-request", "training-decision", "preregistration",
-                "bundle", "readiness", "split",
+                "final-test-approval-record",
+                "final-test-request",
+                "final-test-decision",
+                "validation-result",
+                "evaluation-approval-record",
+                "evaluation-request",
+                "evaluation-decision",
+                "model",
+                "training-approval-record",
+                "training-request",
+                "training-decision",
+                "preregistration",
+                "bundle",
+                "readiness",
+                "split",
             )
             args = []
             for name, value in zip(names, (record, request, decision, *chain[:12])):
@@ -193,7 +228,9 @@ class PhysicalFinalTestScorerTests(unittest.TestCase):
             protocol = root / "protocol.json"
             protocol.write_text(json.dumps(chain[15]), encoding="utf-8")
             for name, entries in (
-                ("card", sources[5]), ("review", sources[6]), ("feature", sources[4]),
+                ("card", sources[5]),
+                ("review", sources[6]),
+                ("feature", sources[4]),
             ):
                 for path in entries:
                     args.extend((f"--{name}", str(path)))

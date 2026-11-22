@@ -10,7 +10,12 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Iterator, Sequence
 
-from .physical_dataset import MAX_CARDS, MAX_FEATURE_BYTES, PUBLICATION_STATUS, _read_features
+from .physical_dataset import (
+    MAX_CARDS,
+    MAX_FEATURE_BYTES,
+    PUBLICATION_STATUS,
+    _read_features,
+)
 from .physical_final_test_approval_record import validate_final_test_approval_record
 from .physical_final_test_approval_request import write_final_test_approval_request
 from .physical_offline_trainer import _score, _vector
@@ -121,7 +126,9 @@ def _build_result(
         seen_cards == {entry["card_id"] for entry in entries.values()},
         "feature snapshots do not cover the approved cohort",
     )
-    rows.sort(key=lambda row: (row["card_id"], row["sequence"], row["input_frame_sha256"]))
+    rows.sort(
+        key=lambda row: (row["card_id"], row["sequence"], row["input_frame_sha256"])
+    )
     scored = sum(row["status"] == "scored" for row in rows)
     abstained = len(rows) - scored
     test_entries = bundle["partitions"][PARTITION]
@@ -304,7 +311,9 @@ def score_files(
     evaluation_request = _read_json(evaluation_request_path, "evaluation request")
     evaluation_decision = _read_json(evaluation_decision_path, "evaluation decision")
     model = _read_json(model_path, "physical model")
-    training_approval_record = _read_json(training_approval_record_path, "training approval")
+    training_approval_record = _read_json(
+        training_approval_record_path, "training approval"
+    )
     training_request = _read_json(training_request_path, "training request")
     training_decision = _read_json(training_decision_path, "training decision")
     preregistration = _read_json(preregistration_path, "preregistration")
@@ -312,7 +321,9 @@ def score_files(
     readiness = _read_json(readiness_path, "physical readiness")
     split_plan = _read_json(split_path, "physical split")
     run_cards = [_read_json(path, "physical run card") for path in card_paths]
-    review_manifests = [_read_json(path, "physical evidence review") for path in review_paths]
+    review_manifests = [
+        _read_json(path, "physical evidence review") for path in review_paths
+    ]
     protocol = _read_json(protocol_path, "physical protocol")
     return score_physical_final_test(
         record,
