@@ -109,9 +109,7 @@ def load_workflow_manifest(path: str | Path) -> tuple[dict[str, Any], Path]:
     return artifacts, base
 
 
-def stage_paths(
-    manifest_path: str | Path, stage: str
-) -> tuple[Path | list[Path], ...]:
+def stage_paths(manifest_path: str | Path, stage: str) -> tuple[Path | list[Path], ...]:
     """Resolve the single selected stage's explicit inputs."""
     _require(stage in _STAGE_FIELDS, "unsupported physical workflow stage")
     artifacts, parent = load_workflow_manifest(manifest_path)
@@ -138,8 +136,7 @@ def run_workflow_stage(
     """Execute exactly one stage, delegating all approvals to its original API."""
     _require(stage in _STAGE_FIELDS, "unsupported physical workflow stage")
     _require(
-        output_format == "json"
-        or (stage == "report" and output_format == "markdown"),
+        output_format == "json" or (stage == "report" and output_format == "markdown"),
         "Markdown output is supported only for report stage",
     )
     destination = Path(output_path)
@@ -175,9 +172,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", required=True, help="new write-once output")
     parser.add_argument("--format", choices=("json", "markdown"), default="json")
     args = parser.parse_args(argv)
-    run_workflow_stage(
-        args.manifest, args.stage, args.out, output_format=args.format
-    )
+    run_workflow_stage(args.manifest, args.stage, args.out, output_format=args.format)
     return 0
 
 

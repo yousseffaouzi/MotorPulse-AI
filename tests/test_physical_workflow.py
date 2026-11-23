@@ -53,9 +53,7 @@ def _manifest(root: Path):
         artifacts[name] = [str(path.relative_to(root)) for path in paths]
     manifest = root / "workflow.json"
     manifest.write_text(
-        json.dumps(
-            {"workflow_manifest_version": "1.0.0", "artifacts": artifacts}
-        ),
+        json.dumps({"workflow_manifest_version": "1.0.0", "artifacts": artifacts}),
         encoding="utf-8",
     )
     return manifest, artifacts, chain, result
@@ -80,9 +78,7 @@ class PhysicalWorkflowTests(unittest.TestCase):
             report = workflow.run_workflow_stage(
                 manifest, "report", root / "report.json"
             )
-            self.assertEqual(
-                json.loads((root / "report.json").read_text()), report
-            )
+            self.assertEqual(json.loads((root / "report.json").read_text()), report)
             self.assertEqual(report["final_test_result_sha256"], _sha(final_result))
             self.assertIsNone(report["label_dependent_metrics"])
 
@@ -114,9 +110,7 @@ class PhysicalWorkflowTests(unittest.TestCase):
             decision["human_affirmation"] = "continue"
             path.write_text(json.dumps(decision), encoding="utf-8")
             with self.assertRaises(ValueError):
-                workflow.run_workflow_stage(
-                    manifest, "test", root / "unapproved.json"
-                )
+                workflow.run_workflow_stage(manifest, "test", root / "unapproved.json")
             self.assertFalse((root / "unapproved.json").exists())
 
     def test_strict_manifest_schema_and_local_paths(self):
@@ -183,10 +177,14 @@ class PhysicalWorkflowTests(unittest.TestCase):
                 self.assertEqual(
                     workflow.main(
                         [
-                            "--stage", "report",
-                            "--manifest", str(manifest),
-                            "--out", str(output),
-                            "--format", "markdown",
+                            "--stage",
+                            "report",
+                            "--manifest",
+                            str(manifest),
+                            "--out",
+                            str(output),
+                            "--format",
+                            "markdown",
                         ]
                     ),
                     0,
