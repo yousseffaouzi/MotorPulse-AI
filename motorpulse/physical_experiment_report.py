@@ -183,9 +183,7 @@ def validate_experiment_report(
         protocol,
     )
     _require(
-        type(report) is dict
-        and report == expected
-        and _sha(report) == _sha(expected),
+        type(report) is dict and report == expected and _sha(report) == _sha(expected),
         "physical experiment report does not match exact verified results",
     )
 

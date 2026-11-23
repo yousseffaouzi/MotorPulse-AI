@@ -30,9 +30,7 @@ class PhysicalExperimentReportTests(unittest.TestCase):
                 counts = raw["counts"]
                 scored = counts[f"{name}_rows_scored"]
                 self.assertEqual(summary["windows_scored"], scored)
-                self.assertEqual(
-                    summary["windows_total"], counts[f"{name}_rows_total"]
-                )
+                self.assertEqual(summary["windows_total"], counts[f"{name}_rows_total"])
                 self.assertEqual(
                     summary["windows_abstained"], counts[f"{name}_rows_abstained"]
                 )
