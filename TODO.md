@@ -214,7 +214,7 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 | MP-074 | DONE | P1 | Manifest-driven workflow | [Issue #114](https://github.com/yousseffaouzi/MotorPulse-AI/issues/114) |
 | MP-075 | DONE | P1 | Single-read feature digests | [Issue #116](https://github.com/yousseffaouzi/MotorPulse-AI/issues/116) |
 | MP-076 | DONE | P1 | Shared bounded feature snapshots | [Issue #118](https://github.com/yousseffaouzi/MotorPulse-AI/issues/118) |
-| MP-077 | IN PROGRESS | P1 | Consolidated physical operator guide | [Issue #120](https://github.com/yousseffaouzi/MotorPulse-AI/issues/120); exact-head CI pending |
+| MP-077 | DONE | P1 | Consolidated physical operator guide | [PR #121](https://github.com/yousseffaouzi/MotorPulse-AI/pull/121); qualified before merge |
 
 MP-076: verified merge `190ed5483687ab09ae1e7ed5c7186acb1313e2ab`; PR #119, Quality Gates run `45294823494`, all eight gates passed with 679 tests. Completion here denotes fixture-qualified software only, not real-data collection, actual human authorization, physical-model performance, or industrial readiness. MP-016 remains ON HOLD.
 

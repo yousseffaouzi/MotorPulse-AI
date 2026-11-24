@@ -21,9 +21,8 @@ class PhysicalOperatorDocumentationTests(unittest.TestCase):
                 self.assertTrue((guide.parent / target).is_file())
 
     def test_guide_preserves_operator_boundaries(self):
-        body = (ROOT / "docs" / "PHYSICAL_OPERATOR_GUIDE.md").read_text(
-            encoding="utf-8"
-        )
+        guide = ROOT / "docs" / "PHYSICAL_OPERATOR_GUIDE.md"
+        body = guide.read_text(encoding="utf-8")
         for term in (
             "three distinct physical assets",
             "local_only_do_not_redistribute",

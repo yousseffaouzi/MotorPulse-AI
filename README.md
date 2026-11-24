@@ -437,7 +437,6 @@ Later development software (MP-057–MP-076, not part of the published v0.1.1 ta
 
 ## Planned engineering work
 
-- Consolidate the physical-data operator documentation and reconcile the [roadmap](TODO.md).
 - Prepare a separately reviewed ESP32 bench acquisition plan before any hardware activation.
 - Collect authorized real measurements, review independent evidence, and evaluate the frozen offline research baseline on independent physical assets. No synthetic metric is evidence of physical performance.
 - MP-016 remains ON HOLD: authenticated device transport, live ingestion, PLC/control and remote deployment require separate security and machine-safety review.
