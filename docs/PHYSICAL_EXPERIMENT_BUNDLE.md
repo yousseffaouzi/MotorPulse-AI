@@ -15,6 +15,15 @@ MP-062 also records a SHA-256 over the **exact feature bytes** currently stored 
 
 A semantically equivalent file with different whitespace can retain the canonical feature digest but will have a different exact file digest. Re-validating an existing bundle against that changed file therefore fails.
 
+MP-075 hardens the reader: the canonical digest, exact byte digest and card
+metadata now come from one bounded byte stream per feature per audit pass.
+The actual bytes read are checked against the size ceiling, even if the file
+grows after its initial size check. The separate replay pass during bundle
+creation detects a change between the two reads. This preserves the existing
+bundle schema and digest algorithm. It is not an atomic filesystem snapshot:
+concurrent changes during a read or changes between later pipeline operations
+remain outside this guarantee. Use stable files on a trusted local filesystem.
+
 ## End-to-end source revalidation
 
 Before auditing files, MP-062 recomputes MP-061 readiness from:
