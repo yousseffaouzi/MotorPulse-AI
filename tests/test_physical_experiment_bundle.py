@@ -191,11 +191,15 @@ class PhysicalExperimentBundleTests(unittest.TestCase):
             for raw in variants:
                 with self.subTest(raw_length=len(raw)):
                     path.write_bytes(raw)
-                    rows, canonical, exact = physical_dataset._read_feature_digests(path)
+                    rows, canonical, exact = physical_dataset._read_feature_digests(
+                        path
+                    )
                     self.assertEqual(rows, [row])
                     self.assertEqual(canonical, cards[0]["features_sha256"])
                     self.assertEqual(exact, hashlib.sha256(raw).hexdigest())
-                    self.assertEqual(physical_dataset._read_features(path), (rows, canonical))
+                    self.assertEqual(
+                        physical_dataset._read_features(path), (rows, canonical)
+                    )
 
     def test_audit_pass_reads_each_feature_once(self):
         with TemporaryDirectory() as tmp:
@@ -238,10 +242,10 @@ class PhysicalExperimentBundleTests(unittest.TestCase):
                 "_read_feature_digests",
                 side_effect=read_then_change,
             ):
-                with self.assertRaisesRegex(ValueError, "bundle does not match sources"):
-                    create_experiment_bundle(
-                        readiness, split, cards, reviews, features
-                    )
+                with self.assertRaisesRegex(
+                    ValueError, "bundle does not match sources"
+                ):
+                    create_experiment_bundle(readiness, split, cards, reviews, features)
             self.assertTrue(changed)
 
     def test_actual_stream_size_limit_is_enforced_after_stat(self):
@@ -253,7 +257,9 @@ class PhysicalExperimentBundleTests(unittest.TestCase):
                 patch.object(physical_dataset, "MAX_FEATURE_BYTES", len(raw)),
                 patch.object(Path, "open", return_value=BytesIO(raw + b" ")),
             ):
-                with self.assertRaisesRegex(ValueError, "exceeds the limit during read"):
+                with self.assertRaisesRegex(
+                    ValueError, "exceeds the limit during read"
+                ):
                     physical_dataset._read_feature_digests(path)
 
     def test_feature_path_order_does_not_change_bundle(self):
