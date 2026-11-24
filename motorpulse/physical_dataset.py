@@ -291,7 +291,10 @@ def _validate_feature_report(report: dict[str, Any]) -> None:
     )
 
 
-def _read_features(path: str | Path) -> tuple[list[dict[str, Any]], str]:
+def _read_feature_digests(
+    path: str | Path,
+) -> tuple[list[dict[str, Any]], str, str]:
+    """Parse rows and hash the exact same bounded byte stream."""
     source = Path(path)
     _require(
         source.is_file() and not source.is_symlink(),
@@ -304,8 +307,17 @@ def _read_features(path: str | Path) -> tuple[list[dict[str, Any]], str]:
     )
     rows: list[dict[str, Any]] = []
     digest = hashlib.sha256()
+    raw_digest = hashlib.sha256()
+    consumed = 0
     with source.open("rb") as stream:
-        for line_number, raw in enumerate(stream, start=1):
+        while raw := stream.readline(MAX_FEATURE_BYTES - consumed + 1):
+            consumed += len(raw)
+            _require(
+                consumed <= MAX_FEATURE_BYTES,
+                "feature JSONL size exceeds the limit during read",
+            )
+            raw_digest.update(raw)
+            line_number = len(rows) + 1
             _require(raw.strip() != b"", f"feature row {line_number} is blank")
             try:
                 row = _strict_json(raw.decode("utf-8"), f"feature row {line_number}")
@@ -316,7 +328,12 @@ def _read_features(path: str | Path) -> tuple[list[dict[str, Any]], str]:
             digest.update(b"\n")
             rows.append(row)
     _require(rows, "feature JSONL contains no rows")
-    return rows, digest.hexdigest()
+    return rows, digest.hexdigest(), raw_digest.hexdigest()
+
+
+def _read_features(path: str | Path) -> tuple[list[dict[str, Any]], str]:
+    rows, digest, _ = _read_feature_digests(path)
+    return rows, digest
 
 
 def create_run_card(

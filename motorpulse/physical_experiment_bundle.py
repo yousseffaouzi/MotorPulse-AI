@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 from typing import Any, Sequence
 
-from .physical_dataset import PARTITIONS, PUBLICATION_STATUS, _read_features
+from .physical_dataset import PARTITIONS, PUBLICATION_STATUS, _read_feature_digests
 from .physical_training_readiness import (
     _read_json,
     assess_training_readiness,
@@ -61,21 +61,12 @@ def _sha(value: Any) -> str:
     return hashlib.sha256(_canonical_bytes(value)).hexdigest()
 
 
-def _raw_sha256(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        while chunk := stream.read(1024 * 1024):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def _verify_feature_file(path: str | Path, card: dict[str, Any]) -> dict[str, Any]:
-    source = Path(path)
-    _require(
-        source.is_file() and not source.is_symlink(),
-        "physical feature file must be an existing non-symlink file",
-    )
-    rows, canonical_digest = _read_features(source)
+def _verify_feature_rows(
+    rows: list[dict[str, Any]],
+    canonical_digest: str,
+    raw_digest: str,
+    card: dict[str, Any],
+) -> dict[str, Any]:
     _require(
         canonical_digest == card["features_sha256"],
         "physical feature content does not match its run card",
@@ -127,7 +118,7 @@ def _verify_feature_file(path: str | Path, card: dict[str, Any]) -> dict[str, An
         "session_id": card["session_id"],
         "asset_id": card["asset_id"],
         "features_sha256": canonical_digest,
-        "feature_file_sha256": _raw_sha256(source),
+        "feature_file_sha256": raw_digest,
         "records": len(rows),
         "extracted_records": counts.get("extracted", 0),
         "abstained_records": counts.get("abstained", 0),
@@ -172,8 +163,7 @@ def _build_bundle(
     files_by_card: dict[str, dict[str, Any]] = {}
     raw_hashes: set[str] = set()
     for path in feature_paths:
-        rows, digest = _read_features(path)
-        del rows
+        rows, digest, raw_digest = _read_feature_digests(path)
         _require(
             digest in cards_by_digest,
             "physical feature file is not part of the ready cohort",
@@ -183,7 +173,7 @@ def _build_bundle(
             card["card_id"] not in files_by_card,
             "duplicate physical feature file for run card",
         )
-        metadata = _verify_feature_file(path, card)
+        metadata = _verify_feature_rows(rows, digest, raw_digest, card)
         _require(
             metadata["feature_file_sha256"] not in raw_hashes,
             "duplicate physical feature file bytes",

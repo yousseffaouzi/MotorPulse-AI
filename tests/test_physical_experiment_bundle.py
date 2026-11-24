@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import hashlib
+from io import BytesIO
 import json
 from math import pi, sin
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
+from unittest.mock import patch
 
+from motorpulse import physical_dataset, physical_experiment_bundle
 from motorpulse.physical_dataset import asset_split, create_run_card, write_json
 from motorpulse.physical_evidence import create_review_manifest
 from motorpulse.physical_experiment_bundle import (
@@ -172,6 +176,91 @@ class PhysicalExperimentBundleTests(unittest.TestCase):
             rendered = json.dumps(bundle, sort_keys=True)
             self.assertNotIn("acceleration_g", rendered)
             self.assertNotIn(str(Path(tmp)), rendered)
+
+    def test_raw_and_canonical_digests_use_exact_same_read(self):
+        with TemporaryDirectory() as tmp:
+            _, cards, _, _, features, _, _ = _cohort(Path(tmp))
+            path = features[0]
+            original = path.read_bytes()
+            row = json.loads(original)
+            variants = (
+                original,
+                original.rstrip(b"\n") + b"  \r\n",
+                original.rstrip(b"\n"),
+            )
+            for raw in variants:
+                with self.subTest(raw_length=len(raw)):
+                    path.write_bytes(raw)
+                    rows, canonical, exact = physical_dataset._read_feature_digests(
+                        path
+                    )
+                    self.assertEqual(rows, [row])
+                    self.assertEqual(canonical, cards[0]["features_sha256"])
+                    self.assertEqual(exact, hashlib.sha256(raw).hexdigest())
+                    self.assertEqual(
+                        physical_dataset._read_features(path), (rows, canonical)
+                    )
+
+    def test_audit_pass_reads_each_feature_once(self):
+        with TemporaryDirectory() as tmp:
+            split, cards, reviews, readiness, features, _, _ = _cohort(Path(tmp))
+            with patch.object(
+                physical_experiment_bundle,
+                "_read_feature_digests",
+                wraps=physical_dataset._read_feature_digests,
+            ) as read:
+                bundle = create_experiment_bundle(
+                    readiness, split, cards, reviews, features
+                )
+            # Creation includes a separate replay validation pass.
+            self.assertEqual(
+                [call.args[0] for call in read.call_args_list], features * 2
+            )
+            by_card = {entry["card_id"]: entry for entry in bundle["source_files"]}
+            for card, path in zip(cards, features):
+                self.assertEqual(
+                    by_card[card["card_id"]]["feature_file_sha256"],
+                    hashlib.sha256(path.read_bytes()).hexdigest(),
+                )
+
+    def test_source_change_between_audit_passes_fails_closed(self):
+        with TemporaryDirectory() as tmp:
+            split, cards, reviews, readiness, features, _, _ = _cohort(Path(tmp))
+            original_reader = physical_dataset._read_feature_digests
+            changed = False
+
+            def read_then_change(path):
+                nonlocal changed
+                result = original_reader(path)
+                if path == features[0] and not changed:
+                    changed = True
+                    path.write_bytes(path.read_bytes().rstrip(b"\n") + b"  \n")
+                return result
+
+            with patch.object(
+                physical_experiment_bundle,
+                "_read_feature_digests",
+                side_effect=read_then_change,
+            ):
+                with self.assertRaisesRegex(
+                    ValueError, "bundle does not match sources"
+                ):
+                    create_experiment_bundle(readiness, split, cards, reviews, features)
+            self.assertTrue(changed)
+
+    def test_actual_stream_size_limit_is_enforced_after_stat(self):
+        with TemporaryDirectory() as tmp:
+            _, _, _, _, features, _, _ = _cohort(Path(tmp))
+            path = features[0]
+            raw = path.read_bytes()
+            with (
+                patch.object(physical_dataset, "MAX_FEATURE_BYTES", len(raw)),
+                patch.object(Path, "open", return_value=BytesIO(raw + b" ")),
+            ):
+                with self.assertRaisesRegex(
+                    ValueError, "exceeds the limit during read"
+                ):
+                    physical_dataset._read_feature_digests(path)
 
     def test_feature_path_order_does_not_change_bundle(self):
         with TemporaryDirectory() as tmp:
