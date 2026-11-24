@@ -36,7 +36,7 @@ class PhysicalOperatorDocumentationTests(unittest.TestCase):
             "--stage report",
         ):
             with self.subTest(term=term):
-                self.assertIn(term, body)
+                self.assertIn(term, " ".join(body.split()))
 
     def test_roadmap_includes_completed_physical_software(self):
         body = (ROOT / "TODO.md").read_text(encoding="utf-8")
