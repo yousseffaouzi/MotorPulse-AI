@@ -14,6 +14,7 @@ from typing import Any, Sequence
 
 from .physical_dataset import PUBLICATION_STATUS, _read_features
 from .physical_evaluation_approval_record import validate_evaluation_approval_record
+from .physical_feature_snapshot import snapshot_features
 from .physical_offline_trainer import _score, _vector
 from .physical_training_approval_request import _require, _sha
 from .physical_training_readiness import _read_json
@@ -295,51 +296,52 @@ def score_physical_validation(
     protocol: dict[str, Any],
 ) -> dict[str, Any]:
     """Score validation rows only after full MP-068 chain revalidation."""
-    validate_evaluation_approval_record(
-        evaluation_approval_record,
-        evaluation_request,
-        evaluation_decision,
-        model,
-        training_approval_record,
-        training_request,
-        training_decision,
-        preregistration,
-        bundle,
-        readiness,
-        split_plan,
-        run_cards,
-        review_manifests,
-        feature_paths,
-        protocol,
-    )
-    result = _build_result(
-        evaluation_approval_record,
-        evaluation_request,
-        model,
-        bundle,
-        split_plan,
-        run_cards,
-        feature_paths,
-    )
-    validate_physical_validation_result(
-        result,
-        evaluation_approval_record,
-        evaluation_request,
-        evaluation_decision,
-        model,
-        training_approval_record,
-        training_request,
-        training_decision,
-        preregistration,
-        bundle,
-        readiness,
-        split_plan,
-        run_cards,
-        review_manifests,
-        feature_paths,
-        protocol,
-    )
-    return result
+    with snapshot_features(feature_paths) as feature_paths:
+        validate_evaluation_approval_record(
+            evaluation_approval_record,
+            evaluation_request,
+            evaluation_decision,
+            model,
+            training_approval_record,
+            training_request,
+            training_decision,
+            preregistration,
+            bundle,
+            readiness,
+            split_plan,
+            run_cards,
+            review_manifests,
+            feature_paths,
+            protocol,
+        )
+        result = _build_result(
+            evaluation_approval_record,
+            evaluation_request,
+            model,
+            bundle,
+            split_plan,
+            run_cards,
+            feature_paths,
+        )
+        validate_physical_validation_result(
+            result,
+            evaluation_approval_record,
+            evaluation_request,
+            evaluation_decision,
+            model,
+            training_approval_record,
+            training_request,
+            training_decision,
+            preregistration,
+            bundle,
+            readiness,
+            split_plan,
+            run_cards,
+            review_manifests,
+            feature_paths,
+            protocol,
+        )
+        return result
 
 
 def validate_physical_validation_result(
@@ -361,78 +363,79 @@ def validate_physical_validation_result(
     protocol: dict[str, Any],
 ) -> None:
     """Recompute a validation-only result and reject broadened claims or stale data."""
-    _require(
-        type(result) is dict and set(result) == _RESULT_KEYS,
-        "physical validation result fields differ from v1 contract",
-    )
-    _require(
-        result["physical_validation_result_version"] == VALIDATION_RESULT_VERSION,
-        "unsupported physical validation result version",
-    )
-    _require(
-        result["result_kind"] == RESULT_KIND, "physical validation result kind changed"
-    )
-    _require(result["partition"] == PARTITION, "MP-069 may score validation only")
-    _require(
-        type(result["rows"]) is list
-        and all(type(row) is dict and set(row) == _ROW_KEYS for row in result["rows"]),
-        "physical validation result row fields differ from v1 contract",
-    )
-    _require(
-        result["score_is_failure_probability"] is False,
-        "physical validation score cannot become failure probability",
-    )
-    _require(
-        result["validation_scoring_authorized"] is True
-        and result["validation_scoring_completed"] is True,
-        "physical validation scoring state changed",
-    )
-    for field in (
-        "test_scoring_authorized",
-        "redistribution_cleared",
-        "deployment_authorized",
-        "model_refit_performed",
-        "preprocessing_refit_performed",
-        "threshold_recalibration_performed",
-        "diagnosis_performed",
-        "failure_probability_estimated",
-        "rul_estimated",
-    ):
-        _require(result[field] is False, f"MP-069 must keep {field}=false")
-    _require(
-        result["train_rows_consumed"] == 0 and result["test_rows_consumed"] == 0,
-        "MP-069 must not consume train or test rows for scoring",
-    )
-    validate_evaluation_approval_record(
-        evaluation_approval_record,
-        evaluation_request,
-        evaluation_decision,
-        model,
-        training_approval_record,
-        training_request,
-        training_decision,
-        preregistration,
-        bundle,
-        readiness,
-        split_plan,
-        run_cards,
-        review_manifests,
-        feature_paths,
-        protocol,
-    )
-    expected = _build_result(
-        evaluation_approval_record,
-        evaluation_request,
-        model,
-        bundle,
-        split_plan,
-        run_cards,
-        feature_paths,
-    )
-    _require(
-        result == expected,
-        "physical validation result does not match exact approved model and sources",
-    )
+    with snapshot_features(feature_paths) as feature_paths:
+        _require(
+            type(result) is dict and set(result) == _RESULT_KEYS,
+            "physical validation result fields differ from v1 contract",
+        )
+        _require(
+            result["physical_validation_result_version"] == VALIDATION_RESULT_VERSION,
+            "unsupported physical validation result version",
+        )
+        _require(
+            result["result_kind"] == RESULT_KIND, "physical validation result kind changed"
+        )
+        _require(result["partition"] == PARTITION, "MP-069 may score validation only")
+        _require(
+            type(result["rows"]) is list
+            and all(type(row) is dict and set(row) == _ROW_KEYS for row in result["rows"]),
+            "physical validation result row fields differ from v1 contract",
+        )
+        _require(
+            result["score_is_failure_probability"] is False,
+            "physical validation score cannot become failure probability",
+        )
+        _require(
+            result["validation_scoring_authorized"] is True
+            and result["validation_scoring_completed"] is True,
+            "physical validation scoring state changed",
+        )
+        for field in (
+            "test_scoring_authorized",
+            "redistribution_cleared",
+            "deployment_authorized",
+            "model_refit_performed",
+            "preprocessing_refit_performed",
+            "threshold_recalibration_performed",
+            "diagnosis_performed",
+            "failure_probability_estimated",
+            "rul_estimated",
+        ):
+            _require(result[field] is False, f"MP-069 must keep {field}=false")
+        _require(
+            result["train_rows_consumed"] == 0 and result["test_rows_consumed"] == 0,
+            "MP-069 must not consume train or test rows for scoring",
+        )
+        validate_evaluation_approval_record(
+            evaluation_approval_record,
+            evaluation_request,
+            evaluation_decision,
+            model,
+            training_approval_record,
+            training_request,
+            training_decision,
+            preregistration,
+            bundle,
+            readiness,
+            split_plan,
+            run_cards,
+            review_manifests,
+            feature_paths,
+            protocol,
+        )
+        expected = _build_result(
+            evaluation_approval_record,
+            evaluation_request,
+            model,
+            bundle,
+            split_plan,
+            run_cards,
+            feature_paths,
+        )
+        _require(
+            result == expected,
+            "physical validation result does not match exact approved model and sources",
+        )
 
 
 def score_files(

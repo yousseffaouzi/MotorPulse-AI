@@ -9,6 +9,10 @@ evidence reviews, protocol, and physical feature-file bytes.
 A copied approval record is not enough. The scorer revalidates the complete chain
 before producing a result.
 
+MP-076 captures bounded private feature copies for the entire scoring/replay
+operation. Nested training-model replay uses the same copies. See
+[snapshot guarantees and limitations](PHYSICAL_FEATURE_SNAPSHOTS.md).
+
 ## Frozen model only
 
 MP-069 uses the exact center, effective scales, and train-derived threshold already

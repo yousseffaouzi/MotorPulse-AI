@@ -24,8 +24,9 @@ a hostile local operator or guaranteed secure erasure.
 Full integrity replay reads all partitions and recomputes the prior train-only
 fit and validation-only scores in memory. No new training or threshold selection
 is performed; only test rows enter the new scoring operation. The source
-artifacts remain unchanged. Earlier stages do not offer the same snapshot
-guarantee, nor is the test partition cryptographically sealed.
+artifacts remain unchanged. MP-076 shares the bounded snapshot mechanism with
+training and validation operations and their replay validators. The test
+partition is not cryptographically sealed.
 
 The result binds the exact approval record, request, validation result, model,
 split and bundle. It records row-level scores, abstentions, and counts without
