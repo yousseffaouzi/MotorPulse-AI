@@ -373,12 +373,15 @@ def validate_physical_validation_result(
             "unsupported physical validation result version",
         )
         _require(
-            result["result_kind"] == RESULT_KIND, "physical validation result kind changed"
+            result["result_kind"] == RESULT_KIND,
+            "physical validation result kind changed",
         )
         _require(result["partition"] == PARTITION, "MP-069 may score validation only")
         _require(
             type(result["rows"]) is list
-            and all(type(row) is dict and set(row) == _ROW_KEYS for row in result["rows"]),
+            and all(
+                type(row) is dict and set(row) == _ROW_KEYS for row in result["rows"]
+            ),
             "physical validation result row fields differ from v1 contract",
         )
         _require(
