@@ -18,6 +18,7 @@ from typing import Any, Sequence
 from .feature_pipeline import FEATURES, UNITS as FEATURE_UNITS
 from .physical_dataset import PUBLICATION_STATUS, _read_features
 from .physical_experiment_preregistration import MODEL_FAMILY
+from .physical_feature_snapshot import snapshot_features
 from .physical_training_approval_record import validate_approval_record
 from .physical_training_approval_request import _require, _sha
 from .physical_training_readiness import _read_json
@@ -362,44 +363,45 @@ def train_physical_model(
     protocol: dict[str, Any],
 ) -> dict[str, Any]:
     """Fit the exact approved train-only physical baseline and nothing else."""
-    validate_approval_record(
-        approval_record,
-        request,
-        decision,
-        preregistration,
-        bundle,
-        readiness,
-        split_plan,
-        run_cards,
-        review_manifests,
-        feature_paths,
-        protocol,
-    )
-    model = _build_model(
-        approval_record,
-        request,
-        preregistration,
-        bundle,
-        split_plan,
-        run_cards,
-        feature_paths,
-        protocol,
-    )
-    validate_physical_model(
-        model,
-        approval_record,
-        request,
-        decision,
-        preregistration,
-        bundle,
-        readiness,
-        split_plan,
-        run_cards,
-        review_manifests,
-        feature_paths,
-        protocol,
-    )
-    return model
+    with snapshot_features(feature_paths) as feature_paths:
+        validate_approval_record(
+            approval_record,
+            request,
+            decision,
+            preregistration,
+            bundle,
+            readiness,
+            split_plan,
+            run_cards,
+            review_manifests,
+            feature_paths,
+            protocol,
+        )
+        model = _build_model(
+            approval_record,
+            request,
+            preregistration,
+            bundle,
+            split_plan,
+            run_cards,
+            feature_paths,
+            protocol,
+        )
+        validate_physical_model(
+            model,
+            approval_record,
+            request,
+            decision,
+            preregistration,
+            bundle,
+            readiness,
+            split_plan,
+            run_cards,
+            review_manifests,
+            feature_paths,
+            protocol,
+        )
+        return model
 
 
 def validate_physical_model(
@@ -417,58 +419,59 @@ def validate_physical_model(
     protocol: dict[str, Any],
 ) -> None:
     """Recompute the exact artifact and reject stale, broadened, or rescoped models."""
-    _require(
-        type(model) is dict and set(model) == _MODEL_KEYS,
-        "physical model artifact fields differ from v1 contract",
-    )
-    _require(
-        model["physical_model_version"] == PHYSICAL_MODEL_VERSION,
-        "unsupported physical model artifact version",
-    )
-    _require(
-        model["training_authorized"] is True,
-        "physical model lost training authorization",
-    )
-    _require(
-        model["training_completed"] is True,
-        "physical model training completion changed",
-    )
-    for field in (
-        "redistribution_cleared",
-        "model_scoring_authorized",
-        "diagnosis_authorized",
-        "failure_probability_authorized",
-        "rul_authorized",
-        "deployment_authorized",
-    ):
-        _require(model[field] is False, f"MP-066 must keep {field}=false")
-    validate_approval_record(
-        approval_record,
-        request,
-        decision,
-        preregistration,
-        bundle,
-        readiness,
-        split_plan,
-        run_cards,
-        review_manifests,
-        feature_paths,
-        protocol,
-    )
-    expected = _build_model(
-        approval_record,
-        request,
-        preregistration,
-        bundle,
-        split_plan,
-        run_cards,
-        feature_paths,
-        protocol,
-    )
-    _require(
-        model == expected,
-        "physical model artifact does not match exact approved sources and protocol",
-    )
+    with snapshot_features(feature_paths) as feature_paths:
+        _require(
+            type(model) is dict and set(model) == _MODEL_KEYS,
+            "physical model artifact fields differ from v1 contract",
+        )
+        _require(
+            model["physical_model_version"] == PHYSICAL_MODEL_VERSION,
+            "unsupported physical model artifact version",
+        )
+        _require(
+            model["training_authorized"] is True,
+            "physical model lost training authorization",
+        )
+        _require(
+            model["training_completed"] is True,
+            "physical model training completion changed",
+        )
+        for field in (
+            "redistribution_cleared",
+            "model_scoring_authorized",
+            "diagnosis_authorized",
+            "failure_probability_authorized",
+            "rul_authorized",
+            "deployment_authorized",
+        ):
+            _require(model[field] is False, f"MP-066 must keep {field}=false")
+        validate_approval_record(
+            approval_record,
+            request,
+            decision,
+            preregistration,
+            bundle,
+            readiness,
+            split_plan,
+            run_cards,
+            review_manifests,
+            feature_paths,
+            protocol,
+        )
+        expected = _build_model(
+            approval_record,
+            request,
+            preregistration,
+            bundle,
+            split_plan,
+            run_cards,
+            feature_paths,
+            protocol,
+        )
+        _require(
+            model == expected,
+            "physical model artifact does not match exact approved sources and protocol",
+        )
 
 
 def train_files(

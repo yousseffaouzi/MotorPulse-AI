@@ -9,6 +9,10 @@ MP-059 split, run cards, evidence reviews, and the exact MP-058 feature-file byt
 A copied approval record is not sufficient. The trainer revalidates all of those
 sources before it reads rows for fitting.
 
+MP-076 captures the feature cohort into bounded private temporary files before
+approval replay and fitting. The same copies are used for nested validation.
+See [snapshot guarantees and limitations](PHYSICAL_FEATURE_SNAPSHOTS.md).
+
 ## What MP-066 fits
 
 The only supported model family is

@@ -4,18 +4,12 @@ from __future__ import annotations
 
 import argparse
 from contextlib import contextmanager
-import hashlib
 from math import isfinite
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Any, Iterator, Sequence
 
-from .physical_dataset import (
-    MAX_CARDS,
-    MAX_FEATURE_BYTES,
-    PUBLICATION_STATUS,
-    _read_features,
-)
+from .physical_dataset import PUBLICATION_STATUS, _read_feature_digests
+from .physical_feature_snapshot import MAX_SNAPSHOT_BYTES, snapshot_features
 from .physical_final_test_approval_record import validate_final_test_approval_record
 from .physical_final_test_approval_request import write_final_test_approval_request
 from .physical_offline_trainer import _score, _vector
@@ -24,41 +18,13 @@ from .physical_training_readiness import _read_json
 
 RESULT_VERSION = "1.0.0"
 PARTITION = "test"
-# Bound temporary disk usage in addition to each existing feature-file limit.
-MAX_SNAPSHOT_BYTES = 4 * MAX_FEATURE_BYTES
 
 
 @contextmanager
 def _snapshot_features(
     paths: Sequence[str | Path],
 ) -> Iterator[list[Path]]:
-    """Capture the local inputs once; never expose snapshot paths in results."""
-    _require(
-        type(paths) in (list, tuple) and 3 <= len(paths) <= MAX_CARDS,
-        "invalid number of physical feature files",
-    )
-    total = 0
-    with TemporaryDirectory(prefix="motorpulse-final-test-") as directory:
-        snapshots = []
-        for index, path in enumerate(paths):
-            source = Path(path)
-            _require(
-                source.is_file() and not source.is_symlink(),
-                "feature source must be an existing non-symlink file",
-            )
-            target = Path(directory) / f"{index}.jsonl"
-            size = 0
-            with source.open("rb") as incoming, target.open("xb") as outgoing:
-                while chunk := incoming.read(1024 * 1024):
-                    size += len(chunk)
-                    total += len(chunk)
-                    _require(
-                        size <= MAX_FEATURE_BYTES and total <= MAX_SNAPSHOT_BYTES,
-                        "physical feature snapshot exceeds size limit",
-                    )
-                    outgoing.write(chunk)
-            _require(size > 0, "physical feature snapshot is empty")
-            snapshots.append(target)
+    with snapshot_features(paths, max_bytes=MAX_SNAPSHOT_BYTES) as snapshots:
         yield snapshots
 
 
@@ -87,15 +53,13 @@ def _build_result(
     scales = model["preprocessing"]["effective_scales"]
     threshold = float(model["calibration"]["threshold"])
     for path in feature_paths:
-        feature_rows, digest = _read_features(path)
+        feature_rows, digest, raw_digest = _read_feature_digests(path)
         _require(digest in entries, "feature snapshot is outside approved cohort")
         entry = entries[digest]
         card_id = entry["card_id"]
         _require(card_id not in seen_cards, "duplicate feature snapshot")
         seen_cards.add(card_id)
-        # Verify raw bytes as well as parsed feature identity.
-        with path.open("rb") as stream:
-            raw_digest = hashlib.file_digest(stream, "sha256").hexdigest()
+        # Both digests come from the same bounded read.
         _require(
             raw_digest == entry["feature_file_sha256"],
             "feature snapshot bytes differ from approved bundle",
