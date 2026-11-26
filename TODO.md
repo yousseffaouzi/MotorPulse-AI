@@ -190,6 +190,36 @@ From a fresh clone (Python 3.11+), a contributor can run a reproducible multi-mo
 **Exit criteria:** Fresh-clone setup and evaluation verified; tagged release and community documentation available.
 
 
+## Milestone 6 — Offline physical-data research software
+
+| ID | Status | Priority | Task | Acceptance evidence |
+|---|---|---|---|---|
+| MP-057 | DONE | P1 | Define local capture contract | [Issue #80](https://github.com/yousseffaouzi/MotorPulse-AI/issues/80) |
+| MP-058 | DONE | P1 | Extract non-diagnostic physical features | [Issue #82](https://github.com/yousseffaouzi/MotorPulse-AI/issues/82) |
+| MP-059 | DONE | P1 | Asset-disjoint cards and split | [Issue #84](https://github.com/yousseffaouzi/MotorPulse-AI/issues/84) |
+| MP-060 | DONE | P1 | Independent calibration/evidence review | [Issue #86](https://github.com/yousseffaouzi/MotorPulse-AI/issues/86) |
+| MP-061 | DONE | P1 | Training readiness | [Issue #88](https://github.com/yousseffaouzi/MotorPulse-AI/issues/88) |
+| MP-062 | DONE | P1 | Exact feature bundle audit | [Issue #90](https://github.com/yousseffaouzi/MotorPulse-AI/issues/90) |
+| MP-063 | DONE | P1 | Experiment preregistration | [Issue #92](https://github.com/yousseffaouzi/MotorPulse-AI/issues/92) |
+| MP-064 | DONE | P1 | Training approval request | [Issue #94](https://github.com/yousseffaouzi/MotorPulse-AI/issues/94) |
+| MP-065 | DONE | P1 | Training approval record | [Issue #96](https://github.com/yousseffaouzi/MotorPulse-AI/issues/96) |
+| MP-066 | DONE | P1 | Offline train-only baseline | [Issue #98](https://github.com/yousseffaouzi/MotorPulse-AI/issues/98) |
+| MP-067 | DONE | P1 | Validation approval request | [Issue #100](https://github.com/yousseffaouzi/MotorPulse-AI/issues/100) |
+| MP-068 | DONE | P1 | Validation approval record | [Issue #102](https://github.com/yousseffaouzi/MotorPulse-AI/issues/102) |
+| MP-069 | DONE | P1 | Offline frozen-model validation | [Issue #104](https://github.com/yousseffaouzi/MotorPulse-AI/issues/104) |
+| MP-070 | DONE | P1 | Final-test approval request | [Issue #106](https://github.com/yousseffaouzi/MotorPulse-AI/issues/106) |
+| MP-071 | DONE | P1 | Final-test approval record | [Issue #108](https://github.com/yousseffaouzi/MotorPulse-AI/issues/108) |
+| MP-072 | DONE | P1 | Offline frozen-model test scoring | [Issue #110](https://github.com/yousseffaouzi/MotorPulse-AI/issues/110) |
+| MP-073 | DONE | P1 | Verified experiment report | [Issue #112](https://github.com/yousseffaouzi/MotorPulse-AI/issues/112) |
+| MP-074 | DONE | P1 | Manifest-driven workflow | [Issue #114](https://github.com/yousseffaouzi/MotorPulse-AI/issues/114) |
+| MP-075 | DONE | P1 | Single-read feature digests | [Issue #116](https://github.com/yousseffaouzi/MotorPulse-AI/issues/116) |
+| MP-076 | DONE | P1 | Shared bounded feature snapshots | [Issue #118](https://github.com/yousseffaouzi/MotorPulse-AI/issues/118) |
+| MP-077 | DONE | P1 | Consolidated physical operator guide | [PR #121](https://github.com/yousseffaouzi/MotorPulse-AI/pull/121); qualified before merge |
+
+MP-076: verified merge `190ed5483687ab09ae1e7ed5c7186acb1313e2ab`; PR #119, Quality Gates run `45294823494`, all eight gates passed with 679 tests. Completion here denotes fixture-qualified software only, not real-data collection, actual human authorization, physical-model performance, or industrial readiness. MP-016 remains ON HOLD.
+
+**Exit criteria:** Documented offline source, review, authorization, fit, scoring and report chain; no hardware activation.
+
 ## Dependencies / suggested order
 
 1. `MP-006 → MP-017 → MP-018 → MP-019 → MP-021`: telemetry and deterministic runtime.

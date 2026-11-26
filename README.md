@@ -431,12 +431,15 @@ The historical dashboard shows a **Synthetic rule incidents** table, recent chan
 python -m motorpulse --paused --database ./motorpulse-local.sqlite3
 ```
 
+## Offline physical-data research (development main)
+
+Later development software (MP-057–MP-076, not part of the published v0.1.1 tag) supports offline capture-v1 validation, non-diagnostic feature extraction, asset-disjoint dataset cards, evidence review, preregistration, explicit separate approval records, a train-only physical anomaly baseline, frozen validation/test scoring, reporting and bounded feature snapshots. These paths have been tested using generated fixtures, not actual motor measurements. Start with the [physical experiment operator guide](docs/PHYSICAL_OPERATOR_GUIDE.md) and [manifest workflow](docs/PHYSICAL_WORKFLOW.md). The existing dashboard is synthetic; physical artifacts remain local-only. No hardware acquisition, diagnosis, RUL or industrial deployment is established.
+
 ## Planned engineering work
-1. Add configurable fault fixtures and labelled synthetic datasets.
-2. Import publicly available NASA IMS bearing data *after confirming its reuse terms*; do not commit third-party data dumps.
-3. Train and evaluate classical anomaly detectors against a reproducible baseline.
-4. Add model cards, confusion matrices, robustness tests and clear failure modes.
-5. Add persistent event storage, authenticated APIs, streaming, then hardware adapters in a **later, separate phase**.
+
+- Prepare a separately reviewed ESP32 bench acquisition plan before any hardware activation.
+- Collect authorized real measurements, review independent evidence, and evaluate the frozen offline research baseline on independent physical assets. No synthetic metric is evidence of physical performance.
+- MP-016 remains ON HOLD: authenticated device transport, live ingestion, PLC/control and remote deployment require separate security and machine-safety review.
 
 ## Safety and limitations
 These scores are **not** validated failure probabilities or remaining useful life predictions. This demonstration is not industrial condition-monitoring equipment. Simulated data cannot establish real-world ML accuracy; independent field validation will be required.
