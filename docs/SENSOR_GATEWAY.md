@@ -50,6 +50,10 @@ That result is **not authorization to run the synthetic anomaly model on physica
 
 ## Intended ESP32 path
 
+See the [MP-078 bench design proposal](ESP32_BENCH_PLAN.md) for candidate
+components, sampling-rate incompatibility, calibration, and independent
+hardware review gates. The proposal does not authorize hardware operation.
+
 A future hardware prototype can follow this staged path:
 
 1. ESP32 samples an accelerometer and reads temperature/RPM sensors.
