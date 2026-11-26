@@ -30,10 +30,8 @@ def _fixture_payload(frame: dict[str, Any]) -> bytes:
         frame[key].startswith("fixture-") for key in ("device_id", "asset_id")
     ):
         raise ValueError("fixture identities required")
-    if (
-        frame["sample_rate_hz"] != NATIVE_RATE
-        or frame["sample_count"] != NATIVE_RATE
-    ):
+    sampling = (frame["sample_rate_hz"], frame["sample_count"])
+    if sampling != (NATIVE_RATE, NATIVE_RATE):
         raise ValueError("native fixture rate and sample count must be 4000")
     if not 0 < len(payload) <= MAX_PAYLOAD_BYTES:
         raise ValueError("fixture payload exceeds size limit")

@@ -26,10 +26,8 @@ def _native(sequence=1):
 
 
 def _packet(payload):
-    return (
-        transport.HEADER.pack(transport.MAGIC, len(payload), zlib.crc32(payload))
-        + payload
-    )
+    header = transport.HEADER.pack(transport.MAGIC, len(payload), zlib.crc32(payload))
+    return header + payload
 
 
 class FixtureAcquisitionTests(unittest.TestCase):
@@ -48,7 +46,8 @@ class FixtureAcquisitionTests(unittest.TestCase):
             self.assertEqual(report["sequence_gaps"], 0)
             self.assertEqual(report["current_pipeline_sampling_compatible_frames"], 0)
             rows, _ = extract_capture(path)
-            self.assertEqual([row["feature_status"] for row in rows], ["abstained"] * 2)
+            statuses = [row["feature_status"] for row in rows]
+            self.assertEqual(statuses, ["abstained"] * 2)
 
     def test_missing_channel_is_preserved(self):
         frame = _native()
@@ -111,7 +110,8 @@ class FixtureAcquisitionTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     transport.encode_fixture_packet(frame)
                 with self.assertRaises(ValueError):
-                    transport.decode_fixture_batch(_packet(canonical_frame_bytes(frame)))
+                    payload = canonical_frame_bytes(frame)
+                    transport.decode_fixture_batch(_packet(payload))
 
     def test_rejects_gaps_replays_clock_and_provenance_changes(self):
         first = transport.encode_fixture_packet(_native())
