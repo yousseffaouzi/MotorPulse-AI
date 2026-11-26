@@ -26,9 +26,7 @@ def _fixture_payload(frame: dict[str, Any]) -> bytes:
         payload = canonical_frame_bytes(frame)
     except (TypeError, OverflowError, RecursionError) as exc:
         raise ValueError("invalid fixture frame") from exc
-    if not all(
-        frame[key].startswith("fixture-") for key in ("device_id", "asset_id")
-    ):
+    if not all(frame[key].startswith("fixture-") for key in ("device_id", "asset_id")):
         raise ValueError("fixture identities required")
     sampling = (frame["sample_rate_hz"], frame["sample_count"])
     if sampling != (NATIVE_RATE, NATIVE_RATE):
